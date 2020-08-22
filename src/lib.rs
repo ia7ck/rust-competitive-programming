@@ -1,5 +1,6 @@
 mod binary_search;
 mod next_permutation;
+mod util;
 
 #[cfg(test)]
 mod tests {
