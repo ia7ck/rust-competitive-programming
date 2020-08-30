@@ -1,18 +1,15 @@
-#[macro_use]
-mod util {
-    #[allow(unused_macros)]
-    macro_rules! chmin {
-        ($a:expr, $b:expr) => {
-            std::cmp::min($a, $b)
-        };
-    }
+#[allow(unused_macros)]
+macro_rules! chmin {
+    ($a:expr, $b:expr) => {
+        std::cmp::min($a, $b)
+    };
+}
 
-    #[allow(unused_macros)]
-    macro_rules! chmax {
-        ($a:expr, $b:expr) => {
-            std::cmp::max($a, $b)
-        };
-    }
+#[allow(unused_macros)]
+macro_rules! chmax {
+    ($a:expr, $b:expr) => {
+        std::cmp::max($a, $b)
+    };
 }
 
 #[cfg(test)]
