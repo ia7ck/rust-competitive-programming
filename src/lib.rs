@@ -1,4 +1,5 @@
 mod binary_search;
+mod factorization;
 mod next_permutation;
 mod util;
 
