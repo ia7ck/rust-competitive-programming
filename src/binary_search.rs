@@ -6,9 +6,9 @@ mod binary_search {
         fn split_by(&self, x: &T) -> (Range<usize>, Range<usize>, Range<usize>);
     }
 
-    // min index self[i] >= x
-    // that is, any j (j < i) holds self[j] < x
     impl<T: Ord> BinarySearch<T> for [T] {
+        // min index self[i] >= x
+        // any j (j < i) holds self[j] < x
         fn lower_bound(&self, x: &T) -> usize {
             if self[0] >= *x {
                 return 0;
@@ -28,7 +28,7 @@ mod binary_search {
         }
 
         // min index self[i] > x
-        // that is, any j (j < i) holds self[j] <= x
+        // any j (j < i) holds self[j] <= x
         fn upper_bound(&self, x: &T) -> usize {
             if self[0] > *x {
                 return 0;
