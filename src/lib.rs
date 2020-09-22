@@ -1,7 +1,7 @@
-mod binary_search;
-mod factorization;
-mod next_permutation;
-mod util;
+pub mod binary_search;
+pub mod factorization;
+pub mod next_permutation;
+pub mod util;
 
 #[cfg(test)]
 mod tests {

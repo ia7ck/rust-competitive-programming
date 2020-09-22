@@ -1,4 +1,3 @@
-#[allow(dead_code)]
 pub fn min_factors(n: usize) -> Vec<usize> {
     let mut result = (0..n).map(|i| i).collect::<Vec<_>>();
     for i in 2..n {
