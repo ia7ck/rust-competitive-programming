@@ -19,6 +19,7 @@ where
             dat: vec![e; n + 1],
         }
     }
+    // 0-indexed
     // a[k] += x
     pub fn add(&mut self, k: usize, x: T) {
         assert!(k < self.n);
@@ -28,6 +29,7 @@ where
             k += k & (-k);
         }
     }
+    // 1-indexed
     // a[1] + a[2] + ... + a[r]
     fn _sum(&self, r: usize) -> T {
         assert!(r <= self.n);
@@ -39,6 +41,7 @@ where
         }
         result
     }
+    // 0-indexed
     // a[l] + a[l + 1] + ... + a[r - 1]
     pub fn sum(&self, range: std::ops::Range<usize>) -> T {
         let (l, r) = (range.start, range.end);
