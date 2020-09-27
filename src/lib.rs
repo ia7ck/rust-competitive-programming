@@ -3,6 +3,7 @@ pub mod factorization;
 pub mod fenwick_tree;
 pub mod next_permutation;
 pub mod util;
+pub mod z_algorithm;
 
 #[cfg(test)]
 mod tests {
