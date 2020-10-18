@@ -11,6 +11,7 @@ where
     T: std::ops::Sub<Output = T>,
     T: std::ops::SubAssign,
 {
+    /// 長さ `n` の列を作り、初期値 `e` で埋めます。雰囲気は `let mut a = vec![e; n];` です。
     pub fn new(n: usize, e: T) -> Self {
         let n = n.next_power_of_two();
         Self {
@@ -21,6 +22,7 @@ where
     }
     // 0-indexed
     // a[k] += x
+    /// `k` 番目の値に `x` を足します。`k` は 0-indexed です。`a[k] += x;`
     pub fn add(&mut self, k: usize, x: T) {
         assert!(k < self.n);
         let mut k = (k + 1) as i32;
@@ -43,6 +45,22 @@ where
     }
     // 0-indexed
     // a[l] + a[l + 1] + ... + a[r - 1]
+    /// 区間和を計算します。`range` が `l..r` だとして `a[l..r].iter().sum();` という感じです。
+    /// # Examples
+    /// ```
+    /// use crate::rust_competitive_programming::fenwick_tree::FenwickTree;
+    /// let mut ft = FenwickTree::new(5, 0);
+    /// ft.add(0, 1);
+    /// ft.add(2, 10);
+    /// ft.add(4, 100);
+    /// // [1, 0, 10, 0, 100]
+    /// assert_eq!(ft.sum(0..1), 1);
+    /// assert_eq!(ft.sum(0..2), 1);
+    /// assert_eq!(ft.sum(0..3), 11);
+    /// assert_eq!(ft.sum(2..4), 10);
+    /// assert_eq!(ft.sum(2..5), 110);
+    /// assert_eq!(ft.sum(0..5), 111);
+    /// ```
     pub fn sum(&self, range: std::ops::Range<usize>) -> T {
         let (l, r) = (range.start, range.end);
         assert!(r <= self.n);

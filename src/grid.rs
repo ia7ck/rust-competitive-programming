@@ -1,3 +1,4 @@
+/// グリッドグラフで現在位置の周辺を走査したいときに使えます。
 pub struct Adjacent<I> {
     position: (usize, usize),
     h: usize,
@@ -9,6 +10,24 @@ impl<I> Adjacent<I>
 where
     I: Iterator<Item = (isize, isize)>,
 {
+    /// 隣接 4 方向を走査する例です。
+    /// # Examples
+    /// ```
+    /// use crate::rust_competitive_programming::grid::Adjacent;
+    /// const NSEW: [(isize, isize); 4] = [(-1, 0), (1, 0), (0, 1), (0, -1)];
+    /// let adjs = Adjacent::new((0, 1), 3, 4, NSEW.iter().copied()).collect::<Vec<_>>();
+    /// assert_eq!(vec![(1, 1), (0, 2), (0, 0)], adjs);
+    /// // .x..
+    /// // ....
+    /// // ....
+    /// //
+    /// //  |
+    /// //  v
+    /// //
+    /// // x.x.
+    /// // .x..
+    /// // ....
+    /// ```
     pub fn new(position: (usize, usize), h: usize, w: usize, direction: I) -> Self {
         Self {
             position,

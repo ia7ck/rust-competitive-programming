@@ -1,3 +1,17 @@
+/// 「k を割る最小の自然数」をエラトステネスのふるいの要領で 1 以上 n 未満の全ての k について計算します。
+/// # Examples
+/// ```
+/// use crate::rust_competitive_programming::factorization::min_factors;
+/// let facs = min_factors(10);
+/// assert_eq!(facs[2], 2);
+/// assert_eq!(facs[3], 3);
+/// assert_eq!(facs[4], 2);
+/// assert_eq!(facs[5], 5);
+/// assert_eq!(facs[6], 2);
+/// assert_eq!(facs[7], 7);
+/// assert_eq!(facs[8], 2);
+/// assert_eq!(facs[9], 3);
+/// ```
 pub fn min_factors(n: usize) -> Vec<usize> {
     let mut result = (0..n).map(|i| i).collect::<Vec<_>>();
     for i in 2..n {
