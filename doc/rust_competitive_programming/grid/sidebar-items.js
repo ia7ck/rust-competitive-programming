@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Adjacent","グリッドグラフで現在位置の周辺を走査したいときに使えます。"]]});
