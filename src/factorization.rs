@@ -1,4 +1,4 @@
-/// 「k を割る最小の自然数」をエラトステネスのふるいの要領で 1 以上 n 未満の全ての k について計算します。
+/// 「k を割る最小の素数」をエラトステネスのふるいの要領で 2 以上 n 未満の全ての k について計算します。
 /// # Examples
 /// ```
 /// use crate::rust_competitive_programming::factorization::min_factors;
