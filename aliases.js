@@ -1,9 +1,2 @@
 var ALIASES = {};
-ALIASES["cfg_if"] = {};
-ALIASES["getrandom"] = {};
-ALIASES["libc"] = {};
-ALIASES["ppv_lite86"] = {};
-ALIASES["rand"] = {};
-ALIASES["rand_chacha"] = {};
-ALIASES["rand_core"] = {};
 ALIASES["rust_competitive_programming"] = {};
