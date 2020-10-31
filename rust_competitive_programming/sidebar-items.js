@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["binary_search",""],["factorization",""],["fenwick_tree",""],["grid",""],["next_permutation",""],["rolling_hash",""],["util",""],["z_algorithm",""]]});
+initSidebarItems({"mod":[["binary_search",""],["factorization",""],["fenwick_tree",""],["grid",""],["next_permutation",""],["rolling_hash",""],["union_find",""],["util",""],["z_algorithm",""]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["UnionFind","Union Find はグラフの連結成分を管理します。"]]});
