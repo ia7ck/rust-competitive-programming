@@ -4,6 +4,7 @@ pub mod fenwick_tree;
 pub mod grid;
 pub mod next_permutation;
 pub mod rolling_hash;
+pub mod union_find;
 pub mod util;
 pub mod z_algorithm;
 
