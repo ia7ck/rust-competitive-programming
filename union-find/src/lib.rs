@@ -39,7 +39,7 @@ impl UnionFind {
     ///
     /// # Examples
     /// ```
-    /// use crate::rust_competitive_programming::union_find::UnionFind;
+    /// use union_find::UnionFind;
     /// let mut uf = UnionFind::new(6);
     /// uf.unite(0, 1);
     /// uf.unite(1, 2);
@@ -59,7 +59,7 @@ impl UnionFind {
     ///  
     /// # Examples
     /// ```
-    /// use crate::rust_competitive_programming::union_find::UnionFind;
+    /// use union_find::UnionFind;
     /// let mut uf = UnionFind::new(6);
     /// assert!(uf.same(0, 0));
     /// assert!(uf.same(3, 3));
@@ -78,7 +78,7 @@ impl UnionFind {
     ///
     /// # Examples
     /// ```
-    /// use crate::rust_competitive_programming::union_find::UnionFind;
+    /// use union_find::UnionFind;
     /// let mut uf = UnionFind::new(6);
     /// uf.unite(0, 1);
     /// uf.unite(1, 2);

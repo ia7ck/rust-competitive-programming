@@ -7,7 +7,7 @@ impl<T: Ord> NextPermutation for [T] {
     ///
     /// # Examples
     /// ```
-    /// use crate::rust_competitive_programming::next_permutation::NextPermutation;
+    /// use next_permutation::NextPermutation;
     /// let mut a = vec![1, 2, 3];
     /// a.next_permutation();
     /// assert_eq!(a, vec![1, 3, 2]);
