@@ -13,7 +13,7 @@ where
     /// 隣接 4 方向を走査する例です。
     /// # Examples
     /// ```
-    /// use crate::rust_competitive_programming::grid::Adjacent;
+    /// use grid::Adjacent;
     /// const NSEW: [(isize, isize); 4] = [(-1, 0), (1, 0), (0, 1), (0, -1)];
     /// let adjs = Adjacent::new((0, 1), 3, 4, NSEW.iter().copied()).collect::<Vec<_>>();
     /// assert_eq!(vec![(1, 1), (0, 2), (0, 0)], adjs);

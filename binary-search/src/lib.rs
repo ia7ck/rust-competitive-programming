@@ -11,7 +11,7 @@ impl<T: Ord> BinarySearch<T> for [T] {
     ///
     /// # Examples
     /// ```
-    /// use crate::rust_competitive_programming::binary_search::BinarySearch;
+    /// use binary_search::BinarySearch;
     /// let a = vec![1, 2, 2, 3];
     /// assert_eq!(a.lower_bound(&2), 1);
     /// assert_eq!(a.lower_bound(&9), a.len());
@@ -38,7 +38,7 @@ impl<T: Ord> BinarySearch<T> for [T] {
     ///
     /// # Examples
     /// ```
-    /// use crate::rust_competitive_programming::binary_search::BinarySearch;
+    /// use binary_search::BinarySearch;
     /// let a = vec![1, 2, 2, 3];
     /// assert_eq!(a.upper_bound(&2), 3);
     /// assert_eq!(a.upper_bound(&3), a.len());
@@ -72,7 +72,7 @@ impl<T: Ord> BinarySearch<T> for [T] {
     ///
     /// # Examples
     /// ```
-    /// use crate::rust_competitive_programming::binary_search::BinarySearch;
+    /// use binary_search::BinarySearch;
     /// let a = vec![1, 2, 2, 3];
     /// assert_eq!(a.split_by(&0), (0..0, 0..0, 0..a.len()));
     /// assert_eq!(a.split_by(&2), (0..1, 1..3, 3..a.len()));

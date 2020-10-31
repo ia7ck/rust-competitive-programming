@@ -28,7 +28,7 @@ impl RollingHash {
     ///
     /// # Examples
     /// ```
-    /// use crate::rust_competitive_programming::rolling_hash::RollingHash;
+    /// use rolling_hash::RollingHash;
     /// let s = "abcxyzbcxy".chars().map(|c| c as u64).collect::<Vec<_>>();
     /// let rh = RollingHash::new(&s);
     /// assert_eq!(rh.get(1..4), rh.get(6..9)); // "bcx"
@@ -43,7 +43,7 @@ impl RollingHash {
     /// `left`, `right` はそれぞれ連結前の文字列のハッシュ値です。`right_len` は末尾にくっつける側の文字列の長さです。
     /// # Examples
     /// ```
-    /// use crate::rust_competitive_programming::rolling_hash::RollingHash;
+    /// use rolling_hash::RollingHash;
     /// let s = "abcdexyz".chars().map(|c| c as u64).collect::<Vec<_>>();
     /// let rh = RollingHash::new(&s);
     /// let left = rh.get(0..5);  // "abcde"

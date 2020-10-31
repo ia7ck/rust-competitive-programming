@@ -48,7 +48,7 @@ where
     /// 区間和を計算します。`range` が `l..r` だとして `a[l..r].iter().sum();` という感じです。
     /// # Examples
     /// ```
-    /// use crate::rust_competitive_programming::fenwick_tree::FenwickTree;
+    /// use fenwick_tree::FenwickTree;
     /// let mut ft = FenwickTree::new(5, 0);
     /// ft.add(0, 1);
     /// ft.add(2, 10);
