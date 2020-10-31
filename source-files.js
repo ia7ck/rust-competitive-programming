@@ -1,3 +1,11 @@
 var N = null;var sourcesIndex = {};
-sourcesIndex["rust_competitive_programming"] = {"name":"","files":["binary_search.rs","factorization.rs","fenwick_tree.rs","grid.rs","lib.rs","next_permutation.rs","rolling_hash.rs","union_find.rs","util.rs","z_algorithm.rs"]};
+sourcesIndex["binary_search"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["factorization"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["fenwick_tree"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["grid"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["next_permutation"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["rolling_hash"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["union_find"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["util_macro"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["z_algorithm"] = {"name":"","files":["lib.rs"]};
 createSourceSidebar();
