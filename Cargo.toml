@@ -7,6 +7,7 @@ members = [
     "next_permutation",
     "procon_reader",
     "rolling_hash",
+    "system_test_tool",
     "union_find",
     "util_macro",
     "z_algorithm"
