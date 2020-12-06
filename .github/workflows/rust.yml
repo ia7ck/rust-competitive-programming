@@ -20,6 +20,8 @@ jobs:
           persist-credentials: false
     - name: Build
       run: cargo build --verbose
+    - name: Check format
+      run: cargo fmt -- --check
     - name: Run tests
       run: cargo test --verbose
     - name: Doc
