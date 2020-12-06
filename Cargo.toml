@@ -1,13 +1,13 @@
 [workspace]
 members = [
-    "binary-search",
+    "binary_search",
     "factorization",
-    "fenwick-tree",
+    "fenwick_tree",
     "grid",
-    "next-permutation",
-    "procon-reader",
-    "rolling-hash",
-    "union-find",
-    "util-macro",
-    "z-algorithm"
+    "next_permutation",
+    "procon_reader",
+    "rolling_hash",
+    "union_find",
+    "util_macro",
+    "z_algorithm"
 ]
