@@ -11,21 +11,29 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v2
-      with:
-          persist-credentials: false
     - name: Build
       run: cargo build --verbose
+  
+  check-format:
+    runs-on: ubuntu-latest
+    steps:
     - name: Add rustfmt
       run: rustup component add rustfmt
     - name: Check format
       run: cargo fmt -- --check
+  
+  run-test:
+    runs-on: ubuntu-latest
+    steps:
     - name: Run tests
       run: cargo test --verbose
+  
+  run-additional-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
       with:
           python-version: '3.x'
@@ -33,6 +41,13 @@ jobs:
       run: pip3 install --upgrade setuptools wheel pip && pip3 install online-judge-tools && oj --version
     - name: Run additional tests
       run: cargo test -- --ignored --nocapture
+
+  publish-doc:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+          persist-credentials: false
     - name: Doc
       run: cargo doc --no-deps --verbose
     - name: Deploy 🚀
