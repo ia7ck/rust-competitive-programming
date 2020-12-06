@@ -6,6 +6,7 @@ sourcesIndex["grid"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["next_permutation"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["procon_reader"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["rolling_hash"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["system_test_tool"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["union_find"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["util_macro"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["z_algorithm"] = {"name":"","files":["lib.rs"]};

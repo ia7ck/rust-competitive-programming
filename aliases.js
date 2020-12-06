@@ -6,6 +6,7 @@ ALIASES["grid"] = {};
 ALIASES["next_permutation"] = {};
 ALIASES["procon_reader"] = {};
 ALIASES["rolling_hash"] = {};
+ALIASES["system_test_tool"] = {};
 ALIASES["union_find"] = {};
 ALIASES["util_macro"] = {};
 ALIASES["z_algorithm"] = {};
