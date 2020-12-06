@@ -38,9 +38,9 @@ impl<R: std::io::BufRead> ProconReader<R> {
     /// assert_eq!(ch, 'x');
     /// ```
     pub fn get<T>(&mut self) -> T
-        where
-            T: std::str::FromStr,
-            <T as std::str::FromStr>::Err: std::fmt::Debug,
+    where
+        T: std::str::FromStr,
+        <T as std::str::FromStr>::Err: std::fmt::Debug,
     {
         self.skip_blanks();
         assert!(self.i < self.line.len());
@@ -80,9 +80,9 @@ impl<R: std::io::BufRead> ProconReader<R> {
     /// assert_eq!(a, vec![123, 45, -6]);
     /// ```
     pub fn get_vec<T>(&mut self, n: usize) -> Vec<T>
-        where
-            T: std::str::FromStr,
-            <T as std::str::FromStr>::Err: std::fmt::Debug,
+    where
+        T: std::str::FromStr,
+        <T as std::str::FromStr>::Err: std::fmt::Debug,
     {
         (0..n).map(|_| self.get()).collect()
     }
@@ -94,9 +94,9 @@ mod tests {
     use std::io::Cursor;
 
     fn get<T>(input: &str) -> T
-        where
-            T: std::str::FromStr,
-            <T as std::str::FromStr>::Err: std::fmt::Debug,
+    where
+        T: std::str::FromStr,
+        <T as std::str::FromStr>::Err: std::fmt::Debug,
     {
         ProconReader::new(Cursor::new(input)).get()
     }
@@ -130,9 +130,9 @@ mod tests {
     }
 
     fn get_vec<T>(input: &str, n: usize) -> Vec<T>
-        where
-            T: std::str::FromStr,
-            <T as std::str::FromStr>::Err: std::fmt::Debug,
+    where
+        T: std::str::FromStr,
+        <T as std::str::FromStr>::Err: std::fmt::Debug,
     {
         ProconReader::new(Cursor::new(input)).get_vec(n)
     }
