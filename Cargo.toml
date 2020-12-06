@@ -5,6 +5,7 @@ members = [
     "fenwick-tree",
     "grid",
     "next-permutation",
+    "procon-reader",
     "rolling-hash",
     "union-find",
     "util-macro",
