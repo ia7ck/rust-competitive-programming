@@ -26,6 +26,10 @@ jobs:
       run: cargo fmt -- --check
     - name: Run tests
       run: cargo test --verbose
+    - name: Install oj
+      run: pip3 install online-judge-tools
+    - name: Run additional tests
+      run: cargo test -- --ignored
     - name: Doc
       run: cargo doc --no-deps --verbose
     - name: Deploy 🚀
