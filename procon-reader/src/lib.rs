@@ -5,6 +5,17 @@ pub struct ProconReader<R> {
 }
 
 impl<R: std::io::BufRead> ProconReader<R> {
+    /// 標準入力から読み込みたいときの例です。
+    /// ファイルからの読み込みは [`BufRead`](https://doc.rust-lang.org/nightly/std/io/trait.BufRead.html) の Examples を参考にしてください。
+    /// # Examples
+    /// ```
+    /// use std::io;
+    /// use procon_reader::ProconReader;
+    ///
+    /// let stdin = io::stdin();
+    /// let mut rd = ProconReader::new(io::BufReader::new(stdin));
+    /// // ProconReader::new(stdin.lock()); のほうが気持ち速いです
+    /// ```
     pub fn new(reader: R) -> Self {
         Self {
             r: reader,
@@ -12,6 +23,20 @@ impl<R: std::io::BufRead> ProconReader<R> {
             i: 0,
         }
     }
+    /// 空白・改行で区切られている値を取得します。適宜、型アノテーションをつけてください。
+    /// # Examples
+    /// ```
+    /// use std::io;
+    /// use procon_reader::ProconReader;
+    ///
+    /// let mut rd = ProconReader::new(io::Cursor::new("123 abc\nx"));
+    /// let n = rd.get::<usize>();
+    /// assert_eq!(n, 123);
+    /// let s: String = rd.get();
+    /// assert_eq!(s, "abc");
+    /// let ch: char = rd.get();
+    /// assert_eq!(ch, 'x');
+    /// ```
     pub fn get<T>(&mut self) -> T
         where
             T: std::str::FromStr,
@@ -44,6 +69,16 @@ impl<R: std::io::BufRead> ProconReader<R> {
             }
         }
     }
+    /// よくある「空白区切りの数値を `n` 個」取得したいときなどに使えます。
+    /// # Examples
+    /// ```
+    /// use std::io;
+    /// use procon_reader::ProconReader;
+    ///
+    /// let mut rd = ProconReader::new(io::Cursor::new("123 45 -6"));
+    /// let a: Vec<i32> = rd.get_vec(3);
+    /// assert_eq!(a, vec![123, 45, -6]);
+    /// ```
     pub fn get_vec<T>(&mut self, n: usize) -> Vec<T>
         where
             T: std::str::FromStr,
