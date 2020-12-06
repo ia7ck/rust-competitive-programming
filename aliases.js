@@ -4,6 +4,7 @@ ALIASES["factorization"] = {};
 ALIASES["fenwick_tree"] = {};
 ALIASES["grid"] = {};
 ALIASES["next_permutation"] = {};
+ALIASES["procon_reader"] = {};
 ALIASES["rolling_hash"] = {};
 ALIASES["union_find"] = {};
 ALIASES["util_macro"] = {};
