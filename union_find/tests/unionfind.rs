@@ -39,10 +39,6 @@ impl Solution for S {
     fn problem_url(&self) -> &'static str {
         "https://judge.yosupo.jp/problem/unionfind"
     }
-
-    fn testcase_dir(&self) -> &'static str {
-        "uf"
-    }
 }
 
 #[test]

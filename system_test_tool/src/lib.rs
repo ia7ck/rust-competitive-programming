@@ -1,53 +1,88 @@
+use md5::{Digest, Md5};
+use std::env;
+use std::ffi::OsStr;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 pub trait Solution {
     fn solve(&self, input: &str) -> String;
     fn problem_url(&self) -> &'static str;
-    fn testcase_dir(&self) -> &'static str;
 }
 
 pub fn system_test<S: Solution>(solution: &S) {
     let url = solution.problem_url();
-    let dir = solution.testcase_dir();
-    // .in, .out ファイルを入れるディレクトリを作成
-    fs::create_dir(dir).expect(&format!("failed to create directory `{}`", dir));
-    let status = Command::new("oj")
-        .args(&["download", url])
-        .args(&["--directory", dir])
-        .arg("--system")
-        .arg("--silent")
-        .status()
-        .expect("failed to run command");
-    assert!(status.success(), "oj dl failed");
-    let mut all: Vec<PathBuf> = fs::read_dir(dir)
-        .expect(&format!("failed to read directory `{}`", dir))
-        .map(|dir_entry| dir_entry.unwrap().path())
-        .collect();
-    all.sort();
-    let ends_with = |p: &PathBuf, ext: &str| p.extension().unwrap().eq(ext);
-    let collect_by_extension = |ext: &str| {
-        all.iter()
-            .filter(|&p| ends_with(p, ext))
-            .collect::<Vec<_>>()
+    let td = TestcaseDir::new(url);
+    td.download_testcase(url);
+
+    let mut inputs = td.testcase("in");
+    let mut outputs = td.testcase("out");
+    inputs.sort();
+    outputs.sort();
+
+    let read_to_string = |path: &Path| {
+        fs::read_to_string(path).expect(&format!("failed to read {}", path.display()))
     };
-    let inputs = collect_by_extension("in");
-    let outputs = collect_by_extension("out");
-    for (&input, &output) in inputs.iter().zip(outputs.iter()) {
-        let input_string = fs::read_to_string(input)
-            .expect(&format!("failed to read input file `{}`", input.display()));
-        let output_string = fs::read_to_string(output).expect(&format!(
-            "failed to read output file `{}`",
-            output.display()
-        ));
+
+    for (input, output) in inputs.iter().zip(outputs.iter()) {
+        let input_string = read_to_string(input);
+        let output_string = read_to_string(output);
         assert_eq!(
             solution.solve(&input_string).trim(),
             output_string.trim(),
-            "input file = {}\nBefore run test again, remove the testcase directory.",
-            input.display()
+            "Wrong Answer: input={}, output={}",
+            input.display(),
+            output.display()
         );
     }
-    // 全てのケースに通ったら .in, .out が入っているディレクトリを消す
-    fs::remove_dir_all(dir).expect(&format!("failed to remove directory `{}`", dir));
+}
+
+struct TestcaseDir {
+    dir: PathBuf,
+}
+
+impl TestcaseDir {
+    pub fn new(seed: &str) -> Self {
+        let mut dir = env::temp_dir();
+        dir.push(format!("{:x}", Md5::digest(seed.as_bytes())));
+        Self { dir }
+    }
+    pub fn dir(&self) -> &Path {
+        self.dir.as_path()
+    }
+    pub fn download_testcase(&self, problem_url: &str) {
+        self.clear();
+        let status = Command::new("oj")
+            .arg("download")
+            .arg(problem_url)
+            .arg("--directory")
+            .arg(self.dir().as_os_str())
+            .arg("--system")
+            .arg("--silent")
+            .status()
+            .expect("failed to start oj");
+        assert!(
+            status.success(),
+            "`oj dl {} -d {}` failed",
+            problem_url,
+            self.dir().display()
+        );
+    }
+    fn clear(&self) {
+        if self.dir().exists() {
+            fs::remove_dir_all(self.dir())
+                .expect(&format!("failed to remove {}", self.dir().display()));
+        }
+    }
+    pub fn testcase(&self, ext: &str) -> Vec<PathBuf> {
+        let ends_with = |p: &PathBuf, ext: &str| p.extension().eq(&Some(OsStr::new(ext)));
+        fs::read_dir(self.dir())
+            .expect(&format!(
+                "failed to read directory `{}`",
+                self.dir().display()
+            ))
+            .map(|dir_entry| dir_entry.unwrap().path())
+            .filter(|p| ends_with(p, ext))
+            .collect()
+    }
 }
