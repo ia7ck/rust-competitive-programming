@@ -27,13 +27,15 @@ pub fn system_test<S: Solution>(solution: &S) {
     for (input, output) in inputs.iter().zip(outputs.iter()) {
         let input_string = read_to_string(input);
         let output_string = read_to_string(output);
-        assert_eq!(
-            solution.solve(&input_string).trim(),
-            output_string.trim(),
-            "Wrong Answer: input={}, output={}",
-            input.display(),
-            output.display()
-        );
+        let actual = solution.solve(&input_string);
+        if actual.trim() != output_string.trim() {
+            assert!(
+                false,
+                "Wrong Answer: input={}, output={}",
+                input.display(),
+                output.display()
+            );
+        }
     }
 }
 
