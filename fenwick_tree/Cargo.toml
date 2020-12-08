@@ -8,3 +8,5 @@ edition = "2018"
 
 [dependencies]
 rand = "0.7"
+system_test_tool = { path = "../system_test_tool" }
+procon_reader = { path = "../procon_reader" }
