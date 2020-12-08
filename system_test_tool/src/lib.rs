@@ -4,6 +4,7 @@ use std::ffi::OsStr;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::time::Instant;
 
 pub trait Solution {
     fn solve(&self, input: &str) -> String;
@@ -27,7 +28,9 @@ pub fn system_test<S: Solution>(solution: &S) {
     for (input, output) in inputs.iter().zip(outputs.iter()) {
         let input_string = read_to_string(input);
         let output_string = read_to_string(output);
+        let now = Instant::now();
         let actual = solution.solve(&input_string);
+        let duration = now.elapsed();
         if actual.trim() != output_string.trim() {
             assert!(
                 false,
@@ -36,6 +39,11 @@ pub fn system_test<S: Solution>(solution: &S) {
                 output.display()
             );
         }
+        println!(
+            "testcase {} takes {} ms",
+            input.display(),
+            duration.as_millis()
+        );
     }
 }
 
