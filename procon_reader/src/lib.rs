@@ -49,7 +49,8 @@ impl<R: std::io::BufRead> ProconReader<R> {
         let end = line.find(' ').unwrap_or(line.len());
         let s = &line[..end];
         self.i += end;
-        s.parse().expect(&format!("parse error `{}`", self.line))
+        s.parse()
+            .unwrap_or_else(|_| panic!("parse error `{}`", self.line))
     }
     fn skip_blanks(&mut self) {
         loop {
@@ -62,7 +63,7 @@ impl<R: std::io::BufRead> ProconReader<R> {
                 None => {
                     self.line.clear();
                     self.i = 0;
-                    let num_bytes = self.r.read_line(&mut self.line).expect("not valid utf-8");
+                    let num_bytes = self.r.read_line(&mut self.line).unwrap();
                     assert!(num_bytes > 0, "reached EOF :(");
                     self.line = self.line.trim_end_matches(&['\r', '\n'][..]).to_string();
                 }
