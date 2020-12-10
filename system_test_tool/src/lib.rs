@@ -1,49 +1,54 @@
 use md5::{Digest, Md5};
-use std::env;
 use std::ffi::OsStr;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::Instant;
+use std::{env, thread};
 
-pub trait Solution {
-    fn solve(&self, input: &str) -> String;
-    fn problem_url(&self) -> &'static str;
-}
-
-pub fn system_test<S: Solution>(solution: &S) {
-    let url = solution.problem_url();
-    let td = TestcaseDir::new(url);
-    td.download_testcase(url);
+pub fn system_test<F>(solve: F, problem_url: &str)
+where
+    F: 'static + Fn(&str, &mut String) + Send + Clone,
+{
+    let td = TestcaseDir::new(problem_url);
+    td.download_testcase(problem_url);
 
     let mut inputs = td.testcase("in");
     let mut outputs = td.testcase("out");
     inputs.sort();
     outputs.sort();
 
-    let read_to_string = |path: &Path| {
-        fs::read_to_string(path).expect(&format!("failed to read {}", path.display()))
-    };
+    let mut handles = vec![];
+    for (input, output) in inputs.into_iter().zip(outputs.into_iter()) {
+        let input_string = fs::read_to_string(&input).unwrap();
+        let output_string = fs::read_to_string(&output).unwrap();
+        let solve = solve.clone();
+        let h = thread::spawn(move || {
+            let mut result = String::new();
+            let now = Instant::now();
+            solve(&input_string, &mut result);
+            let duration = now.elapsed();
 
-    for (input, output) in inputs.iter().zip(outputs.iter()) {
-        let input_string = read_to_string(input);
-        let output_string = read_to_string(output);
-        let now = Instant::now();
-        let actual = solution.solve(&input_string);
-        let duration = now.elapsed();
-        if actual.trim() != output_string.trim() {
-            assert!(
-                false,
-                "Wrong Answer: input={}, output={}",
+            if result.trim() != output_string.trim() {
+                assert!(
+                    false,
+                    "Wrong Answer: input={}, output={}",
+                    input.display(),
+                    output.display()
+                );
+            }
+
+            println!(
+                "testcase {} takes {} ms",
                 input.display(),
-                output.display()
+                duration.as_millis()
             );
-        }
-        println!(
-            "testcase {} takes {} ms",
-            input.display(),
-            duration.as_millis()
-        );
+        });
+        handles.push(h);
+    }
+
+    for h in handles {
+        h.join().unwrap();
     }
 }
 
