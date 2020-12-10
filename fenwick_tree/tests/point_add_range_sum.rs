@@ -1,8 +1,8 @@
+use fenwick_tree::FenwickTree;
 use procon_reader::ProconReader;
 use std::fmt::Write;
 use std::io::Cursor;
 use system_test_tool::system_test;
-use union_find::UnionFind;
 
 fn solve(input: &str, res: &mut String) {
     let mut rd = ProconReader::new(Cursor::new(input));
@@ -12,20 +12,25 @@ fn solve(input: &str, res: &mut String) {
         };
     }
     let n: usize = rd.get();
-    let mut uf = UnionFind::new(n);
     let q: usize = rd.get();
+    let a: Vec<i64> = rd.get_vec(n);
+    let mut ft = FenwickTree::new(n, 0);
+    for i in 0..n {
+        ft.add(i, a[i]);
+    }
     for _ in 0..q {
         let t: usize = rd.get();
         match t {
             0 => {
-                let u: usize = rd.get();
-                let v: usize = rd.get();
-                uf.unite(u, v);
+                let p: usize = rd.get();
+                let x: i64 = rd.get();
+                ft.add(p, x);
             }
             1 => {
-                let u: usize = rd.get();
-                let v: usize = rd.get();
-                puts!(uf.same(u, v) as usize);
+                let l: usize = rd.get();
+                let r: usize = rd.get();
+                let sum = ft.sum(l..r);
+                puts!(sum);
             }
             _ => unreachable!(),
         }
@@ -34,6 +39,6 @@ fn solve(input: &str, res: &mut String) {
 
 #[test]
 #[ignore]
-fn union_find_library_checker() {
-    system_test(solve, "https://judge.yosupo.jp/problem/unionfind");
+fn point_add_range_sum() {
+    system_test(solve, "https://judge.yosupo.jp/problem/point_add_range_sum");
 }
