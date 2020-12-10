@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["system_test",""]],"trait":[["Solution",""]]});
+initSidebarItems({"fn":[["system_test",""]]});
