@@ -17,7 +17,7 @@ impl<T: Ord> NextPermutation for [T] {
     /// assert!(!a.next_permutation());
     /// ```
     fn next_permutation(&mut self) -> bool {
-        if self.len() <= 0 {
+        if self.len() <= 1 {
             return false;
         }
         let mut i = self.len() - 1;
@@ -33,7 +33,7 @@ impl<T: Ord> NextPermutation for [T] {
         }
         self.swap(i - 1, j);
         self[i..].reverse();
-        return true;
+        true
     }
 }
 

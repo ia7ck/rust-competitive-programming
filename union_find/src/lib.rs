@@ -108,7 +108,7 @@ impl UnionFind {
             let p = self.find(i);
             c[p].push(i);
         }
-        c.into_iter().filter(|cc| cc.len() > 0).collect()
+        c.into_iter().filter(|cc| !cc.is_empty()).collect()
     }
     /// 各連結成分の代表元をベクタで返します。`uf.components().iter().map(|c| uf.find(c[0])).collect()` です。
     pub fn leaders(&mut self) -> Vec<usize> {

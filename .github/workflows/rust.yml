@@ -17,6 +17,15 @@ jobs:
     - name: Build
       run: cargo build --verbose
   
+  clippy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Add clippy
+      run: rustup component add clippy
+    - name: Clippy
+      run: cargo clippy -- --deny warnings
+  
   check-format:
     runs-on: ubuntu-latest
     steps:

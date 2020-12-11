@@ -1,3 +1,4 @@
+#[allow(clippy::many_single_char_names)]
 pub fn z_algorithm<T: PartialEq>(a: &[T]) -> Vec<usize> {
     let n = a.len();
     let mut z = vec![0; n];

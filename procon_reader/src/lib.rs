@@ -46,7 +46,7 @@ impl<R: std::io::BufRead> ProconReader<R> {
         assert!(self.i < self.line.len());
         assert_ne!(&self.line[self.i..=self.i], " ");
         let line = &self.line[self.i..];
-        let end = line.find(' ').unwrap_or(line.len());
+        let end = line.find(' ').unwrap_or_else(|| line.len());
         let s = &line[..end];
         self.i += end;
         s.parse()
