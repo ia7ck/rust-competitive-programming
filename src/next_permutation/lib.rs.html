@@ -120,7 +120,7 @@
     <span class="doccomment">/// assert!(!a.next_permutation());</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">fn</span> <span class="ident">next_permutation</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">len</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">len</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="number">1</span> {
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>;
@@ -136,7 +136,7 @@
         }
         <span class="self">self</span>.<span class="ident">swap</span>(<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>, <span class="ident">j</span>);
         <span class="self">self</span>[<span class="ident">i</span>..].<span class="ident">reverse</span>();
-        <span class="kw">return</span> <span class="bool-val">true</span>;
+        <span class="bool-val">true</span>
     }
 }
 
