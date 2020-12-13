@@ -1,9 +1,11 @@
 [workspace]
 members = [
     "binary_search",
+    "combination",
     "factorization",
     "fenwick_tree",
     "grid",
+    "mod_int",
     "next_permutation",
     "procon_reader",
     "rolling_hash",
