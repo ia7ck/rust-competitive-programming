@@ -1,8 +1,10 @@
 var ALIASES = {};
 ALIASES["binary_search"] = {};
+ALIASES["combination"] = {};
 ALIASES["factorization"] = {};
 ALIASES["fenwick_tree"] = {};
 ALIASES["grid"] = {};
+ALIASES["mod_int"] = {};
 ALIASES["next_permutation"] = {};
 ALIASES["procon_reader"] = {};
 ALIASES["rolling_hash"] = {};

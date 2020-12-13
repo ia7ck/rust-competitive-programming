@@ -1,8 +1,10 @@
 var N = null;var sourcesIndex = {};
 sourcesIndex["binary_search"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["combination"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["factorization"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["fenwick_tree"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["grid"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["mod_int"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["next_permutation"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["procon_reader"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["rolling_hash"] = {"name":"","files":["lib.rs"]};
