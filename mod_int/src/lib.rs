@@ -11,7 +11,14 @@ pub struct ModInt<M>(i64, PhantomData<M>);
 
 impl<M: Modulo> ModInt<M> {
     pub fn new(x: i64) -> Self {
-        Self(x.rem_euclid(M::p()), PhantomData)
+        if 0 <= x && x < M::p() {
+            Self::new_raw(x)
+        } else {
+            Self::new_raw(x.rem_euclid(M::p()))
+        }
+    }
+    pub fn new_raw(x: i64) -> Self {
+        Self(x, PhantomData)
     }
     pub fn val(self) -> i64 {
         self.0
@@ -20,45 +27,62 @@ impl<M: Modulo> ModInt<M> {
         M::p()
     }
     pub fn pow(self, exp: u64) -> Self {
-        let mut res = Self::new(1);
-        let mut base = self;
+        let mut res = 1;
+        let mut base = self.0;
         let mut exp = exp;
+        let mo = self.mo();
         while exp > 0 {
             if exp & 1 == 1 {
-                res = res * base;
+                res *= base;
+                res %= mo;
             }
-            base = base * base;
+            base *= base;
+            base %= mo;
             exp >>= 1;
         }
-        res
+        Self::new_raw(res)
     }
     pub fn inv(self) -> Self {
         assert_ne!(self.0, 0, "Don't divide by zero!");
-        self.pow(M::p() as u64 - 2)
+        self.pow(self.mo() as u64 - 2)
     }
     pub fn new_frac(numer: i64, denom: i64) -> Self {
         Self::new(numer) / Self::new(denom)
     }
 }
 
+#[allow(clippy::suspicious_arithmetic_impl)]
 impl<M: Modulo> Add for ModInt<M> {
     type Output = ModInt<M>;
     fn add(self, rhs: ModInt<M>) -> Self::Output {
-        Self((self.0 + rhs.0) % M::p(), PhantomData)
+        let x = self.0 + rhs.0;
+        debug_assert!(x >= 0);
+        if x < self.mo() {
+            Self::new_raw(x)
+        } else {
+            Self::new_raw(x - self.mo())
+        }
     }
 }
 
+#[allow(clippy::suspicious_arithmetic_impl)]
 impl<M: Modulo> Sub for ModInt<M> {
     type Output = ModInt<M>;
     fn sub(self, rhs: ModInt<M>) -> Self::Output {
-        Self((self.0 - rhs.0).rem_euclid(M::p()), PhantomData)
+        let x = self.0 - rhs.0;
+        debug_assert!(x < self.mo());
+        if x >= 0 {
+            Self::new_raw(x)
+        } else {
+            Self::new_raw(x + self.mo())
+        }
     }
 }
 
 impl<M: Modulo> Mul for ModInt<M> {
     type Output = ModInt<M>;
     fn mul(self, rhs: ModInt<M>) -> Self::Output {
-        Self((self.0 * rhs.0) % M::p(), PhantomData)
+        Self::new(self.0 * rhs.0)
     }
 }
 
