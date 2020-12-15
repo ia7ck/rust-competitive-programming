@@ -10,7 +10,11 @@ pub trait Modulo: Copy + Clone + Debug {
 pub struct ModInt<M>(i64, PhantomData<M>);
 
 impl<M: Modulo> ModInt<M> {
-    pub fn new(x: i64) -> Self {
+    pub fn new<T>(x: T) -> Self
+    where
+        T: Into<i64>,
+    {
+        let x = x.into();
         if 0 <= x && x < M::p() {
             Self::new_raw(x)
         } else {
@@ -23,14 +27,14 @@ impl<M: Modulo> ModInt<M> {
     pub fn val(self) -> i64 {
         self.0
     }
-    pub fn mo(self) -> i64 {
+    pub fn mo() -> i64 {
         M::p()
     }
     pub fn pow(self, exp: u64) -> Self {
         let mut res = 1;
         let mut base = self.0;
         let mut exp = exp;
-        let mo = self.mo();
+        let mo = Self::mo();
         while exp > 0 {
             if exp & 1 == 1 {
                 res *= base;
@@ -44,7 +48,7 @@ impl<M: Modulo> ModInt<M> {
     }
     pub fn inv(self) -> Self {
         assert_ne!(self.0, 0, "Don't divide by zero!");
-        self.pow(self.mo() as u64 - 2)
+        self.pow(Self::mo() as u64 - 2)
     }
     pub fn new_frac(numer: i64, denom: i64) -> Self {
         Self::new(numer) / Self::new(denom)
@@ -57,10 +61,10 @@ impl<M: Modulo> Add for ModInt<M> {
     fn add(self, rhs: ModInt<M>) -> Self::Output {
         let x = self.0 + rhs.0;
         debug_assert!(x >= 0);
-        if x < self.mo() {
+        if x < Self::mo() {
             Self::new_raw(x)
         } else {
-            Self::new_raw(x - self.mo())
+            Self::new_raw(x - Self::mo())
         }
     }
 }
@@ -70,11 +74,11 @@ impl<M: Modulo> Sub for ModInt<M> {
     type Output = ModInt<M>;
     fn sub(self, rhs: ModInt<M>) -> Self::Output {
         let x = self.0 - rhs.0;
-        debug_assert!(x < self.mo());
+        debug_assert!(x < Self::mo());
         if x >= 0 {
             Self::new_raw(x)
         } else {
-            Self::new_raw(x + self.mo())
+            Self::new_raw(x + Self::mo())
         }
     }
 }
