@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "binary_search",
+    "dijkstra",
     "factorization",
     "fenwick_tree",
     "grid",
