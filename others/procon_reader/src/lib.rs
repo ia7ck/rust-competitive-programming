@@ -1,3 +1,7 @@
+use std::fmt::Debug;
+use std::str::FromStr;
+
+/// 競技プログラミングで、問題の入力値を読むパートをラクにします。
 pub struct ProconReader<R> {
     r: R,
     line: String,
@@ -39,8 +43,8 @@ impl<R: std::io::BufRead> ProconReader<R> {
     /// ```
     pub fn get<T>(&mut self) -> T
     where
-        T: std::str::FromStr,
-        <T as std::str::FromStr>::Err: std::fmt::Debug,
+        T: FromStr,
+        <T as FromStr>::Err: Debug,
     {
         self.skip_blanks();
         assert!(self.i < self.line.len());
@@ -82,8 +86,8 @@ impl<R: std::io::BufRead> ProconReader<R> {
     /// ```
     pub fn get_vec<T>(&mut self, n: usize) -> Vec<T>
     where
-        T: std::str::FromStr,
-        <T as std::str::FromStr>::Err: std::fmt::Debug,
+        T: FromStr,
+        <T as FromStr>::Err: Debug,
     {
         (0..n).map(|_| self.get()).collect()
     }
@@ -92,12 +96,14 @@ impl<R: std::io::BufRead> ProconReader<R> {
 #[cfg(test)]
 mod tests {
     use crate::ProconReader;
+    use std::fmt::Debug;
     use std::io::Cursor;
+    use std::str::FromStr;
 
     fn get<T>(input: &str) -> T
     where
-        T: std::str::FromStr,
-        <T as std::str::FromStr>::Err: std::fmt::Debug,
+        T: FromStr,
+        <T as FromStr>::Err: Debug,
     {
         ProconReader::new(Cursor::new(input)).get()
     }
@@ -132,8 +138,8 @@ mod tests {
 
     fn get_vec<T>(input: &str, n: usize) -> Vec<T>
     where
-        T: std::str::FromStr,
-        <T as std::str::FromStr>::Err: std::fmt::Debug,
+        T: FromStr,
+        <T as FromStr>::Err: Debug,
     {
         ProconReader::new(Cursor::new(input)).get_vec(n)
     }
