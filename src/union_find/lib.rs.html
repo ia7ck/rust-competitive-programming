@@ -115,6 +115,7 @@
 <span id="115">115</span>
 <span id="116">116</span>
 <span id="117">117</span>
+<span id="118">118</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/// Union Find はグラフの連結成分を管理します。</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UnionFind</span> {
@@ -192,6 +193,7 @@
     <span class="doccomment">/// assert!(uf.same(1, 2));</span>
     <span class="doccomment">/// assert!(uf.same(0, 2));</span>
     <span class="doccomment">/// assert!(uf.same(3, 4));</span>
+    <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">same</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">j</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">find</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">find</span>(<span class="ident">j</span>)
     }
