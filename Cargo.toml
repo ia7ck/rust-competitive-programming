@@ -1,10 +1,12 @@
 [workspace]
 members = [
     "binary_search",
+    "combination",
     "dijkstra",
     "factorization",
     "fenwick_tree",
     "grid",
+    "mod_int",
     "next_permutation",
     "procon_reader",
     "rolling_hash",
