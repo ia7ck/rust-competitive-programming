@@ -74,6 +74,7 @@ impl UnionFind {
     /// assert!(uf.same(1, 2));
     /// assert!(uf.same(0, 2));
     /// assert!(uf.same(3, 4));
+    /// ```
     pub fn same(&mut self, i: usize, j: usize) -> bool {
         self.find(i) == self.find(j)
     }
