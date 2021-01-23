@@ -99,6 +99,21 @@ impl<R: std::io::BufRead> ProconReader<R> {
     {
         (0..n).map(|_| self.get()).collect()
     }
+
+    /// 1 行の文字列を `char` のベクタとして読みます。
+    ///
+    /// # Examples
+    /// ```
+    /// use std::io::Cursor;
+    /// use procon_reader::ProconReader;
+    ///
+    /// let mut rd = ProconReader::new(Cursor::new("abcd"));
+    /// let a: Vec<char> = rd.get_chars();
+    /// assert_eq!(a, vec!['a', 'b', 'c', 'd']);
+    /// ```
+    pub fn get_chars(&mut self) -> Vec<char> {
+        self.get::<String>().chars().collect()
+    }
 }
 
 #[cfg(test)]
@@ -156,6 +171,16 @@ mod tests {
     fn test_get_vec() {
         assert_eq!(get_vec::<i32>("1 23 -456", 3), vec![1, 23, -456]);
         assert_eq!(get_vec::<String>("abc\nde\nf", 3), vec!["abc", "de", "f"]);
+    }
+
+    fn get_chars(input: &str) -> Vec<char> {
+        ProconReader::new(Cursor::new(input)).get_chars()
+    }
+
+    #[test]
+    fn test_get_chars() {
+        assert_eq!(get_chars("abcd"), vec!['a', 'b', 'c', 'd']);
+        assert_eq!(get_chars("1234"), vec!['1', '2', '3', '4']);
     }
 
     #[test]
