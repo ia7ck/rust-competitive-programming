@@ -1,17 +1,20 @@
 #[allow(clippy::many_single_char_names)]
-pub fn z_algorithm<T: PartialEq>(a: &[T]) -> Vec<usize> {
+pub fn z_algorithm<T>(a: &[T]) -> Vec<usize>
+where
+    T: PartialEq + std::fmt::Debug,
+{
     let n = a.len();
     let mut z = vec![0; n];
     let mut i = 0;
     for j in 1..n {
         if j + z[j - i] < i + z[i] {
-            // debug_assert_eq!(a[j..(j + z[j - i])], a[..z[j - i]]);
+            debug_assert_eq!(a[j..(j + z[j - i])], a[..z[j - i]]);
             z[j] = z[j - i];
         } else {
             let start = j + (i + z[i]).saturating_sub(j);
-            // debug_assert_eq!(a[j..start], a[..(start - j)]);
+            debug_assert_eq!(a[j..start], a[..(start - j)]);
             let end = (start..n).find(|&k| a[k - j] != a[k]).unwrap_or(n);
-            // debug_assert_eq!(a[j..end], a[..(end - j)]);
+            debug_assert_eq!(a[j..end], a[..(end - j)]);
             z[j] = end - j;
             i = j;
         }
