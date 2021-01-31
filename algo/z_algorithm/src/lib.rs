@@ -3,6 +3,8 @@
 ///
 /// # Examples
 /// ```
+/// use z_algorithm::z_algorithm;
+///
 /// let a = "abcabc".chars().collect::<Vec<char>>();
 /// let z = z_algorithm(&a);
 /// assert_eq!(z[0], 6); // abcabc
