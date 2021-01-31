@@ -1,3 +1,17 @@
+///
+/// `z[i]`: `a[i..]` と `a` との最長共通接頭辞の長さ、を返します。
+///
+/// # Examples
+/// ```
+/// let a = "abcabc".chars().collect::<Vec<char>>();
+/// let z = z_algorithm(&a);
+/// assert_eq!(z[0], 6); // abcabc
+/// assert_eq!(z[1], 0); // bcabc
+/// assert_eq!(z[2], 0); // cabc
+/// assert_eq!(z[3], 3); // abc
+/// assert_eq!(z[4], 0); // bc
+/// assert_eq!(z[5], 0); // c
+/// ```
 #[allow(clippy::many_single_char_names)]
 pub fn z_algorithm<T>(a: &[T]) -> Vec<usize>
 where
