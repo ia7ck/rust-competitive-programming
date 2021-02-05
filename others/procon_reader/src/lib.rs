@@ -1,4 +1,4 @@
-/// 競技プログラミングで、問題の入力値を読むパートをラクにします。
+/// 競技プログラミングで、入力値を読むパートをラクにします。
 pub struct ProconReader<R> {
     r: R,
     l: String,
@@ -53,7 +53,7 @@ impl<R: std::io::BufRead> ProconReader<R> {
         // parse self.l[self.i..(self.i + len)]
         let val = rest[..len]
             .parse()
-            .unwrap_or_else(|_| panic!("parse error `{}`", rest));
+            .unwrap_or_else(|e| panic!("{:?}, attempt to read `{}`", e, rest));
         self.i += len;
         val
     }
@@ -65,23 +65,22 @@ impl<R: std::io::BufRead> ProconReader<R> {
                     break;
                 }
                 None => {
-                    self.l.clear();
-                    self.i = 0;
+                    let mut buf = String::new();
                     let num_bytes = self
                         .r
-                        .read_line(&mut self.l)
+                        .read_line(&mut buf)
                         .unwrap_or_else(|_| panic!("invalid UTF-8"));
                     assert!(num_bytes > 0, "reached EOF :(");
-                    self.l = self
-                        .l
+                    self.l = buf
                         .trim_end_matches('\n')
                         .trim_end_matches('\r')
                         .to_string();
+                    self.i = 0;
                 }
             }
         }
     }
-    /// よくある「空白区切りの数値を `n` 個」取得したいときなどに使えます。
+    /// 空白・改行区切りの値を `n` 個読みます。
     ///
     /// # Examples
     /// ```
