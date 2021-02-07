@@ -2,6 +2,7 @@ var ALIASES = {};
 ALIASES["binary_search"] = {};
 ALIASES["combination"] = {};
 ALIASES["dijkstra"] = {};
+ALIASES["divisors"] = {};
 ALIASES["fenwick_tree"] = {};
 ALIASES["grid"] = {};
 ALIASES["min_factors"] = {};
