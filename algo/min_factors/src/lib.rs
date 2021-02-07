@@ -1,7 +1,8 @@
-/// 「k を割る最小の素数」をエラトステネスのふるいの要領で 2 以上 n 未満の全ての k について計算します。
+/// 「`k` を割る最小の素数」をエラトステネスのふるいの要領で `2` 以上 `n` 未満の全ての `k` について計算します。
+///
 /// # Examples
 /// ```
-/// use factorization::min_factors;
+/// use min_factors::min_factors;
 /// let facs = min_factors(10);
 /// assert_eq!(facs[2], 2);
 /// assert_eq!(facs[3], 3);
@@ -13,15 +14,13 @@
 /// assert_eq!(facs[9], 3);
 /// ```
 pub fn min_factors(n: usize) -> Vec<usize> {
-    let mut result = (0..n).map(|i| i).collect::<Vec<_>>();
+    let mut result: Vec<usize> = (0..n).collect();
     for i in 2..n {
         if result[i] == i {
-            let mut j = i + i;
-            while j < n {
+            for j in ((i + i)..n).step_by(i) {
                 if result[j] == j {
                     result[j] = i;
                 }
-                j += i;
             }
         }
     }
@@ -37,12 +36,8 @@ mod tests {
         let n = 1000;
         let min_factors = min_factors(n);
         for i in 2..n {
-            for j in 2..=i {
-                if i % j == 0 {
-                    assert_eq!(j, min_factors[i]);
-                    break;
-                }
-            }
+            let j = (2..=i).filter(|&j| i % j == 0).min().unwrap();
+            assert_eq!(j, min_factors[i]);
         }
     }
 }
