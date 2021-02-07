@@ -27,8 +27,31 @@
 <span id="27">27</span>
 <span id="28">28</span>
 <span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">divisors</span>(<span class="ident">n</span>: <span class="ident">i64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span> {
+<span class="doccomment">/// 非負整数 `n` の全ての約数を返します。</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// - 約数は昇順に並んでいることが保証されます。</span>
+<span class="doccomment">/// - `0` を渡すと空のベクタ `vec![]` を返します。</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Examples</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// use divisors::divisors;</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// assert_eq!(divisors(24), vec![1, 2, 3, 4, 6, 8, 12, 24]);</span>
+<span class="doccomment">/// ```</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">divisors</span>(<span class="ident">n</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">large</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
     <span class="kw">for</span> <span class="ident">k</span> <span class="kw">in</span> (<span class="number">1</span>..).<span class="ident">take_while</span>(<span class="op">|</span><span class="ident">k</span><span class="op">|</span> <span class="ident">k</span> <span class="op">*</span> <span class="ident">k</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">n</span>) {
@@ -50,6 +73,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">divisors_test</span>() {
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">divisors</span>(<span class="number">0</span>), <span class="macro">vec</span><span class="macro">!</span>[]);
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">divisors</span>(<span class="number">1</span>), <span class="macro">vec</span><span class="macro">!</span>[<span class="number">1</span>]);
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">divisors</span>(<span class="number">2</span>), <span class="macro">vec</span><span class="macro">!</span>[<span class="number">1</span>, <span class="number">2</span>]);
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">divisors</span>(<span class="number">24</span>), <span class="macro">vec</span><span class="macro">!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">6</span>, <span class="number">8</span>, <span class="number">12</span>, <span class="number">24</span>]);
