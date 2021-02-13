@@ -2,7 +2,6 @@ var N = null;var sourcesIndex = {};
 sourcesIndex["binary_search"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["combination"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["dijkstra"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["divisors"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["fenwick_tree"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["grid"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["min_factors"] = {"name":"","files":["lib.rs"]};

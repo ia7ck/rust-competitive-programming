@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["dijkstra","隣接リスト `g` とスタートの頂点 `s` を渡します。 返り値 `(d, prev)` はそれぞれ以下です。"]],"struct":[["Edge",""]]});
+initSidebarItems({"fn":[["dijkstra","`dijkstra` はあるひとつの頂点から全ての頂点への最短距離を計算します。"]],"struct":[["Edge",""]]});

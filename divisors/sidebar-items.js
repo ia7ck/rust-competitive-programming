@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["divisors","非負整数 `n` の全ての約数を返します。"]]});
