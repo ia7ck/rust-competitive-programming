@@ -23,7 +23,7 @@ fn solve(input: &str, res: &mut String) {
         g[a].push(Edge { to: b, cost: c });
     }
     let (d, prev) = dijkstra(&g, s);
-    if d[t] == std::u64::MAX {
+    if d[t].is_none() {
         puts!("{}", -1);
         return;
     }
@@ -33,7 +33,7 @@ fn solve(input: &str, res: &mut String) {
         ans.push(u);
         v = u;
     }
-    puts!("{} {}", d[t], ans.len() - 1);
+    puts!("{} {}", d[t].unwrap(), ans.len() - 1);
     ans.reverse();
     for w in ans.windows(2) {
         puts!("{} {}", w[0], w[1]);

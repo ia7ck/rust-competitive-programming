@@ -6,6 +6,8 @@ pub struct Edge {
     pub cost: u64,
 }
 
+/// `dijkstra` はあるひとつの頂点から全ての頂点への最短距離を計算します。
+///
 /// 隣接リスト `g` とスタートの頂点 `s` を渡します。
 /// 返り値 `(d, prev)` はそれぞれ以下です。
 ///
@@ -13,6 +15,8 @@ pub struct Edge {
 /// - `prev[t]`: `s` を根とする最短経路木における `t` の親頂点
 ///
 /// `prev` をゴールの頂点からたどることで、最短経路を復元できます。
+///
+/// `s` から `t` への経路が存在しない場合 `d[t]`、`prev[t]` は `None` です。
 ///
 /// # Examples
 /// ```
@@ -29,38 +33,39 @@ pub struct Edge {
 /// g[1].push(Edge { to: 2, cost: 1 });
 /// g[2].push(Edge { to: 3, cost: 1 });
 /// let (d, prev) = dijkstra(&g, 0);
-/// assert_eq!(d[0], 0);
-/// assert_eq!(d[1], 1);
-/// assert_eq!(d[2], 1);
-/// assert_eq!(d[3], 2);
+/// assert_eq!(d[0], Some(0));
+/// assert_eq!(d[1], Some(1));
+/// assert_eq!(d[2], Some(1));
+/// assert_eq!(d[3], Some(2));
 /// assert_eq!(prev[0], None);
 /// assert_eq!(prev[1], Some(0));
 /// assert_eq!(prev[2], Some(0));
 /// assert_eq!(prev[3], Some(2));
 /// ```
 #[allow(clippy::many_single_char_names)]
-pub fn dijkstra(g: &[Vec<Edge>], s: usize) -> (Vec<u64>, Vec<Option<usize>>) {
+pub fn dijkstra(g: &[Vec<Edge>], s: usize) -> (Vec<Option<u64>>, Vec<Option<usize>>) {
     use std::cmp::Reverse;
     use std::collections::BinaryHeap;
     let n = g.len();
-    let mut d = vec![std::u64::MAX; n];
+    let mut dist = vec![None; n];
     let mut q = BinaryHeap::new();
     let mut prev = vec![None; n];
-    d[s] = 0;
+    dist[s] = Some(0);
     q.push((Reverse(0), s));
-    while let Some((Reverse(c), v)) = q.pop() {
-        if c > d[v] {
+    while let Some((Reverse(d), v)) = q.pop() {
+        if dist[v].map_or(false, |min| d > min) {
             continue;
         }
         for e in &g[v] {
-            if c + e.cost < d[e.to] {
-                d[e.to] = c + e.cost;
+            let next_d = d + e.cost;
+            if dist[e.to].map_or(true, |cur_d| next_d < cur_d) {
+                dist[e.to] = Some(next_d);
                 prev[e.to] = Some(v);
-                q.push((Reverse(d[e.to]), e.to));
+                q.push((Reverse(next_d), e.to));
             }
         }
     }
-    (d, prev)
+    (dist, prev)
 }
 
 #[cfg(test)]
@@ -85,8 +90,10 @@ mod tests {
             .collect()
     }
 
+    const INF: u64 = std::u64::MAX;
+
     fn floyd_warshall(n: usize, edges: &Vec<(usize, usize, u64)>) -> Vec<u64> {
-        let mut d = vec![vec![std::u64::MAX; n]; n];
+        let mut d = vec![vec![INF; n]; n];
         for i in 0..n {
             d[i][i] = 0;
         }
@@ -114,6 +121,7 @@ mod tests {
                 }
                 let dd = floyd_warshall(n, &edges);
                 let (d, _) = dijkstra(&g, 0);
+                let d = d.iter().map(|&d| d.unwrap_or(INF)).collect::<Vec<_>>();
                 assert_eq!(dd, d);
             }
         }
