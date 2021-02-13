@@ -1,9 +1,15 @@
-use std::ops::Range;
 /// ソート済の列に対して二分法で"境目"を探します。
 pub trait BinarySearch<T> {
     fn lower_bound(&self, x: &T) -> usize;
     fn upper_bound(&self, x: &T) -> usize;
-    fn split_by(&self, x: &T) -> (Range<usize>, Range<usize>, Range<usize>);
+    fn split_by(
+        &self,
+        x: &T,
+    ) -> (
+        std::ops::Range<usize>,
+        std::ops::Range<usize>,
+        std::ops::Range<usize>,
+    );
 }
 
 impl<T: Ord> BinarySearch<T> for [T] {
@@ -17,15 +23,17 @@ impl<T: Ord> BinarySearch<T> for [T] {
     /// assert_eq!(a.lower_bound(&9), a.len());
     /// ```
     fn lower_bound(&self, x: &T) -> usize {
-        if self[0] >= *x {
+        // self[0] >= *x
+        if self[0].ge(x) {
             return 0;
         }
         let mut lf = 0;
         let mut rg = self.len();
-        // self[lf] < x
+        // keep self[lf] < *x
         while rg - lf > 1 {
             let md = (rg + lf) / 2;
-            if self[md] < *x {
+            // self[md] < *x
+            if self[md].lt(x) {
                 lf = md;
             } else {
                 rg = md;
@@ -45,15 +53,17 @@ impl<T: Ord> BinarySearch<T> for [T] {
     /// assert_eq!(a.upper_bound(&9), a.len());
     /// ```
     fn upper_bound(&self, x: &T) -> usize {
-        if self[0] > *x {
+        // self[0] > *x
+        if self[0].gt(x) {
             return 0;
         }
         let mut lf = 0;
         let mut rg = self.len();
-        // self[lf] <= x
+        // keep self[lf] <= *x
         while rg - lf > 1 {
             let md = (rg + lf) / 2;
-            if self[md] <= *x {
+            // self[md] <= *x
+            if self[md].le(x) {
                 lf = md;
             } else {
                 rg = md;
@@ -78,7 +88,14 @@ impl<T: Ord> BinarySearch<T> for [T] {
     /// assert_eq!(a.split_by(&2), (0..1, 1..3, 3..a.len()));
     /// assert_eq!(a.split_by(&9), (0..a.len(), a.len()..a.len(), a.len()..a.len()));
     /// ```
-    fn split_by(&self, x: &T) -> (Range<usize>, Range<usize>, Range<usize>) {
+    fn split_by(
+        &self,
+        x: &T,
+    ) -> (
+        std::ops::Range<usize>,
+        std::ops::Range<usize>,
+        std::ops::Range<usize>,
+    ) {
         let i = self.lower_bound(x);
         let j = self.upper_bound(x);
         (0..i, i..j, j..self.len())
