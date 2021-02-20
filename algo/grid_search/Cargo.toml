@@ -1,5 +1,5 @@
 [package]
-name = "grid"
+name = "grid_search"
 version = "0.1.0"
 authors = ["ia7ck <23146842+ia7ck@users.noreply.github.com>"]
 edition = "2018"
