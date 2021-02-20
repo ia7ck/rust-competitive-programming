@@ -1,6 +1,5 @@
 /// Union Find はグラフの連結成分を管理します。
 pub struct UnionFind {
-    n: usize,
     par: Vec<usize>,
     size: Vec<usize>,
 }
@@ -9,12 +8,28 @@ impl UnionFind {
     /// グラフの頂点数 `n` を渡します。
     pub fn new(n: usize) -> UnionFind {
         UnionFind {
-            n,
-            par: (0..n).map(|i| i).collect::<Vec<_>>(),
+            par: (0..n).collect(),
             size: vec![1; n],
         }
     }
     /// 頂点 `i` の属する連結成分の代表元を返します。
+    ///
+    /// # Examples
+    /// ```
+    /// use union_find::UnionFind;
+    /// let mut uf = UnionFind::new(6);
+    /// uf.unite(0, 1);
+    /// uf.unite(1, 2);
+    /// uf.unite(3, 4);
+    /// let mut leaders = (0..6).map(|i| uf.find(i)).collect::<Vec<_>>();
+    /// assert_eq!(leaders[0], leaders[0]);
+    /// assert_eq!(leaders[0], leaders[1]);
+    /// assert_eq!(leaders[1], leaders[2]);
+    /// assert_eq!(leaders[0], leaders[2]);
+    /// assert_eq!(leaders[3], leaders[4]);
+    /// assert_ne!(leaders[0], leaders[3]);
+    /// assert_ne!(leaders[0], leaders[5]);
+    /// ```
     pub fn find(&mut self, i: usize) -> usize {
         if self.par[i] == i {
             self.par[i]
@@ -77,42 +92,5 @@ impl UnionFind {
     /// ```
     pub fn same(&mut self, i: usize, j: usize) -> bool {
         self.find(i) == self.find(j)
-    }
-    /// 「連結成分に属する頂点のベクタ」のベクタを返します。
-    ///
-    /// # Examples
-    /// ```
-    /// use union_find::UnionFind;
-    /// let mut uf = UnionFind::new(6);
-    /// uf.unite(0, 1);
-    /// uf.unite(1, 2);
-    /// uf.unite(3, 4);
-    /// let components = uf.components();
-    /// for (k, c) in components.iter().enumerate() {
-    ///     for &i in c {
-    ///         for &j in c {
-    ///             assert!(uf.same(i, j));
-    ///         }
-    ///     }
-    ///     for d in &components[0..k] {
-    ///         for &i in c {
-    ///             for &j in d {
-    ///                 assert!(!uf.same(i, j));
-    ///             }
-    ///         }
-    ///     }
-    /// }
-    /// ```
-    pub fn components(&mut self) -> Vec<Vec<usize>> {
-        let mut c = vec![vec![]; self.n];
-        for i in 0..self.n {
-            let p = self.find(i);
-            c[p].push(i);
-        }
-        c.into_iter().filter(|cc| !cc.is_empty()).collect()
-    }
-    /// 各連結成分の代表元をベクタで返します。`uf.components().iter().map(|c| uf.find(c[0])).collect()` です。
-    pub fn leaders(&mut self) -> Vec<usize> {
-        self.components().iter().map(|c| self.find(c[0])).collect()
     }
 }
