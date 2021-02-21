@@ -94,6 +94,7 @@
 <span id="94">94</span>
 <span id="95">95</span>
 <span id="96">96</span>
+<span id="97">97</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FenwickTree</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="ident">n</span>: <span class="ident">usize</span>,
@@ -105,7 +106,6 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Copy</span>,
     <span class="ident">T</span>: <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">AddAssign</span>,
-    <span class="ident">T</span>: <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">Sub</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span>,
     <span class="ident">T</span>: <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">SubAssign</span>,
 {
     <span class="doccomment">/// 長さ `n` の列を作り、初期値 `e` で埋めます。雰囲気は `let mut a = vec![e; n];` です。</span>
@@ -119,13 +119,13 @@
     }
     <span class="comment">// 0-indexed</span>
     <span class="comment">// a[k] += x</span>
-    <span class="doccomment">/// `k` 番目の値に `x` を足します。`k` は 0-indexed です。`a[k] += x;`</span>
+    <span class="doccomment">/// 列の `k` 番目に `x` を足します。`k` は 0-indexed です。`a[k] += x;`</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">k</span>: <span class="ident">usize</span>, <span class="ident">x</span>: <span class="ident">T</span>) {
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">k</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">n</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">k</span> <span class="op">=</span> (<span class="ident">k</span> <span class="op">+</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">i32</span>;
-        <span class="kw">while</span> <span class="ident">k</span> <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">n</span> <span class="kw">as</span> <span class="ident">i32</span> {
-            <span class="self">self</span>.<span class="ident">dat</span>[<span class="ident">k</span> <span class="kw">as</span> <span class="ident">usize</span>] <span class="op">+</span><span class="op">=</span> <span class="ident">x</span>;
-            <span class="ident">k</span> <span class="op">+</span><span class="op">=</span> <span class="ident">k</span> <span class="op">&amp;</span> (<span class="op">-</span><span class="ident">k</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">k</span> <span class="op">=</span> <span class="ident">k</span> <span class="op">+</span> <span class="number">1</span>;
+        <span class="kw">while</span> <span class="ident">k</span> <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">n</span> {
+            <span class="self">self</span>.<span class="ident">dat</span>[<span class="ident">k</span>] <span class="op">+</span><span class="op">=</span> <span class="ident">x</span>;
+            <span class="ident">k</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">k</span>.<span class="ident">trailing_zeros</span>();
         }
     }
     <span class="comment">// 1-indexed</span>
@@ -133,16 +133,16 @@
     <span class="kw">fn</span> <span class="ident">_sum</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">r</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span> {
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">r</span> <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">n</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">e</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">k</span> <span class="op">=</span> <span class="ident">r</span> <span class="kw">as</span> <span class="ident">i32</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">k</span> <span class="op">=</span> <span class="ident">r</span>;
         <span class="kw">while</span> <span class="ident">k</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">1</span> {
-            <span class="ident">result</span> <span class="op">+</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">dat</span>[<span class="ident">k</span> <span class="kw">as</span> <span class="ident">usize</span>];
-            <span class="ident">k</span> <span class="op">-</span><span class="op">=</span> <span class="ident">k</span> <span class="op">&amp;</span> (<span class="op">-</span><span class="ident">k</span>);
+            <span class="ident">result</span> <span class="op">+</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">dat</span>[<span class="ident">k</span>];
+            <span class="ident">k</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">k</span>.<span class="ident">trailing_zeros</span>();
         }
         <span class="ident">result</span>
     }
     <span class="comment">// 0-indexed</span>
     <span class="comment">// a[l] + a[l + 1] + ... + a[r - 1]</span>
-    <span class="doccomment">/// 区間和を計算します。`range` が `l..r` だとして `a[l..r].iter().sum();` という感じです。</span>
+    <span class="doccomment">/// 区間和を計算します。`range` が `l..r` だとして `a[l..r].iter().sum::&lt;T&gt;()` です。</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">/// use fenwick_tree::FenwickTree;</span>
@@ -161,7 +161,9 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sum</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">range</span>: <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">Range</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span> {
         <span class="kw">let</span> (<span class="ident">l</span>, <span class="ident">r</span>) <span class="op">=</span> (<span class="ident">range</span>.<span class="ident">start</span>, <span class="ident">range</span>.<span class="ident">end</span>);
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">r</span> <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">n</span>);
-        <span class="self">self</span>.<span class="ident">_sum</span>(<span class="ident">r</span>) <span class="op">-</span> <span class="self">self</span>.<span class="ident">_sum</span>(<span class="ident">l</span>)
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">_sum</span>(<span class="ident">r</span>);
+        <span class="ident">result</span> <span class="op">-</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">_sum</span>(<span class="ident">l</span>);
+        <span class="ident">result</span>
     }
 }
 
