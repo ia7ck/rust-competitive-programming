@@ -8,7 +8,6 @@ impl<T> FenwickTree<T>
 where
     T: Copy,
     T: std::ops::AddAssign,
-    T: std::ops::Sub<Output = T>,
     T: std::ops::SubAssign,
 {
     /// 長さ `n` の列を作り、初期値 `e` で埋めます。雰囲気は `let mut a = vec![e; n];` です。
@@ -22,13 +21,13 @@ where
     }
     // 0-indexed
     // a[k] += x
-    /// `k` 番目の値に `x` を足します。`k` は 0-indexed です。`a[k] += x;`
+    /// 列の `k` 番目に `x` を足します。`k` は 0-indexed です。`a[k] += x;`
     pub fn add(&mut self, k: usize, x: T) {
         assert!(k < self.n);
-        let mut k = (k + 1) as i32;
-        while k <= self.n as i32 {
-            self.dat[k as usize] += x;
-            k += k & (-k);
+        let mut k = k + 1;
+        while k <= self.n {
+            self.dat[k] += x;
+            k += 1 << k.trailing_zeros();
         }
     }
     // 1-indexed
@@ -36,16 +35,16 @@ where
     fn _sum(&self, r: usize) -> T {
         assert!(r <= self.n);
         let mut result = self.e;
-        let mut k = r as i32;
+        let mut k = r;
         while k >= 1 {
-            result += self.dat[k as usize];
-            k -= k & (-k);
+            result += self.dat[k];
+            k -= 1 << k.trailing_zeros();
         }
         result
     }
     // 0-indexed
     // a[l] + a[l + 1] + ... + a[r - 1]
-    /// 区間和を計算します。`range` が `l..r` だとして `a[l..r].iter().sum();` という感じです。
+    /// 区間和を計算します。`range` が `l..r` だとして `a[l..r].iter().sum::<T>()` です。
     /// # Examples
     /// ```
     /// use fenwick_tree::FenwickTree;
@@ -64,7 +63,9 @@ where
     pub fn sum(&self, range: std::ops::Range<usize>) -> T {
         let (l, r) = (range.start, range.end);
         assert!(r <= self.n);
-        self._sum(r) - self._sum(l)
+        let mut result = self._sum(r);
+        result -= self._sum(l);
+        result
     }
 }
 
