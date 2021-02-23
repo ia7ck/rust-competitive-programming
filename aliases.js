@@ -1,7 +1,7 @@
 var ALIASES = {};
 ALIASES["binary_search"] = {};
-ALIASES["combination"] = {};
 ALIASES["dijkstra"] = {};
+ALIASES["factorials"] = {};
 ALIASES["fenwick_tree"] = {};
 ALIASES["grid_search"] = {};
 ALIASES["min_factors"] = {};

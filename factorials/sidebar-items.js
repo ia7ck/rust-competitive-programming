@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["factorials","`1` 以上 `size` 未満の `n` について、`n` の階乗 (mod `mo`) と、その乗法逆元を O(`size`) で計算します。"]]});
