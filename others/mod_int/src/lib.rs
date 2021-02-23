@@ -1,4 +1,4 @@
-//! `ModInt` は「～を `p` で割った余りを出力してください」形式の問題で活躍します。
+//! `ModInt` は整数の四則演算を mod `p` で行う構造体です。
 //!
 //! ```
 //! use mod_int::ModInt1000000007;
@@ -26,24 +26,29 @@
 //! ```
 //!
 
-use std::fmt::Debug;
-use std::marker::PhantomData;
-use std::ops::{Add, Div, Mul, Sub};
-
-pub trait Modulo: Copy + Clone + Debug {
+pub trait Modulo: Copy + Clone + std::fmt::Debug {
     fn p() -> i64;
 }
 
-#[derive(Copy, Clone, Debug)]
-pub struct ModInt<M>(i64, PhantomData<M>);
+#[derive(Copy, Clone, std::fmt::Debug)]
+pub struct ModInt<M>(i64, std::marker::PhantomData<M>);
 
 impl<M: Modulo> ModInt<M> {
-    /// `0 <= x < p` に正規化してインスタンスを作ります。
+    /// 整数を `0 <= x < p` に正規化してインスタンスを作ります。
+    ///
+    /// # Panics
+    /// if the conversion to `i64` was failed.
+    ///
+    /// ```should_panic
+    /// use mod_int::ModInt1000000007;
+    /// ModInt1000000007::new(std::u64::MAX); // panic
+    /// ```
     pub fn new<T>(x: T) -> Self
     where
-        T: Into<i64>,
+        T: std::convert::TryInto<i64>,
+        <T as std::convert::TryInto<i64>>::Error: std::fmt::Debug,
     {
-        let x = x.into();
+        let x = x.try_into().unwrap();
         if 0 <= x && x < M::p() {
             Self::new_raw(x)
         } else {
@@ -51,11 +56,9 @@ impl<M: Modulo> ModInt<M> {
         }
     }
 
-    /// 定数倍高速化用です。`0 <= x < p` であることを信用してインスタンスを作ります。
-    ///
-    /// 余分な剰余演算をしないので気持ち速くなると思います。
-    pub fn new_raw(x: i64) -> Self {
-        Self(x, PhantomData)
+    fn new_raw(x: i64) -> Self {
+        debug_assert!(0 <= x && x < M::p());
+        Self(x, std::marker::PhantomData)
     }
 
     /// `ModInt` に格納されている値 `x` を返します。
@@ -91,10 +94,14 @@ impl<M: Modulo> ModInt<M> {
     /// let y = repeat(x).take(exp as usize).fold(1, |acc, x| acc * x % p);
     /// assert_eq!(y, ModInt1000000007::new(x).pow(exp).val());
     /// ```
-    pub fn pow(self, exp: u64) -> Self {
+    pub fn pow<T>(self, exp: T) -> Self
+    where
+        T: std::convert::TryInto<u64>,
+        <T as std::convert::TryInto<u64>>::Error: std::fmt::Debug,
+    {
         let mut res = 1;
         let mut base = self.0;
-        let mut exp = exp;
+        let mut exp = exp.try_into().unwrap();
         let mo = Self::mo();
         while exp > 0 {
             if exp & 1 == 1 {
@@ -119,28 +126,16 @@ impl<M: Modulo> ModInt<M> {
     /// ```
     pub fn inv(self) -> Self {
         assert_ne!(self.0, 0, "Don't divide by zero!");
-        self.pow(Self::mo() as u64 - 2)
-    }
-
-    /// 分数 `numer/denom % p` です。
-    ///
-    /// # Examples
-    /// ```
-    /// use mod_int::ModInt1000000007;
-    /// let frac = ModInt1000000007::new_frac(123, 456);
-    /// assert_eq!(frac.val() * 456 % 1000000007, 123);
-    /// ```
-    pub fn new_frac(numer: i64, denom: i64) -> Self {
-        Self::new(numer) / Self::new(denom)
+        self.pow(Self::mo() - 2)
     }
 }
 
 #[allow(clippy::suspicious_arithmetic_impl)]
-impl<M: Modulo> Add for ModInt<M> {
+impl<M: Modulo> std::ops::Add for ModInt<M> {
     type Output = ModInt<M>;
     fn add(self, rhs: ModInt<M>) -> Self::Output {
         let x = self.0 + rhs.0;
-        debug_assert!(x >= 0);
+        debug_assert!(0 <= x && x <= (Self::mo() - 1) * 2);
         if x < Self::mo() {
             Self::new_raw(x)
         } else {
@@ -150,11 +145,11 @@ impl<M: Modulo> Add for ModInt<M> {
 }
 
 #[allow(clippy::suspicious_arithmetic_impl)]
-impl<M: Modulo> Sub for ModInt<M> {
+impl<M: Modulo> std::ops::Sub for ModInt<M> {
     type Output = ModInt<M>;
     fn sub(self, rhs: ModInt<M>) -> Self::Output {
         let x = self.0 - rhs.0;
-        debug_assert!(x < Self::mo());
+        debug_assert!(-(Self::mo() - 1) <= x && x < Self::mo());
         if x >= 0 {
             Self::new_raw(x)
         } else {
@@ -163,7 +158,7 @@ impl<M: Modulo> Sub for ModInt<M> {
     }
 }
 
-impl<M: Modulo> Mul for ModInt<M> {
+impl<M: Modulo> std::ops::Mul for ModInt<M> {
     type Output = ModInt<M>;
     fn mul(self, rhs: ModInt<M>) -> Self::Output {
         Self::new(self.0 * rhs.0)
@@ -171,7 +166,7 @@ impl<M: Modulo> Mul for ModInt<M> {
 }
 
 #[allow(clippy::suspicious_arithmetic_impl)]
-impl<M: Modulo> Div for ModInt<M> {
+impl<M: Modulo> std::ops::Div for ModInt<M> {
     type Output = ModInt<M>;
     fn div(self, rhs: ModInt<M>) -> Self::Output {
         self * rhs.inv()
