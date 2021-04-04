@@ -1,12 +1,15 @@
 var N = null;var sourcesIndex = {};
 sourcesIndex["binary_search"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["dijkstra"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["divisors"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["factorials"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["fenwick_tree"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["floor_sqrt"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["grid_search"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["min_factors"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["least_prime_factors"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["mod_int"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["next_permutation"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["prime_factorization"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["procon_reader"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["rolling_hash"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["system_test_tool"] = {"name":"","files":["lib.rs"]};

@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["floor_sqrt","`floor(sqrt(n))` を返す。"]]});

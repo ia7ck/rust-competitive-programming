@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["prime_factorization","`n` を素因数分解する。"]]});

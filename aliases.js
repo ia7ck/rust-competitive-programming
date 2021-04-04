@@ -1,12 +1,15 @@
 var ALIASES = {};
 ALIASES["binary_search"] = {};
 ALIASES["dijkstra"] = {};
+ALIASES["divisors"] = {};
 ALIASES["factorials"] = {};
 ALIASES["fenwick_tree"] = {};
+ALIASES["floor_sqrt"] = {};
 ALIASES["grid_search"] = {};
-ALIASES["min_factors"] = {};
+ALIASES["least_prime_factors"] = {};
 ALIASES["mod_int"] = {};
 ALIASES["next_permutation"] = {};
+ALIASES["prime_factorization"] = {};
 ALIASES["procon_reader"] = {};
 ALIASES["rolling_hash"] = {};
 ALIASES["system_test_tool"] = {};
