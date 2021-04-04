@@ -2,8 +2,8 @@
 ///
 /// # Examples
 /// ```
-/// use min_factors::min_factors;
-/// let facs = min_factors(10);
+/// use least_prime_factors::least_prime_factors;
+/// let facs = least_prime_factors(10);
 /// assert_eq!(facs[2], 2);
 /// assert_eq!(facs[3], 3);
 /// assert_eq!(facs[4], 2);
@@ -13,8 +13,11 @@
 /// assert_eq!(facs[8], 2);
 /// assert_eq!(facs[9], 3);
 /// ```
-pub fn min_factors(n: usize) -> Vec<usize> {
-    let mut result: Vec<usize> = (0..n).collect();
+pub fn least_prime_factors(n: usize) -> Vec<usize> {
+    let mut result = vec![0; n];
+    for i in 2..n {
+        result[i] = i;
+    }
     for i in 2..n {
         if result[i] == i {
             for j in ((i + i)..n).step_by(i) {
@@ -29,14 +32,14 @@ pub fn min_factors(n: usize) -> Vec<usize> {
 
 #[cfg(test)]
 mod tests {
-    use super::min_factors;
+    use super::least_prime_factors;
 
     #[test]
     fn min_factors_test() {
         let n = 1000;
-        let min_factors = min_factors(n);
+        let min_factors = least_prime_factors(n);
         for i in 2..n {
-            let j = (2..=i).filter(|&j| i % j == 0).min().unwrap();
+            let j = (2..=i).find(|&j| i % j == 0).unwrap();
             assert_eq!(j, min_factors[i]);
         }
     }
