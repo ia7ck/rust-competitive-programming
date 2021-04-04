@@ -15,6 +15,7 @@
 /// ```
 pub fn least_prime_factors(n: usize) -> Vec<usize> {
     let mut result = vec![0; n];
+    #[allow(clippy::needless_range_loop)]
     for i in 2..n {
         result[i] = i;
     }
