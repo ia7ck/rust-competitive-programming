@@ -53,15 +53,27 @@ pub fn dijkstra(g: &[Vec<Edge>], s: usize) -> (Vec<Option<u64>>, Vec<Option<usiz
     dist[s] = Some(0);
     q.push((Reverse(0), s));
     while let Some((Reverse(d), v)) = q.pop() {
-        if dist[v].map_or(false, |min| d > min) {
-            continue;
+        match dist[v] {
+            Some(dv) => {
+                if dv < d {
+                    continue;
+                } else {
+                    assert_eq!(dv, d);
+                }
+            }
+            None => unreachable!(),
         }
         for e in &g[v] {
             let next_d = d + e.cost;
-            if dist[e.to].map_or(true, |cur_d| next_d < cur_d) {
-                dist[e.to] = Some(next_d);
-                prev[e.to] = Some(v);
-                q.push((Reverse(next_d), e.to));
+            match dist[e.to] {
+                Some(dt) if dt <= next_d => {
+                    continue;
+                }
+                _ => {
+                    dist[e.to] = Some(next_d);
+                    prev[e.to] = Some(v);
+                    q.push((Reverse(next_d), e.to));
+                }
             }
         }
     }
