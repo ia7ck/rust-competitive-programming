@@ -26,6 +26,8 @@
 //! ```
 //!
 
+use std::convert::TryInto;
+
 pub trait Modulo: Copy + Clone + std::fmt::Debug {
     fn p() -> i64;
 }
@@ -45,8 +47,8 @@ impl<M: Modulo> ModInt<M> {
     /// ```
     pub fn new<T>(x: T) -> Self
     where
-        T: std::convert::TryInto<i64>,
-        <T as std::convert::TryInto<i64>>::Error: std::fmt::Debug,
+        T: TryInto<i64>,
+        <T as TryInto<i64>>::Error: std::fmt::Debug,
     {
         let x = x.try_into().unwrap();
         if 0 <= x && x < M::p() {
@@ -96,8 +98,8 @@ impl<M: Modulo> ModInt<M> {
     /// ```
     pub fn pow<T>(self, exp: T) -> Self
     where
-        T: std::convert::TryInto<u64>,
-        <T as std::convert::TryInto<u64>>::Error: std::fmt::Debug,
+        T: TryInto<u64>,
+        <T as TryInto<u64>>::Error: std::fmt::Debug,
     {
         let mut res = 1;
         let mut base = self.0;

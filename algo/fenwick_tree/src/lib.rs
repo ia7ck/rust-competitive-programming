@@ -1,3 +1,5 @@
+use std::ops::Range;
+
 pub struct FenwickTree<T> {
     n: usize,
     e: T,
@@ -60,7 +62,7 @@ where
     /// assert_eq!(ft.sum(2..5), 110);
     /// assert_eq!(ft.sum(0..5), 111);
     /// ```
-    pub fn sum(&self, range: std::ops::Range<usize>) -> T {
+    pub fn sum(&self, range: Range<usize>) -> T {
         let (l, r) = (range.start, range.end);
         assert!(r <= self.n);
         let mut result = self._sum(r);

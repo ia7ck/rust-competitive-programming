@@ -1,3 +1,6 @@
+use std::cmp::Reverse;
+use std::collections::BinaryHeap;
+
 #[derive(Copy, Clone, Debug)]
 pub struct Edge {
     /// 行き先の頂点です。
@@ -44,8 +47,6 @@ pub struct Edge {
 /// ```
 #[allow(clippy::many_single_char_names)]
 pub fn dijkstra(g: &[Vec<Edge>], s: usize) -> (Vec<Option<u64>>, Vec<Option<usize>>) {
-    use std::cmp::Reverse;
-    use std::collections::BinaryHeap;
     let n = g.len();
     let mut dist = vec![None; n];
     let mut q = BinaryHeap::new();
