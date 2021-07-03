@@ -199,7 +199,13 @@
 <span id="199">199</span>
 <span id="200">200</span>
 <span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">BufRead</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">str</span>::<span class="ident">FromStr</span>;
+
 <span class="doccomment">/// 競技プログラミングで、入力値を読むパートをラクにします。</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ProconReader</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
     <span class="ident">r</span>: <span class="ident">R</span>,
@@ -207,7 +213,7 @@
     <span class="ident">i</span>: <span class="ident">usize</span>,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">BufRead</span><span class="op">&gt;</span> <span class="ident">ProconReader</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">BufRead</span><span class="op">&gt;</span> <span class="ident">ProconReader</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
     <span class="doccomment">/// 標準入力から読み込みたいときの例です。</span>
     <span class="doccomment">/// ファイルからの読み込みは [`BufRead`](https://doc.rust-lang.org/nightly/std/io/trait.BufRead.html) の Examples を参考にしてください。</span>
     <span class="doccomment">///</span>
@@ -244,8 +250,8 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">std</span>::<span class="ident">str</span>::<span class="ident">FromStr</span>,
-        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">std</span>::<span class="ident">str</span>::<span class="ident">FromStr</span><span class="op">&gt;</span>::<span class="prelude-val">Err</span>: <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span>,
+        <span class="ident">T</span>: <span class="ident">FromStr</span>,
+        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">FromStr</span><span class="op">&gt;</span>::<span class="prelude-val">Err</span>: <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span>,
     {
         <span class="self">self</span>.<span class="ident">skip_blanks</span>();
         <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">i</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">l</span>.<span class="ident">len</span>()); <span class="comment">// remain some character</span>
@@ -295,8 +301,8 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">std</span>::<span class="ident">str</span>::<span class="ident">FromStr</span>,
-        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">std</span>::<span class="ident">str</span>::<span class="ident">FromStr</span><span class="op">&gt;</span>::<span class="prelude-val">Err</span>: <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span>,
+        <span class="ident">T</span>: <span class="ident">FromStr</span>,
+        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">FromStr</span><span class="op">&gt;</span>::<span class="prelude-val">Err</span>: <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span>,
     {
         (<span class="number">0</span>..<span class="ident">n</span>).<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">get</span>()).<span class="ident">collect</span>()
     }

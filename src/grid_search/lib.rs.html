@@ -146,7 +146,12 @@
 <span id="146">146</span>
 <span id="147">147</span>
 <span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">Bound</span>::{<span class="ident">Excluded</span>, <span class="ident">Included</span>, <span class="ident">Unbounded</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Range</span>, <span class="ident">RangeBounds</span>};
+
 <span class="doccomment">/// This `struct` is created by the [`around`] methods.</span>
 <span class="doccomment">/// See its documentation for more.</span>
 <span class="doccomment">///</span>
@@ -154,8 +159,8 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Around</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">y</span>: <span class="ident">usize</span>,
     <span class="ident">x</span>: <span class="ident">usize</span>,
-    <span class="ident">y_range</span>: <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">Range</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-    <span class="ident">x_range</span>: <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">Range</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+    <span class="ident">y_range</span>: <span class="ident">Range</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+    <span class="ident">x_range</span>: <span class="ident">Range</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
     <span class="ident">directions</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [(<span class="ident">isize</span>, <span class="ident">isize</span>)],
     <span class="ident">dir_idx</span>: <span class="ident">usize</span>,
 }
@@ -197,14 +202,14 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Around</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// 上下方向の範囲をセットします。デフォルトは `0..usize::MAX` です。</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">y_range</span>(<span class="self">self</span>, <span class="ident">y_rng</span>: <span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">RangeBounds</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">y_range</span>(<span class="self">self</span>, <span class="ident">y_rng</span>: <span class="kw">impl</span> <span class="ident">RangeBounds</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">y_range</span>: <span class="ident">half_open_range</span>(<span class="ident">y_rng</span>),
             ..<span class="self">self</span>
         }
     }
     <span class="doccomment">/// 左右方向の範囲をセットします。デフォルトは `0..usize::MAX` です。</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">x_range</span>(<span class="self">self</span>, <span class="ident">x_rng</span>: <span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">RangeBounds</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">x_range</span>(<span class="self">self</span>, <span class="ident">x_rng</span>: <span class="kw">impl</span> <span class="ident">RangeBounds</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">x_range</span>: <span class="ident">half_open_range</span>(<span class="ident">x_rng</span>),
             ..<span class="self">self</span>
@@ -247,8 +252,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">half_open_range</span>(<span class="ident">rng</span>: <span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">RangeBounds</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">Range</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">Bound</span>::{<span class="ident">Excluded</span>, <span class="ident">Included</span>, <span class="ident">Unbounded</span>};
+<span class="kw">fn</span> <span class="ident">half_open_range</span>(<span class="ident">rng</span>: <span class="kw">impl</span> <span class="ident">RangeBounds</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Range</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">rng</span>.<span class="ident">start_bound</span>() {
         <span class="ident">Included</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">s</span>,
         <span class="ident">Excluded</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">s</span> <span class="op">+</span> <span class="number">1</span>,
