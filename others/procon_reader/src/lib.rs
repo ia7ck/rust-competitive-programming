@@ -1,3 +1,6 @@
+use std::io::BufRead;
+use std::str::FromStr;
+
 /// 競技プログラミングで、入力値を読むパートをラクにします。
 pub struct ProconReader<R> {
     r: R,
@@ -5,7 +8,7 @@ pub struct ProconReader<R> {
     i: usize,
 }
 
-impl<R: std::io::BufRead> ProconReader<R> {
+impl<R: BufRead> ProconReader<R> {
     /// 標準入力から読み込みたいときの例です。
     /// ファイルからの読み込みは [`BufRead`](https://doc.rust-lang.org/nightly/std/io/trait.BufRead.html) の Examples を参考にしてください。
     ///
@@ -42,8 +45,8 @@ impl<R: std::io::BufRead> ProconReader<R> {
     /// ```
     pub fn get<T>(&mut self) -> T
     where
-        T: std::str::FromStr,
-        <T as std::str::FromStr>::Err: std::fmt::Debug,
+        T: FromStr,
+        <T as FromStr>::Err: std::fmt::Debug,
     {
         self.skip_blanks();
         assert!(self.i < self.l.len()); // remain some character
@@ -93,8 +96,8 @@ impl<R: std::io::BufRead> ProconReader<R> {
     /// ```
     pub fn get_vec<T>(&mut self, n: usize) -> Vec<T>
     where
-        T: std::str::FromStr,
-        <T as std::str::FromStr>::Err: std::fmt::Debug,
+        T: FromStr,
+        <T as FromStr>::Err: std::fmt::Debug,
     {
         (0..n).map(|_| self.get()).collect()
     }

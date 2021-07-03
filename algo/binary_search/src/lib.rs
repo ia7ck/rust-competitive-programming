@@ -1,15 +1,10 @@
+use std::ops::Range;
+
 /// ソート済の列に対して二分法で"境目"を探します。
 pub trait BinarySearch<T> {
     fn lower_bound(&self, x: &T) -> usize;
     fn upper_bound(&self, x: &T) -> usize;
-    fn split_by(
-        &self,
-        x: &T,
-    ) -> (
-        std::ops::Range<usize>,
-        std::ops::Range<usize>,
-        std::ops::Range<usize>,
-    );
+    fn split_by(&self, x: &T) -> (Range<usize>, Range<usize>, Range<usize>);
 }
 
 impl<T: Ord> BinarySearch<T> for [T] {
@@ -88,14 +83,7 @@ impl<T: Ord> BinarySearch<T> for [T] {
     /// assert_eq!(a.split_by(&2), (0..1, 1..3, 3..a.len()));
     /// assert_eq!(a.split_by(&9), (0..a.len(), a.len()..a.len(), a.len()..a.len()));
     /// ```
-    fn split_by(
-        &self,
-        x: &T,
-    ) -> (
-        std::ops::Range<usize>,
-        std::ops::Range<usize>,
-        std::ops::Range<usize>,
-    ) {
+    fn split_by(&self, x: &T) -> (Range<usize>, Range<usize>, Range<usize>) {
         let i = self.lower_bound(x);
         let j = self.upper_bound(x);
         (0..i, i..j, j..self.len())

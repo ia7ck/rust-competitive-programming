@@ -1,3 +1,6 @@
+use std::ops::Bound::{Excluded, Included, Unbounded};
+use std::ops::{Range, RangeBounds};
+
 /// This `struct` is created by the [`around`] methods.
 /// See its documentation for more.
 ///
@@ -5,8 +8,8 @@
 pub struct Around<'a> {
     y: usize,
     x: usize,
-    y_range: std::ops::Range<usize>,
-    x_range: std::ops::Range<usize>,
+    y_range: Range<usize>,
+    x_range: Range<usize>,
     directions: &'a [(isize, isize)],
     dir_idx: usize,
 }
@@ -48,14 +51,14 @@ pub fn around<'a>(y: usize, x: usize) -> Around<'a> {
 
 impl<'a> Around<'a> {
     /// 上下方向の範囲をセットします。デフォルトは `0..usize::MAX` です。
-    pub fn y_range(self, y_rng: impl std::ops::RangeBounds<usize>) -> Self {
+    pub fn y_range(self, y_rng: impl RangeBounds<usize>) -> Self {
         Self {
             y_range: half_open_range(y_rng),
             ..self
         }
     }
     /// 左右方向の範囲をセットします。デフォルトは `0..usize::MAX` です。
-    pub fn x_range(self, x_rng: impl std::ops::RangeBounds<usize>) -> Self {
+    pub fn x_range(self, x_rng: impl RangeBounds<usize>) -> Self {
         Self {
             x_range: half_open_range(x_rng),
             ..self
@@ -98,8 +101,7 @@ impl<'a> Iterator for Around<'a> {
     }
 }
 
-fn half_open_range(rng: impl std::ops::RangeBounds<usize>) -> std::ops::Range<usize> {
-    use std::ops::Bound::{Excluded, Included, Unbounded};
+fn half_open_range(rng: impl RangeBounds<usize>) -> Range<usize> {
     let start = match rng.start_bound() {
         Included(&s) => s,
         Excluded(&s) => s + 1,
