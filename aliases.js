@@ -8,6 +8,7 @@ ALIASES["fenwick_tree"] = {};
 ALIASES["floor_sqrt"] = {};
 ALIASES["grid_search"] = {};
 ALIASES["least_prime_factors"] = {};
+ALIASES["lowest_common_ancestor"] = {};
 ALIASES["mod_int"] = {};
 ALIASES["next_permutation"] = {};
 ALIASES["prime_factorization"] = {};

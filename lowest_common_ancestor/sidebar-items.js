@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["LowestCommonAncestor","頂点 `0` を根とする根付き木の LCA を求めます。"]]});
