@@ -1,41 +1,52 @@
-/// 非負整数 `n` の全ての約数を返します。
-///
-/// - 約数は昇順に並んでいることが保証されます。
-/// - `0` を渡すと空のベクタ `vec![]` を返します。
-///
-/// # Examples
-/// ```
-/// use divisors::divisors;
-///
-/// assert_eq!(divisors(24), vec![1, 2, 3, 4, 6, 8, 12, 24]);
-/// ```
-pub fn divisors(n: u64) -> Vec<u64> {
-    let mut res = vec![];
-    let mut large = vec![];
-    for k in (1..).take_while(|k| k * k <= n) {
-        if n % k == 0 {
-            res.push(k);
-            if n / k != k {
-                large.push(n / k);
-            }
-        }
-    }
-    large.reverse();
-    res.append(&mut large);
-    res
+/// 非負整数の約数全体です。
+pub trait Divisors: Sized {
+    /// 非負整数の約数を昇順で返します。`0` に対しては空のベクタ `vec![]` を返します。
+    ///
+    /// # Examples
+    /// ```
+    /// use divisors::Divisors;
+    ///
+    /// assert_eq!(24_u32.divisors(), vec![1, 2, 3, 4, 6, 8, 12, 24]);
+    fn divisors(self) -> Vec<Self>;
 }
+
+macro_rules! impl_divisors {
+    ($($t:ty),+) => {
+        $(
+            impl Divisors for $t {
+                fn divisors(self) -> Vec<Self> {
+                    let mut res = vec![];
+                    let mut large = vec![];
+                    for k in ((1 as Self)..).take_while(|&k| k.saturating_mul(k) <= self) {
+                        if self % k == 0 {
+                            res.push(k);
+                            if self / k != k {
+                                large.push(self / k);
+                            }
+                        }
+                    }
+                    large.reverse();
+                    res.append(&mut large);
+                    res
+                }
+            }
+        )+
+    };
+}
+
+impl_divisors!(usize, u32, u64);
 
 #[cfg(test)]
 mod tests {
-    use crate::divisors;
+    use crate::Divisors;
 
     #[test]
     fn divisors_test() {
-        assert_eq!(divisors(0), vec![]);
-        assert_eq!(divisors(1), vec![1]);
-        assert_eq!(divisors(2), vec![1, 2]);
-        assert_eq!(divisors(24), vec![1, 2, 3, 4, 6, 8, 12, 24]);
-        assert_eq!(divisors(25), vec![1, 5, 25]);
-        assert_eq!(divisors(29), vec![1, 29]);
+        assert_eq!(0_u32.divisors(), vec![]);
+        assert_eq!(1_u32.divisors(), vec![1]);
+        assert_eq!(2_u32.divisors(), vec![1, 2]);
+        assert_eq!(24_u32.divisors(), vec![1, 2, 3, 4, 6, 8, 12, 24]);
+        assert_eq!(25_u32.divisors(), vec![1, 5, 25]);
+        assert_eq!(29_u32.divisors(), vec![1, 29]);
     }
 }
