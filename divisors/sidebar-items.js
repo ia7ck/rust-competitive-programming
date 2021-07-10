@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["divisors","非負整数 `n` の全ての約数を返します。"]]});
+initSidebarItems({"trait":[["Divisors","非負整数の約数全体です。"]]});
