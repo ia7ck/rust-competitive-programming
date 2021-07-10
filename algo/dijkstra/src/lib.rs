@@ -9,6 +9,12 @@ pub struct Edge {
     pub cost: u64,
 }
 
+impl Edge {
+    pub fn new(to: usize, cost: u64) -> Self {
+        Self { to, cost }
+    }
+}
+
 /// `dijkstra` はあるひとつの頂点から全ての頂点への最短距離を計算します。
 ///
 /// 隣接リスト `g` とスタートの頂点 `s` を渡します。
@@ -31,10 +37,10 @@ pub struct Edge {
 /// //     |                 |
 /// //     +-----------------+
 /// //
-/// g[0].push(Edge { to: 1, cost: 1 });
-/// g[0].push(Edge { to: 2, cost: 1 });
-/// g[1].push(Edge { to: 2, cost: 1 });
-/// g[2].push(Edge { to: 3, cost: 1 });
+/// g[0].push(Edge::new(1, 1));
+/// g[0].push(Edge::new(2, 1));
+/// g[1].push(Edge::new(2, 1));
+/// g[2].push(Edge::new(3, 1));
 /// let (d, prev) = dijkstra(&g, 0);
 /// assert_eq!(d[0], Some(0));
 /// assert_eq!(d[1], Some(1));
@@ -130,7 +136,7 @@ mod tests {
                 let edges = generate(n, m);
                 let mut g = vec![vec![]; n];
                 for &(a, b, c) in &edges {
-                    g[a].push(Edge { to: b, cost: c });
+                    g[a].push(Edge::new(b, c));
                 }
                 let dd = floyd_warshall(n, &edges);
                 let (d, _) = dijkstra(&g, 0);
