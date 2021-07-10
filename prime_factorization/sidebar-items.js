@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["prime_factorization","`n` を素因数分解する。"]]});
+initSidebarItems({"trait":[["PrimeFactorization","非負整数を素因数分解です。"]]});
