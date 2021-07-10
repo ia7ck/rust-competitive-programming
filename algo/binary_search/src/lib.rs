@@ -17,7 +17,12 @@ impl<T: Ord> BinarySearch<T> for [T] {
     /// assert_eq!(a.lower_bound(&2), 1);
     /// assert_eq!(a.lower_bound(&9), a.len());
     /// ```
+    ///
+    /// # Panics
+    /// if `a` is empty
     fn lower_bound(&self, x: &T) -> usize {
+        assert!(!self.is_empty());
+
         // self[0] >= *x
         if self[0].ge(x) {
             return 0;
@@ -47,7 +52,12 @@ impl<T: Ord> BinarySearch<T> for [T] {
     /// assert_eq!(a.upper_bound(&3), a.len());
     /// assert_eq!(a.upper_bound(&9), a.len());
     /// ```
+    ///
+    /// # Panics
+    /// if `a` is empty
     fn upper_bound(&self, x: &T) -> usize {
+        assert!(!self.is_empty());
+
         // self[0] > *x
         if self[0].gt(x) {
             return 0;
@@ -83,7 +93,12 @@ impl<T: Ord> BinarySearch<T> for [T] {
     /// assert_eq!(a.split_by(&2), (0..1, 1..3, 3..a.len()));
     /// assert_eq!(a.split_by(&9), (0..a.len(), a.len()..a.len(), a.len()..a.len()));
     /// ```
+    ///
+    /// # Panics
+    /// if `a` is empty
     fn split_by(&self, x: &T) -> (Range<usize>, Range<usize>, Range<usize>) {
+        assert!(!self.is_empty());
+
         let i = self.lower_bound(x);
         let j = self.upper_bound(x);
         (0..i, i..j, j..self.len())
