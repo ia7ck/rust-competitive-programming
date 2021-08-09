@@ -67,7 +67,7 @@ fn sort_cyclic_shifts(s: &[char]) -> Vec<usize> {
 /// ```
 /// use suffix_array::suffix_array;
 /// let s: Vec<char> = "mississippi".chars().collect();
-/// let sa = suffix_array(&sa);
+/// let sa = suffix_array(&s);
 /// assert_eq!(sa, vec![10, 7, 4, 1, 0, 9, 8, 6, 3, 5, 2]);
 /// // i
 /// // ippi
