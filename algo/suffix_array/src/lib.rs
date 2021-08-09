@@ -88,23 +88,52 @@ pub fn suffix_array(s: &[char]) -> Vec<usize> {
     sorted_shifts[1..].to_vec()
 }
 
+pub fn lcp_array(s: &[char], sa: &[usize]) -> Vec<usize> {
+    let n = sa.len();
+    if n == 1 {
+        return vec![];
+    }
+    let mut rank = vec![!0; n];
+    for i in 0..n {
+        rank[sa[i]] = i;
+    }
+    let mut k = 0;
+    let mut lcp = vec![0; n - 1];
+    for i in 0..n {
+        if rank[i] + 1 == n {
+            k = 0;
+            continue;
+        }
+        if k >= 1 {
+            k -= 1;
+        }
+        let j = sa[rank[i] + 1];
+        while i + k < n && j + k < n && s[i + k] == s[j + k] {
+            k += 1;
+        }
+        lcp[rank[i]] = k;
+    }
+    lcp
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::suffix_array;
+    use crate::{lcp_array, suffix_array};
 
     #[test]
     fn test_small() {
         let tests = vec![
-            ("a", vec![0]),
-            ("aa", vec![1, 0]),
-            ("abc", vec![0, 1, 2]),
-            ("aaba", vec![3, 0, 1, 2]),
-            ("abaab", vec![2, 3, 0, 4, 1]),
-            ("dabbb", vec![1, 4, 3, 2, 0]),
+            ("a", vec![0], vec![]),
+            ("aa", vec![1, 0], vec![1]),
+            ("abc", vec![0, 1, 2], vec![0, 0]),
+            ("aaba", vec![3, 0, 1, 2], vec![1, 1, 0]),
+            ("abaab", vec![2, 3, 0, 4, 1], vec![1, 2, 0, 1]),
+            ("dabbb", vec![1, 4, 3, 2, 0], vec![0, 1, 2, 0]),
         ];
-        for (s, sa) in tests {
+        for (s, sa, lcp) in tests {
             let s: Vec<char> = s.chars().collect();
             assert_eq!(suffix_array(&s), sa);
+            assert_eq!(lcp_array(&s, &suffix_array(&s)), lcp);
         }
     }
 }
