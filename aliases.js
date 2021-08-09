@@ -14,6 +14,7 @@ ALIASES["next_permutation"] = {};
 ALIASES["prime_factorization"] = {};
 ALIASES["procon_reader"] = {};
 ALIASES["rolling_hash"] = {};
+ALIASES["suffix_array"] = {};
 ALIASES["system_test_tool"] = {};
 ALIASES["union_find"] = {};
 ALIASES["z_algorithm"] = {};

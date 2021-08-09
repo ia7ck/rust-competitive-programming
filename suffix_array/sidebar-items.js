@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["suffix_array","文字列 `s` の suffix array を O(|s|log|s|) で求めます。"]]});
