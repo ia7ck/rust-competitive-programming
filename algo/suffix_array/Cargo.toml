@@ -1,0 +1,12 @@
+[package]
+name = "suffix_array"
+version = "0.1.0"
+authors = ["ia7ck <23146842+ia7ck@users.noreply.github.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+[dev-dependencies]
+system_test_tool = { path = "../../others/system_test_tool" }
