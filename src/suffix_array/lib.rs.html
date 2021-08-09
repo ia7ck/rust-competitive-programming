@@ -107,6 +107,7 @@
 <span id="107">107</span>
 <span id="108">108</span>
 <span id="109">109</span>
+<span id="110">110</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">fn</span> <span class="ident">sort_cyclic_shifts</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span>[<span class="ident">char</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">len</span>();
@@ -137,6 +138,7 @@
     }
     <span class="kw">for</span> <span class="ident">h</span> <span class="kw">in</span> (<span class="number">0</span>..).<span class="ident">take_while</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">h</span><span class="op">|</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">h</span> <span class="op">&lt;</span> <span class="ident">n</span>) {
         <span class="kw">let</span> <span class="ident">pn</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">iter</span>().<span class="ident">copied</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> (<span class="ident">n</span> <span class="op">+</span> <span class="ident">x</span> <span class="op">-</span> (<span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">h</span>)) <span class="op">%</span> <span class="ident">n</span>).<span class="ident">collect</span>();
+        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">needless_range_loop</span>)]</span>
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">classes</span> {
             <span class="ident">cnt</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="number">0</span>;
         }
@@ -176,7 +178,7 @@
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use suffix_array::suffix_array;</span>
 <span class="doccomment">/// let s: Vec&lt;char&gt; = &quot;mississippi&quot;.chars().collect();</span>
-<span class="doccomment">/// let sa = suffix_array(&amp;sa);</span>
+<span class="doccomment">/// let sa = suffix_array(&amp;s);</span>
 <span class="doccomment">/// assert_eq!(sa, vec![10, 7, 4, 1, 0, 9, 8, 6, 3, 5, 2]);</span>
 <span class="doccomment">/// // i</span>
 <span class="doccomment">/// // ippi</span>
