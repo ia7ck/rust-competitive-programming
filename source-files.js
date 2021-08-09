@@ -7,6 +7,7 @@ sourcesIndex["factorials"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["fenwick_tree"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["floor_sqrt"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["grid_search"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["join"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["least_prime_factors"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["lowest_common_ancestor"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["mod_int"] = {"name":"","files":["lib.rs"]};

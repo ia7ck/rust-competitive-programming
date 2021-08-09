@@ -7,6 +7,7 @@ ALIASES["factorials"] = {};
 ALIASES["fenwick_tree"] = {};
 ALIASES["floor_sqrt"] = {};
 ALIASES["grid_search"] = {};
+ALIASES["join"] = {};
 ALIASES["least_prime_factors"] = {};
 ALIASES["lowest_common_ancestor"] = {};
 ALIASES["mod_int"] = {};
