@@ -27,6 +27,7 @@ fn sort_cyclic_shifts(s: &[char]) -> Vec<usize> {
     }
     for h in (0..).take_while(|&h| 1 << h < n) {
         let pn: Vec<usize> = p.iter().copied().map(|x| (n + x - (1 << h)) % n).collect();
+        #[allow(clippy::needless_range_loop)]
         for i in 0..classes {
             cnt[i] = 0;
         }
