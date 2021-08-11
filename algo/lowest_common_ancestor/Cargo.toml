@@ -10,5 +10,4 @@ edition = "2018"
 ceil_log2 = { path = "../ceil_log2" }
 
 [dev-dependencies]
-system_test_tool = { path = "../../others/system_test_tool" }
-procon_reader = { path = "../../others/procon_reader" }
+proconio = {version = "0.3.4", features = ["derive"] }

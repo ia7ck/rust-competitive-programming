@@ -9,4 +9,5 @@ edition = "2018"
 [dependencies]
 
 [dev-dependencies]
-system_test_tool = { path = "../../others/system_test_tool" }
+proconio = {version = "0.3.4", features = ["derive"] }
+join = { path = "../../others/join" }
