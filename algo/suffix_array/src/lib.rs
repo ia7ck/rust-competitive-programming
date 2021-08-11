@@ -61,6 +61,10 @@ fn sort_cyclic_shifts(s: &[char]) -> Vec<usize> {
 
 /// 文字列 `s` の suffix array を O(|s|log|s|) で求めます。
 ///
+/// 返り値は `s.len()` を `n` としたとき、長さ `n` のベクタ `sa` であり次の条件を満たすものです。
+///
+/// - `s[sa[i]..]` が `s` の `n` 個ある suffix のうち辞書順で `i` 番目である
+///
 /// original: [CP-Algorithms](https://cp-algorithms.com/string/suffix-array.html)
 ///
 /// # Examples
@@ -88,6 +92,17 @@ pub fn suffix_array(s: &[char]) -> Vec<usize> {
     sorted_shifts[1..].to_vec()
 }
 
+/// LCP 配列を O(|s|) で求めます。
+///
+/// 返り値は長さ `s.len() - 1` のベクタ `lcp` であり `lcp[i]` := `s[sa[i]..]` と `s[sa[i+1]..]` との最長共通接頭辞の長さ、です。
+///
+/// # Examples
+/// ```
+/// use suffix_array::{suffix_array, lcp_array};
+/// let s: Vec<char> = "mississippi".chars().collect();
+/// let sa = suffix_array(&s);
+/// let lcp = lcp_array(&s, &sa);
+/// assert_eq!(lcp, vec![1, 1, 4, 0, 0, 1, 0, 2, 1, 3]);
 pub fn lcp_array(s: &[char], sa: &[usize]) -> Vec<usize> {
     let n = sa.len();
     if n == 1 {
