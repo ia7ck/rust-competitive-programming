@@ -46,7 +46,7 @@ fn main() -> Result<()> {
             example_name.to_string_lossy()
         );
         println!(
-            "oj test --directory {} --command \"{}\"",
+            "oj test --directory {} --command \"{}\" --jobs 2",
             download_dir.display(),
             cargo_command
         );
@@ -56,6 +56,8 @@ fn main() -> Result<()> {
             .arg(download_dir.as_os_str())
             .arg("--command")
             .arg(cargo_command)
+            .arg("--jobs")
+            .arg("2")
             .status()?;
         assert!(status.success(), "failed: oj test");
     }
