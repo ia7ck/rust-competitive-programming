@@ -1,12 +1,12 @@
 [package]
-name = "fenwick_tree"
+name = "simple_example"
 version = "0.1.0"
 authors = ["ia7ck <23146842+ia7ck@users.noreply.github.com>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[dependencies]
+
 [dev-dependencies]
-rand = "0.7"
-proconio = {version = "0.3.4", features = ["derive"] }
-join = { path = "../../others/join" }
+proconio = "0.3.4"

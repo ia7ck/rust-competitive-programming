@@ -10,5 +10,4 @@ edition = "2018"
 
 [dev-dependencies]
 rand = "0.7"
-procon_reader = { path = "../../others/procon_reader" }
-system_test_tool = { path = "../../others/system_test_tool" }
+proconio = {version = "0.3.4", features = ["derive"] }
