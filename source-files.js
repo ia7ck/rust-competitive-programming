@@ -1,7 +1,6 @@
 var N = null;var sourcesIndex = {};
 sourcesIndex["binary_search"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["ceil_log2"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["detect_cycle"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["dijkstra"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["divisors"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["factorials"] = {"name":"","files":["lib.rs"]};
@@ -17,6 +16,7 @@ sourcesIndex["prime_factorization"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["procon_reader"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["rolling_hash"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["suffix_array"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["system_test_tool"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["union_find"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["z_algorithm"] = {"name":"","files":["lib.rs"]};
 createSourceSidebar();
