@@ -61,7 +61,7 @@ jobs:
       with:
           persist-credentials: false
     - name: Doc
-      run: cargo doc --no-deps --verbose
+      run: cargo doc --no-deps --lib --workspace --exclude=simple_example --verbose
     - name: Deploy 🚀
       uses: JamesIves/github-pages-deploy-action@3.7.1
       with:
