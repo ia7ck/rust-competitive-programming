@@ -1,6 +1,7 @@
 var N = null;var sourcesIndex = {};
 sourcesIndex["binary_search"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["ceil_log2"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["detect_cycle"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["dijkstra"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["divisors"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["factorials"] = {"name":"","files":["lib.rs"]};
