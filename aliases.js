@@ -1,6 +1,7 @@
 var ALIASES = {};
 ALIASES["binary_search"] = {};
 ALIASES["ceil_log2"] = {};
+ALIASES["detect_cycle"] = {};
 ALIASES["dijkstra"] = {};
 ALIASES["divisors"] = {};
 ALIASES["factorials"] = {};
