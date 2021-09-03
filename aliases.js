@@ -17,5 +17,6 @@ ALIASES["prime_factorization"] = {};
 ALIASES["procon_reader"] = {};
 ALIASES["rolling_hash"] = {};
 ALIASES["suffix_array"] = {};
+ALIASES["topological_sort"] = {};
 ALIASES["union_find"] = {};
 ALIASES["z_algorithm"] = {};

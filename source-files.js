@@ -17,6 +17,7 @@ sourcesIndex["prime_factorization"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["procon_reader"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["rolling_hash"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["suffix_array"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["topological_sort"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["union_find"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["z_algorithm"] = {"name":"","files":["lib.rs"]};
 createSourceSidebar();
