@@ -46,3 +46,29 @@ pub fn topological_sort(
         None
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::topological_sort;
+
+    #[test]
+    fn two_ways() {
+        let edges = vec![(0, 1), (0, 2), (1, 3), (2, 3)];
+        let order = topological_sort(4, edges.iter().copied());
+        assert!(order == Some(vec![0, 1, 2, 3]) || order == Some(vec![0, 2, 1, 3]));
+    }
+
+    #[test]
+    fn line() {
+        let edges = vec![(0, 1), (1, 2), (2, 3)];
+        let order = topological_sort(4, edges.iter().copied());
+        assert_eq!(order, Some(vec![0, 1, 2, 3]));
+    }
+
+    #[test]
+    fn contain_cycle() {
+        let edges = vec![(0, 1), (1, 2), (2, 3), (3, 1), (3, 4)];
+        let order = topological_sort(5, edges.iter().copied());
+        assert_eq!(order, None);
+    }
+}
