@@ -11,6 +11,7 @@
 /// assert_eq!(ext_gcd(42, 0), (1, 0, 42));
 /// assert_eq!(ext_gcd(0, 0), (0, 0, 0));
 /// ```
+#[allow(clippy::many_single_char_names)]
 pub fn ext_gcd(a: i64, b: i64) -> (i64, i64, i64) {
     if b == 0 {
         // ax + 0y = a
