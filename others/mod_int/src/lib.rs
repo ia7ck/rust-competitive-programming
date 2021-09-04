@@ -2,11 +2,10 @@
 //!
 //! ```
 //! use mod_int::ModInt1000000007;
-//! type Mint = ModInt1000000007;
 //! let p = 1000000007_i64;
 //! let (a, b, c) = (1000000001, 1000000005, 100000006);
 //! let x = (123 * a % p * b % p - c).rem_euclid(p);
-//! let y = Mint::new(123) * Mint::new(a) * Mint::new(b) - Mint::new(c);
+//! let y = ModInt1000000007::new(123) * a * b - c;
 //! assert_eq!(x, y.val());
 //! ```
 //!
