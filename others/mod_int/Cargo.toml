@@ -7,6 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+ext_gcd = { path = "../../algo/ext_gcd" }
 
 [dev-dependencies]
 rand = "0.7"
