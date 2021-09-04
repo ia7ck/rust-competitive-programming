@@ -27,40 +27,32 @@
 //!
 
 use std::convert::TryInto;
+use std::fmt::Debug;
+use std::marker::PhantomData;
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
-pub trait Modulo: Copy + Clone + std::fmt::Debug {
-    fn p() -> i64;
+use ext_gcd::ext_gcd;
+
+pub trait Modulo: Copy + Clone + Debug {
+    const P: i64;
 }
 
-#[derive(Copy, Clone, std::fmt::Debug)]
-pub struct ModInt<M>(i64, std::marker::PhantomData<M>);
+#[derive(Copy, Clone, Debug)]
+pub struct ModInt<M>(i64, PhantomData<M>);
 
 impl<M: Modulo> ModInt<M> {
     /// 整数を `0 <= x < p` に正規化してインスタンスを作ります。
-    ///
-    /// # Panics
-    /// if the conversion to `i64` was failed.
-    ///
-    /// ```should_panic
-    /// use mod_int::ModInt1000000007;
-    /// ModInt1000000007::new(std::u64::MAX); // panic
-    /// ```
-    pub fn new<T>(x: T) -> Self
-    where
-        T: TryInto<i64>,
-        <T as TryInto<i64>>::Error: std::fmt::Debug,
-    {
-        let x = x.try_into().unwrap();
-        if 0 <= x && x < M::p() {
+    pub fn new(x: i64) -> Self {
+        if 0 <= x && x < M::P {
             Self::new_raw(x)
         } else {
-            Self::new_raw(x.rem_euclid(M::p()))
+            Self::new_raw(x.rem_euclid(M::P))
         }
     }
 
     fn new_raw(x: i64) -> Self {
-        debug_assert!(0 <= x && x < M::p());
-        Self(x, std::marker::PhantomData)
+        debug_assert!(0 <= x && x < M::P);
+        Self(x, PhantomData)
     }
 
     /// `ModInt` に格納されている値 `x` を返します。
@@ -79,11 +71,11 @@ impl<M: Modulo> ModInt<M> {
     /// # Examples
     /// ```
     /// use mod_int::{ModInt1000000007, ModInt998244353};
-    /// assert_eq!(ModInt1000000007::mo(), 1000000007);
-    /// assert_eq!(ModInt998244353::mo(), 998244353);
+    /// assert_eq!(ModInt1000000007::p(), 1000000007);
+    /// assert_eq!(ModInt998244353::p(), 998244353);
     /// ```
-    pub fn mo() -> i64 {
-        M::p()
+    pub fn p() -> i64 {
+        M::P
     }
 
     /// 二分累乗法で `x^exp % p` を計算します。
@@ -99,19 +91,18 @@ impl<M: Modulo> ModInt<M> {
     pub fn pow<T>(self, exp: T) -> Self
     where
         T: TryInto<u64>,
-        <T as TryInto<u64>>::Error: std::fmt::Debug,
+        <T as TryInto<u64>>::Error: Debug,
     {
         let mut res = 1;
         let mut base = self.0;
         let mut exp = exp.try_into().unwrap();
-        let mo = Self::mo();
         while exp > 0 {
             if exp & 1 == 1 {
                 res *= base;
-                res %= mo;
+                res %= M::P;
             }
             base *= base;
-            base %= mo;
+            base %= M::P;
             exp >>= 1;
         }
         Self::new_raw(res)
@@ -122,58 +113,128 @@ impl<M: Modulo> ModInt<M> {
     /// # Examples
     /// ```
     /// use mod_int::ModInt1000000007;
-    /// let (x, p) = (2, 1000000007);
-    /// let y =ModInt1000000007::new(x).inv().val();
+    /// let (x, p) = (2, ModInt1000000007::p());
+    /// let y = ModInt1000000007::new(x).inv().val();
     /// assert_eq!(x * y % p, 1);
+    /// ```
+    ///
+    /// ```should_panic
+    /// use mod_int::ModInt1000000007;
+    /// ModInt1000000007::new(0).inv(); // panic
+    /// ```
+    ///
+    /// ```should_panic
+    /// use mod_int::{Modulo, ModInt, define_mod_int_p};
+    /// define_mod_int_p!(Mod10, ModInt10, 10);
+    /// // 6 * n : 0, 6, 2, 8, 4, 0, 6, 2, 8, 4
+    /// ModInt10::new(6).inv(); // panic
     /// ```
     pub fn inv(self) -> Self {
         assert_ne!(self.0, 0, "Don't divide by zero!");
-        self.pow(Self::mo() - 2)
+        let (x, _, g) = ext_gcd(self.0, M::P);
+        assert_eq!(g, 1, "{} is not prime!", M::P);
+        Self::new(x)
     }
 }
 
-#[allow(clippy::suspicious_arithmetic_impl)]
-impl<M: Modulo> std::ops::Add for ModInt<M> {
-    type Output = ModInt<M>;
-    fn add(self, rhs: ModInt<M>) -> Self::Output {
-        let x = self.0 + rhs.0;
-        debug_assert!(0 <= x && x <= (Self::mo() - 1) * 2);
-        if x < Self::mo() {
-            Self::new_raw(x)
-        } else {
-            Self::new_raw(x - Self::mo())
+impl<M: Modulo, T: Into<ModInt<M>>> AddAssign<T> for ModInt<M> {
+    fn add_assign(&mut self, rhs: T) {
+        self.0 += rhs.into().0;
+        debug_assert!(0 <= self.0 && self.0 <= (M::P - 1) * 2);
+        if self.0 >= M::P {
+            self.0 -= M::P;
         }
     }
 }
 
-#[allow(clippy::suspicious_arithmetic_impl)]
-impl<M: Modulo> std::ops::Sub for ModInt<M> {
+impl<M: Modulo, T: Into<ModInt<M>>> Add<T> for ModInt<M> {
     type Output = ModInt<M>;
-    fn sub(self, rhs: ModInt<M>) -> Self::Output {
-        let x = self.0 - rhs.0;
-        debug_assert!(-(Self::mo() - 1) <= x && x < Self::mo());
-        if x >= 0 {
-            Self::new_raw(x)
-        } else {
-            Self::new_raw(x + Self::mo())
+    fn add(self, rhs: T) -> Self::Output {
+        let mut result = self;
+        result += rhs.into();
+        result
+    }
+}
+
+impl<M: Modulo, T: Into<ModInt<M>>> SubAssign<T> for ModInt<M> {
+    fn sub_assign(&mut self, rhs: T) {
+        self.0 -= rhs.into().0;
+        debug_assert!(-(M::P - 1) <= self.0 && self.0 < M::P);
+        if self.0 < 0 {
+            self.0 += M::P;
         }
     }
 }
 
-impl<M: Modulo> std::ops::Mul for ModInt<M> {
+impl<M: Modulo, T: Into<ModInt<M>>> Sub<T> for ModInt<M> {
     type Output = ModInt<M>;
-    fn mul(self, rhs: ModInt<M>) -> Self::Output {
-        Self::new(self.0 * rhs.0)
+    fn sub(self, rhs: T) -> Self::Output {
+        let mut result = self;
+        result -= rhs.into();
+        result
     }
 }
 
-#[allow(clippy::suspicious_arithmetic_impl)]
-impl<M: Modulo> std::ops::Div for ModInt<M> {
-    type Output = ModInt<M>;
-    fn div(self, rhs: ModInt<M>) -> Self::Output {
-        self * rhs.inv()
+impl<M: Modulo, T: Into<ModInt<M>>> MulAssign<T> for ModInt<M> {
+    fn mul_assign(&mut self, rhs: T) {
+        self.0 *= rhs.into().0;
+        if self.0 >= M::P {
+            self.0 %= M::P;
+        }
     }
 }
+
+impl<M: Modulo, T: Into<ModInt<M>>> Mul<T> for ModInt<M> {
+    type Output = ModInt<M>;
+    fn mul(self, rhs: T) -> Self::Output {
+        let mut result = self;
+        result *= rhs.into();
+        result
+    }
+}
+
+impl<M: Modulo, T: Into<ModInt<M>>> DivAssign<T> for ModInt<M> {
+    fn div_assign(&mut self, rhs: T) {
+        *self *= rhs.into().inv();
+    }
+}
+
+impl<M: Modulo, T: Into<ModInt<M>>> Div<T> for ModInt<M> {
+    type Output = ModInt<M>;
+    fn div(self, rhs: T) -> Self::Output {
+        let mut result = self;
+        result /= rhs.into();
+        result
+    }
+}
+
+macro_rules! impl_from_int {
+    ($($t:ty),+) => {
+        $(
+            impl<M: Modulo> From<$t> for ModInt<M> {
+                fn from(x: $t) -> Self {
+                    Self::new(x as i64)
+                }
+            }
+        )+
+    };
+}
+
+impl_from_int!(i32, i64, u32);
+
+macro_rules! impl_from_large_int {
+    ($($t:ty),+) => {
+        $(
+            impl<M: Modulo> From<$t> for ModInt<M> {
+                fn from(x: $t) -> Self {
+                    Self::new((x % (M::P as $t)) as i64)
+                }
+            }
+        )+
+    };
+}
+
+impl_from_large_int!(u64, usize);
 
 /// 好きな法の `ModInt` を定義します。
 ///
@@ -186,7 +247,7 @@ impl<M: Modulo> std::ops::Div for ModInt<M> {
 /// use mod_int::{Modulo, ModInt, define_mod_int_p};
 /// define_mod_int_p!(Mod19, ModInt19, 19);
 /// type Mint = ModInt19;
-/// assert_eq!(Mint::mo(), 19);
+/// assert_eq!(Mint::p(), 19);
 /// assert_eq!((Mint::new(18) + Mint::new(2)).val(), 1);
 /// ```
 #[macro_export]
@@ -195,9 +256,7 @@ macro_rules! define_mod_int_p {
         #[derive(Clone, Copy, Debug)]
         pub struct $mod;
         impl Modulo for $mod {
-            fn p() -> i64 {
-                $p
-            }
+            const P: i64 = $p;
         }
         pub type $mod_int = ModInt<$mod>;
     };
@@ -207,22 +266,42 @@ define_mod_int_p!(Mod998244353, ModInt998244353, 998_244_353);
 
 #[cfg(test)]
 mod tests {
-    use super::{ModInt, Modulo};
+    use super::{define_mod_int_p, ModInt, Modulo};
+
     #[test]
     fn ops_test() {
         define_mod_int_p!(Mod19, ModInt19, 19);
         type Mint = ModInt19;
         for a in 0..50 {
             for b in 0..50 {
-                let sum = Mint::new(a) + Mint::new(b);
+                // add
+                assert_eq!((Mint::new(a) + Mint::new(b)).val(), (a + b) % 19);
+                // add assign
+                let mut sum = Mint::new(a);
+                sum += b;
                 assert_eq!(sum.val(), (a + b) % 19);
-                let diff = Mint::new(a) - Mint::new(b);
+
+                // sub
+                assert_eq!((Mint::new(a) - Mint::new(b)).val(), (a - b).rem_euclid(19));
+                // sub assign
+                let mut diff = Mint::new(a);
+                diff -= b;
                 assert_eq!(diff.val(), (a - b).rem_euclid(19));
-                let prod = Mint::new(a) * Mint::new(b);
+
+                // mul
+                assert_eq!((Mint::new(a) * Mint::new(b)).val(), a * b % 19);
+                // mul assign
+                let mut prod = Mint::new(a);
+                prod *= b;
                 assert_eq!(prod.val(), a * b % 19);
+
                 if b % 19 != 0 {
-                    let frac = Mint::new(a) / Mint::new(b);
                     let expect = (0..19).find(|&x| a % 19 == b * x % 19).unwrap();
+                    // div
+                    assert_eq!((Mint::new(a) / Mint::new(b)).val(), expect);
+                    // div assign
+                    let mut frac = Mint::new(a);
+                    frac /= b;
                     assert_eq!(frac.val(), expect);
                 }
             }
