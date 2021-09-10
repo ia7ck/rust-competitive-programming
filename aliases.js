@@ -1,9 +1,11 @@
 var ALIASES = {};
+ALIASES["arithmetic_series"] = {};
 ALIASES["binary_search"] = {};
 ALIASES["ceil_log2"] = {};
 ALIASES["detect_cycle"] = {};
 ALIASES["dijkstra"] = {};
 ALIASES["divisors"] = {};
+ALIASES["ext_gcd"] = {};
 ALIASES["factorials"] = {};
 ALIASES["fenwick_tree"] = {};
 ALIASES["floor_sqrt"] = {};

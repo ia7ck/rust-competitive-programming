@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["arithmetic_series","初項 `a`, 項数 `n`, 公差 `d` の等差数列の和を求めます。"]],"trait":[["Int",""]]});
