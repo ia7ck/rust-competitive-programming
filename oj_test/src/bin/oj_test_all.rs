@@ -68,8 +68,11 @@ fn main() -> Result<()> {
 fn parse_line_comment(s: &str) -> Option<String> {
     if s.trim_start().starts_with("//") {
         let t = s.replacen("//", "", 1);
-        if t.trim_start().starts_with("oj:") {
-            return Some(t.replacen("oj:", "", 1).trim().to_string());
+        if t.trim_start().starts_with("oj") {
+            let u = t.replacen("oj", "", 1);
+            if u.trim_start().starts_with(":") {
+                return Some(u.replacen(":", "", 1).trim().to_string());
+            }
         }
     }
     None
@@ -91,6 +94,10 @@ mod tests {
         );
         assert_eq!(
             parse_line_comment("// oj:http://example.com"),
+            Some("http://example.com".to_string())
+        );
+        assert_eq!(
+            parse_line_comment("// oj : http://example.com"),
             Some("http://example.com".to_string())
         );
     }
