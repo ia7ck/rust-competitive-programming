@@ -93,6 +93,29 @@ pub fn detect_cycle_undirected(
     None
 }
 
+/// 有向グラフの閉路を求めます。
+///
+/// - `n`: 頂点数
+/// - `edges`: 辺
+///
+/// 返り値は、閉路をなす辺の index のベクタです。
+///
+/// # Example
+/// ```
+/// use detect_cycle::detect_cycle_directed;
+///
+/// //      0       1       3
+/// // (0) --> (1) --> (2) --> (5)
+/// //          ^       |
+/// //        5 |       | 2
+/// //          |       v
+/// //         (4) <-- (3)
+/// //              4
+///
+/// let edges = vec![(0, 1), (1, 2), (2, 3), (2, 5), (3, 4), (4, 1)];
+/// let cycle = detect_cycle_directed(6, edges.iter().copied());
+/// assert_eq!(cycle, Some(vec![1, 2, 4, 5]));
+/// ```
 pub fn detect_cycle_directed(
     n: usize,
     edges: impl Iterator<Item = (usize, usize)>,
