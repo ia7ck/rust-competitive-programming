@@ -15,7 +15,7 @@ fn main() -> Result<()> {
         let mut reader = BufReader::new(file);
         let mut buf = String::new();
         reader.read_line(&mut buf)?;
-        if let Some(url) = parse_line_comment(&buf) {
+        if let Some(url) = parse_problem_url(&buf) {
             tests.push((path, url));
         }
     }
@@ -65,7 +65,7 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn parse_line_comment(s: &str) -> Option<String> {
+fn parse_problem_url(s: &str) -> Option<String> {
     if s.trim_start().starts_with("//") {
         let t = s.replacen("//", "", 1);
         if t.trim_start().starts_with("oj") {
@@ -80,24 +80,24 @@ fn parse_line_comment(s: &str) -> Option<String> {
 
 #[cfg(test)]
 mod tests {
-    use crate::parse_line_comment;
+    use crate::parse_problem_url;
 
     #[test]
     fn parse_meta_data_test() {
         assert_eq!(
-            parse_line_comment("// oj: http://example.com"),
+            parse_problem_url("// oj: http://example.com"),
             Some("http://example.com".to_string())
         );
         assert_eq!(
-            parse_line_comment("//oj: http://example.com"),
+            parse_problem_url("//oj: http://example.com"),
             Some("http://example.com".to_string())
         );
         assert_eq!(
-            parse_line_comment("// oj:http://example.com"),
+            parse_problem_url("// oj:http://example.com"),
             Some("http://example.com".to_string())
         );
         assert_eq!(
-            parse_line_comment("// oj : http://example.com"),
+            parse_problem_url("// oj : http://example.com"),
             Some("http://example.com".to_string())
         );
     }
