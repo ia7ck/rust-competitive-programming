@@ -74,3 +74,24 @@ fn parse_line_comment(s: &str) -> Option<String> {
     }
     None
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::parse_line_comment;
+
+    #[test]
+    fn parse_meta_data_test() {
+        assert_eq!(
+            parse_line_comment("// oj: http://example.com"),
+            Some("http://example.com".to_string())
+        );
+        assert_eq!(
+            parse_line_comment("//oj: http://example.com"),
+            Some("http://example.com".to_string())
+        );
+        assert_eq!(
+            parse_line_comment("// oj:http://example.com"),
+            Some("http://example.com".to_string())
+        );
+    }
+}
