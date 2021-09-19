@@ -128,8 +128,8 @@ fn parse_problem_url(s: &str) -> Option<String> {
         let t = s.replacen("//", "", 1);
         if t.trim_start().starts_with("oj") {
             let u = t.replacen("oj", "", 1);
-            if u.trim_start().starts_with(":") {
-                return Some(u.replacen(":", "", 1).trim().to_string());
+            if u.trim_start().starts_with(':') {
+                return Some(u.replacen(':', "", 1).trim().to_string());
             }
         }
     }
@@ -141,8 +141,8 @@ fn parse_judge_rs_program(s: &str) -> Option<String> {
         let t = s.replacen("//", "", 1);
         if t.trim_start().starts_with("oj_judge_rs_program") {
             let u = t.replacen("oj_judge_rs_program", "", 1);
-            if u.trim_start().starts_with(":") {
-                return Some(u.replacen(":", "", 1).trim().to_string());
+            if u.trim_start().starts_with(':') {
+                return Some(u.replacen(':', "", 1).trim().to_string());
             }
         }
     }
