@@ -11,9 +11,9 @@ pub struct SegmentTree<T, F> {
 }
 
 impl<T, F> SegmentTree<T, F>
-    where
-        T: Clone,
-        F: Fn(&T, &T) -> T,
+where
+    T: Clone,
+    F: Fn(&T, &T) -> T,
 {
     /// 長さ `n` の列を初期値 `e` で初期化します。
     ///
