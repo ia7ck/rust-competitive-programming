@@ -16,6 +16,7 @@ ALIASES["least_prime_factors"] = {};
 ALIASES["lowest_common_ancestor"] = {};
 ALIASES["mod_int"] = {};
 ALIASES["next_permutation"] = {};
+ALIASES["pascal_triangle"] = {};
 ALIASES["prime_factorization"] = {};
 ALIASES["procon_reader"] = {};
 ALIASES["rolling_hash"] = {};
