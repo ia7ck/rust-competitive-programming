@@ -1,4 +1,5 @@
 (function() {var implementors = {};
+implementors["coordinate_compression"] = [{"text":"impl&lt;T&gt; Freeze for <a class=\"struct\" href=\"coordinate_compression/struct.CoordinateCompression.html\" title=\"struct coordinate_compression::CoordinateCompression\">CoordinateCompression</a>&lt;T&gt;","synthetic":true,"types":["coordinate_compression::CoordinateCompression"]}];
 implementors["dijkstra"] = [{"text":"impl Freeze for <a class=\"struct\" href=\"dijkstra/struct.Edge.html\" title=\"struct dijkstra::Edge\">Edge</a>","synthetic":true,"types":["dijkstra::Edge"]}];
 implementors["fenwick_tree"] = [{"text":"impl&lt;T&gt; Freeze for <a class=\"struct\" href=\"fenwick_tree/struct.FenwickTree.html\" title=\"struct fenwick_tree::FenwickTree\">FenwickTree</a>&lt;T&gt; <span class=\"where fmt-newline\">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: Freeze,&nbsp;</span>","synthetic":true,"types":["fenwick_tree::FenwickTree"]}];
 implementors["grid_search"] = [{"text":"impl&lt;'a&gt; Freeze for <a class=\"struct\" href=\"grid_search/struct.Around.html\" title=\"struct grid_search::Around\">Around</a>&lt;'a&gt;","synthetic":true,"types":["grid_search::Around"]}];

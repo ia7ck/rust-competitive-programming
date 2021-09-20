@@ -2,6 +2,7 @@ var ALIASES = {};
 ALIASES["arithmetic_series"] = {};
 ALIASES["binary_search"] = {};
 ALIASES["ceil_log2"] = {};
+ALIASES["coordinate_compression"] = {};
 ALIASES["detect_cycle"] = {};
 ALIASES["dijkstra"] = {};
 ALIASES["divisors"] = {};
