@@ -47,7 +47,9 @@ where
     T: Ord,
 {
     pub fn find_index(&self, value: &T) -> usize {
-        self.0.binary_search(value).expect("not found")
+        self.0
+            .binary_search(value)
+            .unwrap_or_else(|_| panic!("not found"))
     }
 }
 
