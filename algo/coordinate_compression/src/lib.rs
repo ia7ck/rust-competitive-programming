@@ -1,4 +1,5 @@
 use std::iter::FromIterator;
+use std::ops::Index;
 
 /// 座標圧縮です。
 ///
@@ -13,6 +14,11 @@ use std::iter::FromIterator;
 /// assert_eq!(cc.find_index(&-1), 1);
 /// assert_eq!(cc.find_index(&2), 2);
 /// assert_eq!(cc.find_index(&5), 3);
+///
+/// assert_eq!(cc[0], -3);
+/// assert_eq!(cc[1], -1);
+/// assert_eq!(cc[2], 2);
+/// assert_eq!(cc[3], 5);
 /// ```
 ///
 /// # Panics
@@ -25,6 +31,17 @@ use std::iter::FromIterator;
 /// let cc: CoordinateCompression<i32> = primes.into_iter().collect();
 /// cc.find_index(&4);
 /// ```
+///
+/// index が unique な要素数以上だとパニックです。
+///
+/// ```should_panic
+/// use coordinate_compression::CoordinateCompression;
+/// let primes = vec![1, 1, 2, 2, 3, 4, 9, 9];
+/// let cc: CoordinateCompression<i32> = primes.into_iter().collect();
+/// cc[5];
+/// ```
+///
+#[derive(Debug)]
 pub struct CoordinateCompression<T>(Vec<T>);
 
 impl<T> FromIterator<T> for CoordinateCompression<T>
@@ -53,18 +70,39 @@ where
     }
 }
 
+impl<T> Index<usize> for CoordinateCompression<T>
+where
+    T: Ord,
+{
+    type Output = T;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.0[index]
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::CoordinateCompression;
 
     #[test]
-    fn test() {
+    fn find_index_test() {
         let cc: CoordinateCompression<i32> = vec![4, 4, 2, 5, 2, 9].into_iter().collect();
         // 2, 4, 5, 9
         assert_eq!(cc.find_index(&2), 0);
         assert_eq!(cc.find_index(&4), 1);
         assert_eq!(cc.find_index(&5), 2);
         assert_eq!(cc.find_index(&9), 3);
+    }
+
+    #[test]
+    fn index_test() {
+        let cc: CoordinateCompression<i32> = vec![4, 4, 2, 5, 2, 9].into_iter().collect();
+        // 2, 4, 5, 9
+        assert_eq!(cc[0], 2);
+        assert_eq!(cc[1], 4);
+        assert_eq!(cc[2], 5);
+        assert_eq!(cc[3], 9);
     }
 
     #[test]
