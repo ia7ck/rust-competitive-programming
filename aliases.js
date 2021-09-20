@@ -19,6 +19,7 @@ ALIASES["next_permutation"] = {};
 ALIASES["prime_factorization"] = {};
 ALIASES["procon_reader"] = {};
 ALIASES["rolling_hash"] = {};
+ALIASES["segment_tree"] = {};
 ALIASES["suffix_array"] = {};
 ALIASES["topological_sort"] = {};
 ALIASES["union_find"] = {};

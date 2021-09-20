@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["SegmentTree","注意⚠ この実装は遅いので time limit の厳しい問題には代わりに ACL のセグメントツリーを使うこと。"]]});
