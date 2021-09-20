@@ -9,10 +9,10 @@ use std::iter::FromIterator;
 /// let values = vec![2, -1, -1, 5, -1, 2, -3];
 /// // -3, -1, 2, 5
 /// let cc: CoordinateCompression<i32> = values.into_iter().collect();
-/// assert_eq!(cc.index(&-3), 0);
-/// assert_eq!(cc.index(&-1), 1);
-/// assert_eq!(cc.index(&2), 2);
-/// assert_eq!(cc.index(&5), 3);
+/// assert_eq!(cc.find_index(&-3), 0);
+/// assert_eq!(cc.find_index(&-1), 1);
+/// assert_eq!(cc.find_index(&2), 2);
+/// assert_eq!(cc.find_index(&5), 3);
 /// ```
 ///
 /// # Panics
@@ -23,7 +23,7 @@ use std::iter::FromIterator;
 /// use coordinate_compression::CoordinateCompression;
 /// let primes = vec![2, 3, 5, 7, 11];
 /// let cc: CoordinateCompression<i32> = primes.into_iter().collect();
-/// cc.index(&4);
+/// cc.find_index(&4);
 /// ```
 pub struct CoordinateCompression<T>(Vec<T>);
 
@@ -46,7 +46,7 @@ impl<T> CoordinateCompression<T>
 where
     T: Ord,
 {
-    pub fn index(&self, value: &T) -> usize {
+    pub fn find_index(&self, value: &T) -> usize {
         self.0.binary_search(value).expect("not found")
     }
 }
@@ -59,16 +59,16 @@ mod tests {
     fn test() {
         let cc: CoordinateCompression<i32> = vec![4, 4, 2, 5, 2, 9].into_iter().collect();
         // 2, 4, 5, 9
-        assert_eq!(cc.index(&2), 0);
-        assert_eq!(cc.index(&4), 1);
-        assert_eq!(cc.index(&5), 2);
-        assert_eq!(cc.index(&9), 3);
+        assert_eq!(cc.find_index(&2), 0);
+        assert_eq!(cc.find_index(&4), 1);
+        assert_eq!(cc.find_index(&5), 2);
+        assert_eq!(cc.find_index(&9), 3);
     }
 
     #[test]
     #[should_panic]
     fn not_found_test() {
         let cc: CoordinateCompression<i32> = vec![4, 4, 2, 5, 2, 9].into_iter().collect();
-        cc.index(&6);
+        cc.find_index(&6);
     }
 }
