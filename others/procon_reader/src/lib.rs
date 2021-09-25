@@ -10,7 +10,7 @@ pub struct ProconReader<R> {
 
 impl<R: BufRead> ProconReader<R> {
     /// 標準入力から読み込みたいときの例です。
-    /// ファイルからの読み込みは [`BufRead`](https://doc.rust-lang.org/nightly/std/io/trait.BufRead.html) の Examples を参考にしてください。
+    /// ファイルからの読み込みは [`BufRead`](https://doc.rust-lang.org/std/io/trait.BufRead.html) の Examples を参考にしてください。
     ///
     /// # Examples
     /// ```
