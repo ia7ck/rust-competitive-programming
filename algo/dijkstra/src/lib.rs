@@ -9,6 +9,8 @@ pub trait Edge<T> {
     fn to(&self) -> usize;
     /// [`from`] までの距離が `d` であり、この辺を辿って [`to`] へ行く最短距離を計算します。
     ///
+    /// 使用例は [ABC192E](https://atcoder.jp/contests/abc192/submissions/26105492) を参照してください。
+    ///
     /// [`from`]: trait.Edge.html#tymethod.from
     /// [`to`]: trait.Edge.html#tymethod.to
     fn dist(&self, d: T) -> T;
