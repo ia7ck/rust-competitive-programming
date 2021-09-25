@@ -3,7 +3,7 @@ use procon_reader::ProconReader;
 
 fn main() {
     let stdin = std::io::stdin();
-    let mut rd = ProconReader::new(stdin.lock());
+    let mut rd = ProconReader::from(stdin.lock());
 
     let t: usize = rd.scan();
     for _ in 0..t {
