@@ -1,0 +1,1 @@
+initSidebarItems({"macro":[["scan_with","[`scan`] がまどろっこしいという方へおすすめのマクロです。"]],"struct":[["InputIScanner","空白・改行区切りの入力を読みます。"]]});

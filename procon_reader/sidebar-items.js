@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["ProconReader","競技プログラミングで、入力値を読むパートをラクにします。"]]});
