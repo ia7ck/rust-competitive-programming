@@ -3,12 +3,18 @@ use std::collections::BinaryHeap;
 use std::fmt::Debug;
 use std::ops::Add;
 
+/// グラフの辺を表すトレイトです。
 pub trait Edge<T> {
     fn from(&self) -> usize;
     fn to(&self) -> usize;
+    /// [`from`] までの距離が `d` であり、この辺を辿って [`to`] へ行く最短距離を計算します。
+    ///
+    /// [`from`]: trait.Edge.html#tymethod.from
+    /// [`to`]: trait.Edge.html#tymethod.to
     fn dist(&self, d: T) -> T;
 }
 
+/// 長さが定数の辺です。
 #[derive(Copy, Clone)]
 pub struct ConstEdge<T> {
     from: usize,
