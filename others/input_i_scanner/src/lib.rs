@@ -19,7 +19,7 @@ impl<R: io::BufRead> InputIScanner<R> {
     ///
     /// let stdin = io::stdin();
     /// let mut scanner = InputIScanner::new(io::BufReader::new(stdin));
-    /// // InputIScanner::new(stdin.lock()); のほうが気持ち速いです
+    /// // InputIScanner::new(io::BufReader::new(stdin.lock())); のほうが気持ち速いです
     /// ```
     pub fn new(reader: R) -> Self {
         Self {
@@ -119,16 +119,16 @@ impl<'a> From<io::StdinLock<'a>> for InputIScanner<io::BufReader<io::StdinLock<'
 ///
 /// [`scan`]: struct.InputIScanner.html#method.scan
 macro_rules! scan_with {
-    ($scanner: expr, ($($t: ty),+)) => { // scan_with!(_r, (i32, i32))
+    ($scanner: expr, ($($t: ty),+)) => { // scan_with!(_sc, (i32, i32))
         ($(scan_with!($scanner, $t)),+)
     };
-    ($scanner: expr, $t: ty) => { // scan_with!(_r, i32)
+    ($scanner: expr, $t: ty) => { // scan_with!(_sc, i32)
         $scanner.scan::<$t>()
     };
-    ($scanner: expr, ($($t: ty),+); $n: expr) => { // scan_with!(_r, (i32, i32); 100)
+    ($scanner: expr, ($($t: ty),+); $n: expr) => { // scan_with!(_sc, (i32, i32); 100)
         std::iter::repeat_with(|| scan_with!($scanner, ($($t),+))).take($n).collect::<Vec<_>>()
     };
-    ($scanner: expr, $t: ty; $n: expr) => { // scan_with!(_r, i32; 100)
+    ($scanner: expr, $t: ty; $n: expr) => { // scan_with!(_sc, i32; 100)
         std::iter::repeat_with(|| scan_with!($scanner, $t)).take($n).collect::<Vec<_>>()
     };
 }
@@ -139,12 +139,12 @@ mod tests {
 
     #[test]
     fn test_single() {
-        let mut _r = InputIScanner::from("42");
-        assert_eq!(scan_with!(_r, i32), 42);
-        let mut _r = InputIScanner::from("a");
-        assert_eq!(scan_with!(_r, char), 'a');
-        let mut _r = InputIScanner::from("abc");
-        assert_eq!(scan_with!(_r, String), "abc");
+        let mut _i_i = InputIScanner::from("42");
+        assert_eq!(scan_with!(_i_i, i32), 42);
+        let mut _i_i = InputIScanner::from("a");
+        assert_eq!(scan_with!(_i_i, char), 'a');
+        let mut _i_i = InputIScanner::from("abc");
+        assert_eq!(scan_with!(_i_i, String), "abc");
     }
 
     #[test]
@@ -183,7 +183,7 @@ mod tests {
     #[should_panic(expected = "reached EOF")]
     fn too_many_scan() {
         let mut sc = InputIScanner::from("123");
-        sc.scan::<usize>(); // 123
+        assert_eq!(sc.scan::<usize>(), 123);
         sc.scan::<usize>();
     }
 

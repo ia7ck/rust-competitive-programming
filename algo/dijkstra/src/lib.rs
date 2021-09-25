@@ -7,12 +7,16 @@ use std::ops::Add;
 pub trait Edge<T> {
     fn from(&self) -> usize;
     fn to(&self) -> usize;
-    /// [`from`] までの距離が `d` であり、この辺を辿って [`to`] へ行く最短距離を計算します。
+    /// 始点から [`from`] までの距離 `d` を受け取り、この辺を辿って [`to`] へ行く最短距離を求めます。[`dijkstra`] が正しく動くように、この関数は次の条件を満たように実装してください。[参考情報](https://fetburner.hatenablog.com/entry/2021/02/28/200020)。
     ///
-    /// 使用例は [ABC192E](https://atcoder.jp/contests/abc192/submissions/26105492) を参照してください。
+    /// - `dist(d)` は `d` 以上である
+    /// - `dist(d)` は `d` について (広義) 単調増加である
+    ///
+    /// 使用例は [ABC192E](https://atcoder.jp/contests/abc192/submissions/26105492) をどうぞ。
     ///
     /// [`from`]: trait.Edge.html#tymethod.from
     /// [`to`]: trait.Edge.html#tymethod.to
+    /// [`dijkstra`]: fn.dijkstra.html
     fn dist(&self, d: T) -> T;
 }
 
