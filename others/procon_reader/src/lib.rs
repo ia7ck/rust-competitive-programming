@@ -36,14 +36,14 @@ impl<R: BufRead> ProconReader<R> {
     /// use procon_reader::ProconReader;
     ///
     /// let mut reader = ProconReader::new(Cursor::new("123 abc\nx"));
-    /// let n = reader.get::<usize>();
+    /// let n = reader.scan::<usize>();
     /// assert_eq!(n, 123);
-    /// let s: String = reader.get();
+    /// let s: String = reader.scan();
     /// assert_eq!(s, "abc");
-    /// let ch: char = reader.get();
+    /// let ch: char = reader.scan();
     /// assert_eq!(ch, 'x');
     /// ```
-    pub fn get<T>(&mut self) -> T
+    pub fn scan<T>(&mut self) -> T
     where
         T: FromStr,
         <T as FromStr>::Err: std::fmt::Debug,
@@ -91,15 +91,15 @@ impl<R: BufRead> ProconReader<R> {
     /// use procon_reader::ProconReader;
     ///
     /// let mut reader = ProconReader::new(Cursor::new("123 45 -6"));
-    /// let a: Vec<i32> = reader.get_vec(3);
+    /// let a: Vec<i32> = reader.scan_vec(3);
     /// assert_eq!(a, vec![123, 45, -6]);
     /// ```
-    pub fn get_vec<T>(&mut self, n: usize) -> Vec<T>
+    pub fn scan_vec<T>(&mut self, n: usize) -> Vec<T>
     where
         T: FromStr,
         <T as FromStr>::Err: std::fmt::Debug,
     {
-        (0..n).map(|_| self.get()).collect()
+        (0..n).map(|_| self.scan()).collect()
     }
 
     /// 1 行の文字列を `char` のベクタとして読みます。
@@ -110,11 +110,11 @@ impl<R: BufRead> ProconReader<R> {
     /// use procon_reader::ProconReader;
     ///
     /// let mut reader = ProconReader::new(Cursor::new("abcd"));
-    /// let a: Vec<char> = reader.get_chars();
+    /// let a: Vec<char> = reader.scan_chars();
     /// assert_eq!(a, vec!['a', 'b', 'c', 'd']);
     /// ```
-    pub fn get_chars(&mut self) -> Vec<char> {
-        self.get::<String>().chars().collect()
+    pub fn scan_chars(&mut self) -> Vec<char> {
+        self.scan::<String>().chars().collect()
     }
 }
 
@@ -130,7 +130,7 @@ mod tests {
         T: FromStr,
         <T as FromStr>::Err: Debug,
     {
-        ProconReader::new(Cursor::new(input)).get()
+        ProconReader::new(Cursor::new(input)).scan()
     }
 
     #[test]
@@ -145,20 +145,20 @@ mod tests {
     fn test_space_separated() {
         let input = "123 -123 a abc";
         let mut rd = ProconReader::new(Cursor::new(input));
-        assert_eq!(rd.get::<usize>(), 123);
-        assert_eq!(rd.get::<i32>(), -123);
-        assert_eq!(rd.get::<char>(), 'a');
-        assert_eq!(rd.get::<String>(), "abc");
+        assert_eq!(rd.scan::<usize>(), 123);
+        assert_eq!(rd.scan::<i32>(), -123);
+        assert_eq!(rd.scan::<char>(), 'a');
+        assert_eq!(rd.scan::<String>(), "abc");
     }
 
     #[test]
     fn test_line_separated() {
         let input = "123\n-123\n\n\na\r\nabc";
         let mut rd = ProconReader::new(Cursor::new(input));
-        assert_eq!(rd.get::<usize>(), 123);
-        assert_eq!(rd.get::<i32>(), -123);
-        assert_eq!(rd.get::<char>(), 'a');
-        assert_eq!(rd.get::<String>(), "abc");
+        assert_eq!(rd.scan::<usize>(), 123);
+        assert_eq!(rd.scan::<i32>(), -123);
+        assert_eq!(rd.scan::<char>(), 'a');
+        assert_eq!(rd.scan::<String>(), "abc");
     }
 
     fn get_vec<T>(input: &str, n: usize) -> Vec<T>
@@ -166,7 +166,7 @@ mod tests {
         T: FromStr,
         <T as FromStr>::Err: Debug,
     {
-        ProconReader::new(Cursor::new(input)).get_vec(n)
+        ProconReader::new(Cursor::new(input)).scan_vec(n)
     }
 
     #[test]
@@ -176,7 +176,7 @@ mod tests {
     }
 
     fn get_chars(input: &str) -> Vec<char> {
-        ProconReader::new(Cursor::new(input)).get_chars()
+        ProconReader::new(Cursor::new(input)).scan_chars()
     }
 
     #[test]
@@ -190,8 +190,8 @@ mod tests {
     fn too_many_get() {
         let input = "123";
         let mut rd = ProconReader::new(Cursor::new(input));
-        rd.get::<usize>(); // 123
-        rd.get::<usize>();
+        rd.scan::<usize>(); // 123
+        rd.scan::<usize>();
     }
 
     #[test]
@@ -199,6 +199,6 @@ mod tests {
     fn cannot_parse_string_as_char() {
         let input = "abc";
         let mut rd = ProconReader::new(Cursor::new(input));
-        rd.get::<char>(); // mismatch type
+        rd.scan::<char>(); // mismatch type
     }
 }
