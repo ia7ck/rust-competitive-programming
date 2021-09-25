@@ -182,6 +182,10 @@
 <span id="182">182</span>
 <span id="183">183</span>
 <span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Reverse</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BinaryHeap</span>;
@@ -192,12 +196,16 @@
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Edge</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
     <span class="kw">fn</span> <span class="ident">to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
-    <span class="doccomment">/// [`from`] までの距離が `d` であり、この辺を辿って [`to`] へ行く最短距離を計算します。</span>
+    <span class="doccomment">/// 始点から [`from`] までの距離 `d` を受け取り、この辺を辿って [`to`] へ行く最短距離を求めます。[`dijkstra`] が正しく動くように、この関数は次の条件を満たように実装してください。[参考情報](https://fetburner.hatenablog.com/entry/2021/02/28/200020)。</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// 使用例は [ABC192E](https://atcoder.jp/contests/abc192/submissions/26105492) を参照してください。</span>
+    <span class="doccomment">/// - `dist(d)` は `d` 以上である</span>
+    <span class="doccomment">/// - `dist(d)` は `d` について (広義) 単調増加である</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// 使用例は [ABC192E](https://atcoder.jp/contests/abc192/submissions/26105492) をどうぞ。</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`from`]: trait.Edge.html#tymethod.from</span>
     <span class="doccomment">/// [`to`]: trait.Edge.html#tymethod.to</span>
+    <span class="doccomment">/// [`dijkstra`]: fn.dijkstra.html</span>
     <span class="kw">fn</span> <span class="ident">dist</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">d</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>;
 }
 

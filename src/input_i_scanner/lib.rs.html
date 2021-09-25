@@ -216,7 +216,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// let stdin = io::stdin();</span>
     <span class="doccomment">/// let mut scanner = InputIScanner::new(io::BufReader::new(stdin));</span>
-    <span class="doccomment">/// // InputIScanner::new(stdin.lock()); のほうが気持ち速いです</span>
+    <span class="doccomment">/// // InputIScanner::new(io::BufReader::new(stdin.lock())); のほうが気持ち速いです</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">reader</span>: <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
@@ -316,16 +316,16 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// [`scan`]: struct.InputIScanner.html#method.scan</span>
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">scan_with</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">scanner</span>: <span class="ident">expr</span>, ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>: <span class="ident">ty</span>),<span class="op">+</span>)) <span class="op">=</span><span class="op">&gt;</span> { <span class="comment">// scan_with!(_r, (i32, i32))</span>
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">scanner</span>: <span class="ident">expr</span>, ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>: <span class="ident">ty</span>),<span class="op">+</span>)) <span class="op">=</span><span class="op">&gt;</span> { <span class="comment">// scan_with!(_sc, (i32, i32))</span>
         ($(<span class="macro">scan_with</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">scanner</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)),<span class="op">+</span>)
     };
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">scanner</span>: <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>: <span class="ident">ty</span>) <span class="op">=</span><span class="op">&gt;</span> { <span class="comment">// scan_with!(_r, i32)</span>
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">scanner</span>: <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>: <span class="ident">ty</span>) <span class="op">=</span><span class="op">&gt;</span> { <span class="comment">// scan_with!(_sc, i32)</span>
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">scanner</span>.<span class="ident">scan</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span><span class="op">&gt;</span>()
     };
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">scanner</span>: <span class="ident">expr</span>, ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>: <span class="ident">ty</span>),<span class="op">+</span>); <span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>: <span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> { <span class="comment">// scan_with!(_r, (i32, i32); 100)</span>
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">scanner</span>: <span class="ident">expr</span>, ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>: <span class="ident">ty</span>),<span class="op">+</span>); <span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>: <span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> { <span class="comment">// scan_with!(_sc, (i32, i32); 100)</span>
         <span class="ident">std</span>::<span class="ident">iter</span>::<span class="ident">repeat_with</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">scan_with</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">scanner</span>, ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>),<span class="op">+</span>))).<span class="ident">take</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
     };
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">scanner</span>: <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>: <span class="ident">ty</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>: <span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> { <span class="comment">// scan_with!(_r, i32; 100)</span>
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">scanner</span>: <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>: <span class="ident">ty</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>: <span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> { <span class="comment">// scan_with!(_sc, i32; 100)</span>
         <span class="ident">std</span>::<span class="ident">iter</span>::<span class="ident">repeat_with</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">scan_with</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">scanner</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)).<span class="ident">take</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
     };
 }
@@ -336,12 +336,12 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_single</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">_r</span> <span class="op">=</span> <span class="ident">InputIScanner</span>::<span class="ident">from</span>(<span class="string">&quot;42&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">scan_with</span><span class="macro">!</span>(<span class="ident">_r</span>, <span class="ident">i32</span>), <span class="number">42</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">_r</span> <span class="op">=</span> <span class="ident">InputIScanner</span>::<span class="ident">from</span>(<span class="string">&quot;a&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">scan_with</span><span class="macro">!</span>(<span class="ident">_r</span>, <span class="ident">char</span>), <span class="string">&#39;a&#39;</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">_r</span> <span class="op">=</span> <span class="ident">InputIScanner</span>::<span class="ident">from</span>(<span class="string">&quot;abc&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">scan_with</span><span class="macro">!</span>(<span class="ident">_r</span>, <span class="ident">String</span>), <span class="string">&quot;abc&quot;</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">_i_i</span> <span class="op">=</span> <span class="ident">InputIScanner</span>::<span class="ident">from</span>(<span class="string">&quot;42&quot;</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">scan_with</span><span class="macro">!</span>(<span class="ident">_i_i</span>, <span class="ident">i32</span>), <span class="number">42</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">_i_i</span> <span class="op">=</span> <span class="ident">InputIScanner</span>::<span class="ident">from</span>(<span class="string">&quot;a&quot;</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">scan_with</span><span class="macro">!</span>(<span class="ident">_i_i</span>, <span class="ident">char</span>), <span class="string">&#39;a&#39;</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">_i_i</span> <span class="op">=</span> <span class="ident">InputIScanner</span>::<span class="ident">from</span>(<span class="string">&quot;abc&quot;</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">scan_with</span><span class="macro">!</span>(<span class="ident">_i_i</span>, <span class="ident">String</span>), <span class="string">&quot;abc&quot;</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -380,7 +380,7 @@
     <span class="attribute">#[<span class="ident">should_panic</span>(<span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;reached EOF&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">too_many_scan</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sc</span> <span class="op">=</span> <span class="ident">InputIScanner</span>::<span class="ident">from</span>(<span class="string">&quot;123&quot;</span>);
-        <span class="ident">sc</span>.<span class="ident">scan</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>(); <span class="comment">// 123</span>
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">sc</span>.<span class="ident">scan</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>(), <span class="number">123</span>);
         <span class="ident">sc</span>.<span class="ident">scan</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>();
     }
 
