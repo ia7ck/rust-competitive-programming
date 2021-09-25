@@ -1,7 +1,7 @@
 use std::io::BufRead;
 use std::str::FromStr;
 
-/// 競技プログラミングで、入力値を読むパートをラクにします。
+/// 空白・改行区切りの入力を読みます。
 pub struct ProconReader<R> {
     r: R,
     l: String,
@@ -14,11 +14,11 @@ impl<R: BufRead> ProconReader<R> {
     ///
     /// # Examples
     /// ```
-    /// use std::io::{stdin, BufReader};
+    /// use std::io::{self, BufReader};
     /// use procon_reader::ProconReader;
     ///
-    /// let stdin = stdin();
-    /// let mut rd = ProconReader::new(BufReader::new(stdin));
+    /// let stdin = io::stdin();
+    /// let mut reader = ProconReader::new(BufReader::new(stdin));
     /// // ProconReader::new(stdin.lock()); のほうが気持ち速いです
     /// ```
     pub fn new(reader: R) -> Self {
@@ -35,12 +35,12 @@ impl<R: BufRead> ProconReader<R> {
     /// use std::io::Cursor;
     /// use procon_reader::ProconReader;
     ///
-    /// let mut rd = ProconReader::new(Cursor::new("123 abc\nx"));
-    /// let n = rd.get::<usize>();
+    /// let mut reader = ProconReader::new(Cursor::new("123 abc\nx"));
+    /// let n = reader.get::<usize>();
     /// assert_eq!(n, 123);
-    /// let s: String = rd.get();
+    /// let s: String = reader.get();
     /// assert_eq!(s, "abc");
-    /// let ch: char = rd.get();
+    /// let ch: char = reader.get();
     /// assert_eq!(ch, 'x');
     /// ```
     pub fn get<T>(&mut self) -> T
@@ -90,8 +90,8 @@ impl<R: BufRead> ProconReader<R> {
     /// use std::io::Cursor;
     /// use procon_reader::ProconReader;
     ///
-    /// let mut rd = ProconReader::new(Cursor::new("123 45 -6"));
-    /// let a: Vec<i32> = rd.get_vec(3);
+    /// let mut reader = ProconReader::new(Cursor::new("123 45 -6"));
+    /// let a: Vec<i32> = reader.get_vec(3);
     /// assert_eq!(a, vec![123, 45, -6]);
     /// ```
     pub fn get_vec<T>(&mut self, n: usize) -> Vec<T>
@@ -109,8 +109,8 @@ impl<R: BufRead> ProconReader<R> {
     /// use std::io::Cursor;
     /// use procon_reader::ProconReader;
     ///
-    /// let mut rd = ProconReader::new(Cursor::new("abcd"));
-    /// let a: Vec<char> = rd.get_chars();
+    /// let mut reader = ProconReader::new(Cursor::new("abcd"));
+    /// let a: Vec<char> = reader.get_chars();
     /// assert_eq!(a, vec!['a', 'b', 'c', 'd']);
     /// ```
     pub fn get_chars(&mut self) -> Vec<char> {
