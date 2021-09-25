@@ -1,5 +1,5 @@
 //oj: https://judge.yosupo.jp/problem/shortest_path
-use dijkstra::{dijkstra, Edge};
+use dijkstra::{dijkstra, ConstEdge};
 use proconio::{fastout, input};
 
 #[fastout]
@@ -10,16 +10,16 @@ fn main() {
         s: usize,
         t: usize,
     }
-    let mut g = vec![vec![]; n];
+    let mut edges = Vec::new();
     for _ in 0..m {
         input! {
             a: usize,
             b: usize,
             c: u64,
         }
-        g[a].push(Edge { to: b, cost: c });
+        edges.push(ConstEdge::new(a, b, c));
     }
-    let (d, prev) = dijkstra(&g, s);
+    let (d, prev) = dijkstra(n, edges.iter().copied(), s);
     if d[t].is_none() {
         println!("{}", -1);
         return;

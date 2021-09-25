@@ -1,23 +1,52 @@
 use std::cmp::Reverse;
 use std::collections::BinaryHeap;
+use std::fmt::Debug;
+use std::ops::Add;
 
-#[derive(Copy, Clone, Debug)]
-pub struct Edge {
-    /// 行き先の頂点です。
-    pub to: usize,
-    /// 移動にかかるコストです。
-    pub cost: u64,
+/// グラフの辺を表すトレイトです。
+pub trait Edge<T> {
+    fn from(&self) -> usize;
+    fn to(&self) -> usize;
+    /// [`from`] までの距離が `d` であり、この辺を辿って [`to`] へ行く最短距離を計算します。
+    ///
+    /// 使用例は [ABC192E](https://atcoder.jp/contests/abc192/submissions/26105492) を参照してください。
+    ///
+    /// [`from`]: trait.Edge.html#tymethod.from
+    /// [`to`]: trait.Edge.html#tymethod.to
+    fn dist(&self, d: T) -> T;
 }
 
-impl Edge {
-    pub fn new(to: usize, cost: u64) -> Self {
-        Self { to, cost }
+/// 長さが定数の辺です。
+#[derive(Copy, Clone)]
+pub struct ConstEdge<T> {
+    from: usize,
+    to: usize,
+    cost: T,
+}
+
+impl<T> ConstEdge<T> {
+    pub fn new(from: usize, to: usize, cost: T) -> Self {
+        Self { from, to, cost }
+    }
+}
+
+impl<T> Edge<T> for ConstEdge<T>
+where
+    T: Copy + Add<Output = T>,
+{
+    fn from(&self) -> usize {
+        self.from
+    }
+    fn to(&self) -> usize {
+        self.to
+    }
+    fn dist(&self, d: T) -> T {
+        d + self.cost
     }
 }
 
 /// `dijkstra` はあるひとつの頂点から全ての頂点への最短距離を計算します。
 ///
-/// 隣接リスト `g` とスタートの頂点 `s` を渡します。
 /// 返り値 `(d, prev)` はそれぞれ以下です。
 ///
 /// - `d[t]`: `s` から `t` までの最短距離
@@ -29,19 +58,20 @@ impl Edge {
 ///
 /// # Examples
 /// ```
-/// use dijkstra::{Edge, dijkstra};
-/// let mut g = vec![vec![]; 4];
+/// use dijkstra::{Edge, ConstEdge, dijkstra};
+/// let edges = vec![
+///     ConstEdge::new(0, 1, 1),
+///     ConstEdge::new(0, 2, 1),
+///     ConstEdge::new(1, 2, 1),
+///     ConstEdge::new(2, 3, 1),
+/// ];
 /// //
 /// //     0 -----> 1 -----> 2 -----> 3
 /// //     |                 ^
 /// //     |                 |
 /// //     +-----------------+
 /// //
-/// g[0].push(Edge::new(1, 1));
-/// g[0].push(Edge::new(2, 1));
-/// g[1].push(Edge::new(2, 1));
-/// g[2].push(Edge::new(3, 1));
-/// let (d, prev) = dijkstra(&g, 0);
+/// let (d, prev) = dijkstra(4, edges.iter().copied(), 0);
 /// assert_eq!(d[0], Some(0));
 /// assert_eq!(d[1], Some(1));
 /// assert_eq!(d[2], Some(1));
@@ -51,15 +81,22 @@ impl Edge {
 /// assert_eq!(prev[2], Some(0));
 /// assert_eq!(prev[3], Some(2));
 /// ```
-#[allow(clippy::many_single_char_names)]
-pub fn dijkstra(g: &[Vec<Edge>], s: usize) -> (Vec<Option<u64>>, Vec<Option<usize>>) {
-    let n = g.len();
+pub fn dijkstra<I, E, T>(n: usize, edges: I, s: usize) -> (Vec<Option<T>>, Vec<Option<usize>>)
+where
+    I: Iterator<Item = E>,
+    E: Edge<T> + Clone,
+    T: Copy + Add<Output = T> + Default + Ord + Debug,
+{
+    let mut adj = vec![vec![]; n];
+    for e in edges {
+        adj[e.from()].push(e);
+    }
     let mut dist = vec![None; n];
-    let mut q = BinaryHeap::new();
+    let mut heap = BinaryHeap::new();
     let mut prev = vec![None; n];
-    dist[s] = Some(0);
-    q.push((Reverse(0), s));
-    while let Some((Reverse(d), v)) = q.pop() {
+    dist[s] = Some(T::default());
+    heap.push((Reverse(T::default()), s));
+    while let Some((Reverse(d), v)) = heap.pop() {
         match dist[v] {
             Some(dv) => {
                 if dv < d {
@@ -70,16 +107,17 @@ pub fn dijkstra(g: &[Vec<Edge>], s: usize) -> (Vec<Option<u64>>, Vec<Option<usiz
             }
             None => unreachable!(),
         }
-        for e in &g[v] {
-            let next_d = d + e.cost;
-            match dist[e.to] {
+        for e in &adj[v] {
+            let next_d = e.dist(d);
+            let to = e.to();
+            match dist[to] {
                 Some(dt) if dt <= next_d => {
                     continue;
                 }
                 _ => {
-                    dist[e.to] = Some(next_d);
-                    prev[e.to] = Some(v);
-                    q.push((Reverse(next_d), e.to));
+                    dist[to] = Some(next_d);
+                    prev[to] = Some(v);
+                    heap.push((Reverse(next_d), to));
                 }
             }
         }
@@ -89,7 +127,7 @@ pub fn dijkstra(g: &[Vec<Edge>], s: usize) -> (Vec<Option<u64>>, Vec<Option<usiz
 
 #[cfg(test)]
 mod tests {
-    use crate::{dijkstra, Edge};
+    use crate::{dijkstra, ConstEdge};
     use rand::distributions::Uniform;
     use rand::prelude::*;
 
@@ -134,14 +172,12 @@ mod tests {
         for n in 1..=10 {
             for m in 0..=n * n {
                 let edges = generate(n, m);
-                let mut g = vec![vec![]; n];
-                for &(a, b, c) in &edges {
-                    g[a].push(Edge::new(b, c));
-                }
                 let dd = floyd_warshall(n, &edges);
-                let (d, _) = dijkstra(&g, 0);
-                let d = d.iter().map(|&d| d.unwrap_or(INF)).collect::<Vec<_>>();
-                assert_eq!(dd, d);
+                let edges = edges.into_iter().map(|(a, b, c)| ConstEdge::new(a, b, c));
+                let (d, _) = dijkstra(n, edges, 0);
+                for v in 0..n {
+                    assert_eq!(d[v].unwrap_or(INF), dd[v]);
+                }
             }
         }
     }
