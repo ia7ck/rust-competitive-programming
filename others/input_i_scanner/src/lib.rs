@@ -98,6 +98,26 @@ impl<'a> From<io::StdinLock<'a>> for InputIScanner<io::BufReader<io::StdinLock<'
 }
 
 #[macro_export]
+/// [`scan`] がまどろっこしいという方へおすすめのマクロです。
+///
+/// ```
+/// use input_i_scanner::{InputIScanner, scan_with};
+///
+/// let mut _i_i = InputIScanner::from(r#"
+/// 42
+/// 123 abc
+/// 9 8 7 6 5
+/// x -1
+/// y -2
+/// z -3
+/// "#);
+/// assert_eq!(scan_with!(_i_i, i32), 42);
+/// assert_eq!(scan_with!(_i_i, (i32, String)), (123, "abc".to_string()));
+/// assert_eq!(scan_with!(_i_i, i32; 5), vec![9, 8, 7, 6, 5]);
+/// assert_eq!(scan_with!(_i_i, (char, i32); 3), vec![('x', -1), ('y', -2), ('z', -3)]);
+/// ```
+///
+/// [`scan`]: struct.InputIScanner.html#method.scan
 macro_rules! scan_with {
     ($scanner: expr, ($($t: ty),+)) => { // scan_with!(_r, (i32, i32))
         ($(scan_with!($scanner, $t)),+)
