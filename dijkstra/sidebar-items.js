@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["dijkstra","`dijkstra` はあるひとつの頂点から全ての頂点への最短距離を計算します。"]],"struct":[["Edge",""]]});
+initSidebarItems({"fn":[["dijkstra","`dijkstra` はあるひとつの頂点から全ての頂点への最短距離を計算します。"]],"struct":[["ConstEdge","長さが定数の辺です。"]],"trait":[["Edge","グラフの辺を表すトレイトです。"]]});
