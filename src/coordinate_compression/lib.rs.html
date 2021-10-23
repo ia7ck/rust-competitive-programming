@@ -112,6 +112,14 @@
 <span id="112">112</span>
 <span id="113">113</span>
 <span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">iter</span>::<span class="ident">FromIterator</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">Index</span>;
@@ -121,10 +129,11 @@
 <span class="doccomment">/// # Examples</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
+<span class="doccomment">/// use std::iter::FromIterator;</span>
 <span class="doccomment">/// use coordinate_compression::CoordinateCompression;</span>
 <span class="doccomment">/// let values = vec![2, -1, -1, 5, -1, 2, -3];</span>
 <span class="doccomment">/// // -3, -1, 2, 5</span>
-<span class="doccomment">/// let cc: CoordinateCompression&lt;i32&gt; = values.into_iter().collect();</span>
+<span class="doccomment">/// let cc = CoordinateCompression::from_iter(values.into_iter());</span>
 <span class="doccomment">/// assert_eq!(cc.find_index(&amp;-3), 0);</span>
 <span class="doccomment">/// assert_eq!(cc.find_index(&amp;-1), 1);</span>
 <span class="doccomment">/// assert_eq!(cc.find_index(&amp;2), 2);</span>
@@ -193,6 +202,13 @@
 
     <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Output</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[<span class="ident">index</span>]
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">CoordinateCompression</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// 保持している要素のうち unique な要素の個数を返します。</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">len</span>()
     }
 }
 
