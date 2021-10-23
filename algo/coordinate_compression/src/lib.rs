@@ -82,6 +82,13 @@ where
     }
 }
 
+impl<T> CoordinateCompression<T> {
+    /// 保持している要素のうち unique な要素の個数を返します。
+    pub fn size(&self) -> usize {
+        self.0.len()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::CoordinateCompression;
