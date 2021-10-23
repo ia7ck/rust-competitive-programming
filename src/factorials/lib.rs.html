@@ -47,12 +47,12 @@
 <span id="47">47</span>
 <span id="48">48</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="doccomment">/// `1` 以上 `size` 未満の `n` について、`n` の階乗 (mod `mo`) と、その乗法逆元を O(`size`) で計算します。</span>
+<span class="doccomment">/// `1` 以上 `size` 未満の `n` について、`n` の階乗 (mod `modulo`) と、その乗法逆元を O(`size`) で計算します。[参考](https://drken1215.hatenablog.com/entry/2018/06/08/210000)</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// 逆元を正しく計算するためには</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// - `mo` が素数</span>
-<span class="doccomment">/// - `mo &gt;= size`</span>
+<span class="doccomment">/// - `modulo` が素数</span>
+<span class="doccomment">/// - `modulo &gt;= size`</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// である必要があります。</span>
 <span class="doccomment">///</span>
@@ -65,7 +65,7 @@
 <span class="doccomment">///     assert_eq!(fac[i] * fac_inv[i] % p, 1);</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">factorials</span>(<span class="ident">size</span>: <span class="ident">usize</span>, <span class="ident">mo</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">factorials</span>(<span class="ident">size</span>: <span class="ident">usize</span>, <span class="ident">modulo</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>) {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fac</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="number">0</span>; <span class="ident">size</span>];
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">inv</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="number">0</span>; <span class="ident">size</span>];
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">inv_fac</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="number">0</span>; <span class="ident">size</span>];
@@ -76,9 +76,9 @@
     <span class="ident">inv_fac</span>[<span class="number">1</span>] <span class="op">=</span> <span class="number">1</span>;
     <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">2</span>..<span class="ident">size</span> {
         <span class="kw">let</span> <span class="ident">i_u64</span> <span class="op">=</span> <span class="ident">i</span> <span class="kw">as</span> <span class="ident">u64</span>;
-        <span class="ident">fac</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">fac</span>[<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>] <span class="op">*</span> <span class="ident">i_u64</span> <span class="op">%</span> <span class="ident">mo</span>;
-        <span class="ident">inv</span>[<span class="ident">i</span>] <span class="op">=</span> ((<span class="ident">mo</span> <span class="op">-</span> <span class="ident">inv</span>[(<span class="ident">mo</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">%</span> <span class="ident">i</span>]) <span class="op">*</span> (<span class="ident">mo</span> <span class="op">/</span> <span class="ident">i_u64</span>)).<span class="ident">rem_euclid</span>(<span class="ident">mo</span>);
-        <span class="ident">inv_fac</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">inv_fac</span>[<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>] <span class="op">*</span> <span class="ident">inv</span>[<span class="ident">i</span>] <span class="op">%</span> <span class="ident">mo</span>;
+        <span class="ident">fac</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">fac</span>[<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>] <span class="op">*</span> <span class="ident">i_u64</span> <span class="op">%</span> <span class="ident">modulo</span>;
+        <span class="ident">inv</span>[<span class="ident">i</span>] <span class="op">=</span> ((<span class="ident">modulo</span> <span class="op">-</span> <span class="ident">inv</span>[(<span class="ident">modulo</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">%</span> <span class="ident">i</span>]) <span class="op">*</span> (<span class="ident">modulo</span> <span class="op">/</span> <span class="ident">i_u64</span>)).<span class="ident">rem_euclid</span>(<span class="ident">modulo</span>);
+        <span class="ident">inv_fac</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">inv_fac</span>[<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>] <span class="op">*</span> <span class="ident">inv</span>[<span class="ident">i</span>] <span class="op">%</span> <span class="ident">modulo</span>;
     }
     (<span class="ident">fac</span>, <span class="ident">inv_fac</span>)
 }
