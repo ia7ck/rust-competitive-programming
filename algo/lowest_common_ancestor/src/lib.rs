@@ -1,6 +1,24 @@
 use ceil_log2::CeilLog2;
 
 /// 頂点 `0` を根とする根付き木の LCA を求めます。
+///
+/// # Examples
+/// ```
+/// use lowest_common_ancestor::LowestCommonAncestor;
+///
+/// // 0 -- 2 -- 4
+/// // |    |
+/// // 1    3
+///
+/// let edges = vec![(0, 1), (0, 2), (2, 3), (2, 4)];
+/// let lca = LowestCommonAncestor::new(5, edges.iter().copied());
+/// assert_eq!(lca.get(0, 1), 0);
+/// assert_eq!(lca.get(0, 4), 0);
+/// assert_eq!(lca.get(1, 1), 1);
+/// assert_eq!(lca.get(1, 2), 0);
+/// assert_eq!(lca.get(2, 3), 2);
+/// assert_eq!(lca.get(3, 4), 2);
+/// ```
 pub struct LowestCommonAncestor {
     ancestor: Vec<Vec<usize>>,
     depth: Vec<usize>,
@@ -29,10 +47,11 @@ impl LowestCommonAncestor {
                 }
             }
         }
-        let table_size = n.ceil_log2();
-        let mut ancestor = vec![parent];
+        let table_size = n.ceil_log2().max(1);
+        let mut ancestor = vec![vec![ILLEGAL; n]; table_size];
+        ancestor[0] = parent;
         for i in 1..table_size {
-            let a: Vec<usize> = (0..n)
+            ancestor[i] = (0..n)
                 .map(|v| {
                     if ancestor[i - 1][v] == ILLEGAL {
                         ILLEGAL
@@ -41,7 +60,6 @@ impl LowestCommonAncestor {
                     }
                 })
                 .collect();
-            ancestor.push(a);
         }
         Self { ancestor, depth }
     }
@@ -82,12 +100,23 @@ impl LowestCommonAncestor {
         self.depth[u] + self.depth[v] - self.depth[w] * 2
     }
 
-    pub fn depth(&self) -> &Vec<usize> {
-        &self.depth
+    /// 頂点 `u` の深さを返します。
+    pub fn depth(&self, u: usize) -> usize {
+        self.depth[u]
     }
 
-    pub fn ancestor(&self) -> &Vec<Vec<usize>> {
-        &self.ancestor
+    /// 頂点 `u` から根の方向に `2^i` 本の辺を登って着く頂点を返します。
+    pub fn ancestor(&self, i: usize, u: usize) -> Option<usize> {
+        if i >= self.ancestor.len() {
+            None
+        } else {
+            let a = self.ancestor[i][u];
+            if a == ILLEGAL {
+                None
+            } else {
+                Some(a)
+            }
+        }
     }
 }
 
