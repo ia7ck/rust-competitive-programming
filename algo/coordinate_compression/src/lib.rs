@@ -6,10 +6,11 @@ use std::ops::Index;
 /// # Examples
 ///
 /// ```
+/// use std::iter::FromIterator;
 /// use coordinate_compression::CoordinateCompression;
 /// let values = vec![2, -1, -1, 5, -1, 2, -3];
 /// // -3, -1, 2, 5
-/// let cc: CoordinateCompression<i32> = values.into_iter().collect();
+/// let cc = CoordinateCompression::from_iter(values.into_iter());
 /// assert_eq!(cc.find_index(&-3), 0);
 /// assert_eq!(cc.find_index(&-1), 1);
 /// assert_eq!(cc.find_index(&2), 2);
