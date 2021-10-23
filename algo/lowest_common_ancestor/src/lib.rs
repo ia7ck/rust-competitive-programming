@@ -9,9 +9,13 @@ pub struct LowestCommonAncestor {
 const ILLEGAL: usize = std::usize::MAX;
 
 impl LowestCommonAncestor {
-    /// 木を隣接グラフ形式で渡します。
-    pub fn new(g: &[Vec<usize>]) -> Self {
-        let n = g.len();
+    /// 頂点数と `n` と木をなす無向辺の集合 `edges` を渡します。
+    pub fn new(n: usize, edges: impl Iterator<Item = (usize, usize)>) -> Self {
+        let mut g = vec![vec![]; n];
+        for (u, v) in edges {
+            g[u].push(v);
+            g[v].push(u);
+        }
         let mut depth = vec![0; n];
         let mut parent = vec![ILLEGAL; n];
         let mut stack = Vec::new();
@@ -25,7 +29,6 @@ impl LowestCommonAncestor {
                 }
             }
         }
-        let n = g.len();
         let table_size = n.ceil_log2();
         let mut ancestor = vec![parent];
         for i in 1..table_size {
@@ -94,8 +97,7 @@ mod tests {
 
     #[test]
     fn single_node_test() {
-        let g = vec![vec![]];
-        let lca = LowestCommonAncestor::new(&g);
+        let lca = LowestCommonAncestor::new(1, std::iter::empty());
         assert_eq!(lca.get(0, 0), 0);
     }
 }

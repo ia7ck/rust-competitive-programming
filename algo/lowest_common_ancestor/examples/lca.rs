@@ -8,15 +8,14 @@ fn main() {
         n: usize,
         q: usize,
     }
-    let mut g = vec![vec![]; n];
+    let mut edges = Vec::new();
     for i in 1..n {
         input! {
             p: usize,
         }
-        g[p].push(i);
-        g[i].push(p);
+        edges.push((i, p));
     }
-    let lca = LowestCommonAncestor::new(&g);
+    let lca = LowestCommonAncestor::new(n, edges.iter().copied());
     for _ in 0..q {
         input! {
             u: usize,
