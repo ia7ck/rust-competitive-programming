@@ -37,6 +37,16 @@
 <span id="37">37</span>
 <span id="38">38</span>
 <span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Display</span>;
 
@@ -49,6 +59,16 @@
     <span class="ident">I</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span>,
     <span class="ident">T</span>: <span class="ident">Display</span>,
 {
+    <span class="doccomment">/// 各要素を `sep` 区切りの文字列にして返します。</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use join::Join;</span>
+    <span class="doccomment">/// assert_eq!(vec![1, 23, 456].iter().join(&quot; &quot;), &quot;1 23 456&quot;);</span>
+    <span class="doccomment">/// assert_eq!(vec![&quot;a&quot;, &quot;bc&quot;, &quot;def&quot;].iter().join(&quot;\n&quot;), r#&quot;a</span>
+    <span class="doccomment">/// bc</span>
+    <span class="doccomment">/// def&quot;#);</span>
+    <span class="doccomment">/// ```</span>
     <span class="kw">fn</span> <span class="ident">join</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">sep</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">new</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">first</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">next</span>() {
