@@ -9,6 +9,16 @@ where
     I: Iterator<Item = T>,
     T: Display,
 {
+    /// 各要素を `sep` 区切りの文字列にして返します。
+    ///
+    /// # Examples
+    /// ```
+    /// use join::Join;
+    /// assert_eq!(vec![1, 23, 456].iter().join(" "), "1 23 456");
+    /// assert_eq!(vec!["a", "bc", "def"].iter().join("\n"), r#"a
+    /// bc
+    /// def"#);
+    /// ```
     fn join(&mut self, sep: &str) -> String {
         let mut result = String::new();
         if let Some(first) = self.next() {
