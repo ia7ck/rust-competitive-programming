@@ -43,6 +43,41 @@ impl<R: io::BufRead> InputIScanner<R> {
     /// let ch: char = sc.scan();
     /// assert_eq!(ch, 'x');
     /// ```
+    ///
+    /// タプルやベクタを scan する例です。
+    ///
+    /// ```
+    /// use input_i_scanner::InputIScanner;
+    ///
+    /// let mut sc = InputIScanner::from(r#"
+    /// 42
+    /// 123 abc
+    /// 9 8 7 6 5
+    /// x -1
+    /// y -2
+    /// z -3
+    /// "#);
+    ///
+    /// macro_rules! scan {
+    ///     (($($t: ty),+)) => { // scan!((i32, i32))
+    ///         ($(scan!($t)),+)
+    ///     };
+    ///     ($t: ty) => { // scan!(i32)
+    ///         sc.scan::<$t>() as $t
+    ///     };
+    ///     (($($t: ty),+); $n: expr) => { // scan((i32, i32); 100)
+    ///         std::iter::repeat_with(|| scan!(($($t),+))).take($n).collect::<Vec<_>>()
+    ///     };
+    ///     ($t: ty; $n: expr) => { // scan!(i32; 100)
+    ///         std::iter::repeat_with(|| scan!($t)).take($n).collect::<Vec<_>>()
+    ///     };
+    /// }
+    ///
+    /// assert_eq!(scan!(i32), 42);
+    /// assert_eq!(scan!((i32, String)), (123, "abc".to_string()));
+    /// assert_eq!(scan!(i32; 5), vec![9, 8, 7, 6, 5]);
+    /// assert_eq!(scan!((char, i32); 3), vec![('x', -1), ('y', -2), ('z', -3)]);
+    /// ```
     pub fn scan<T>(&mut self) -> T
     where
         T: str::FromStr,
@@ -97,54 +132,18 @@ impl<'a> From<io::StdinLock<'a>> for InputIScanner<io::BufReader<io::StdinLock<'
     }
 }
 
-#[macro_export]
-/// [`scan`] がまどろっこしいという方へおすすめのマクロです。
-///
-/// ```
-/// use input_i_scanner::{InputIScanner, scan_with};
-///
-/// let mut _i_i = InputIScanner::from(r#"
-/// 42
-/// 123 abc
-/// 9 8 7 6 5
-/// x -1
-/// y -2
-/// z -3
-/// "#);
-/// assert_eq!(scan_with!(_i_i, i32), 42);
-/// assert_eq!(scan_with!(_i_i, (i32, String)), (123, "abc".to_string()));
-/// assert_eq!(scan_with!(_i_i, i32; 5), vec![9, 8, 7, 6, 5]);
-/// assert_eq!(scan_with!(_i_i, (char, i32); 3), vec![('x', -1), ('y', -2), ('z', -3)]);
-/// ```
-///
-/// [`scan`]: struct.InputIScanner.html#method.scan
-macro_rules! scan_with {
-    ($scanner: expr, ($($t: ty),+)) => { // scan_with!(_sc, (i32, i32))
-        ($(scan_with!($scanner, $t)),+)
-    };
-    ($scanner: expr, $t: ty) => { // scan_with!(_sc, i32)
-        $scanner.scan::<$t>()
-    };
-    ($scanner: expr, ($($t: ty),+); $n: expr) => { // scan_with!(_sc, (i32, i32); 100)
-        std::iter::repeat_with(|| scan_with!($scanner, ($($t),+))).take($n).collect::<Vec<_>>()
-    };
-    ($scanner: expr, $t: ty; $n: expr) => { // scan_with!(_sc, i32; 100)
-        std::iter::repeat_with(|| scan_with!($scanner, $t)).take($n).collect::<Vec<_>>()
-    };
-}
-
 #[cfg(test)]
 mod tests {
     use crate::InputIScanner;
 
     #[test]
     fn test_single() {
-        let mut _i_i = InputIScanner::from("42");
-        assert_eq!(scan_with!(_i_i, i32), 42);
-        let mut _i_i = InputIScanner::from("a");
-        assert_eq!(scan_with!(_i_i, char), 'a');
-        let mut _i_i = InputIScanner::from("abc");
-        assert_eq!(scan_with!(_i_i, String), "abc");
+        let mut sc = InputIScanner::from("42");
+        assert_eq!(sc.scan::<i32>(), 42);
+        let mut sc = InputIScanner::from("a");
+        assert_eq!(sc.scan::<char>(), 'a');
+        let mut sc = InputIScanner::from("abc");
+        assert_eq!(sc.scan::<String>(), "abc");
     }
 
     #[test]
@@ -163,20 +162,6 @@ mod tests {
         assert_eq!(sc.scan::<i32>(), -123);
         assert_eq!(sc.scan::<char>(), 'a');
         assert_eq!(sc.scan::<String>(), "abc");
-    }
-
-    #[test]
-    fn test_scan_vec() {
-        let mut _i_i = InputIScanner::from("1 23 -456");
-        assert_eq!(scan_with!(_i_i, i32; 3), vec![1, 23, -456]);
-        let mut _i_i = InputIScanner::from("abc\nde\nf");
-        assert_eq!(scan_with!(_i_i, String; 3), vec!["abc", "de", "f"]);
-    }
-
-    #[test]
-    fn test_scan_vec_of_tuple() {
-        let mut _i_i = InputIScanner::from("a 12\nb 3");
-        assert_eq!(scan_with!(_i_i, (char, i32); 2), vec![('a', 12), ('b', 3)]);
     }
 
     #[test]
