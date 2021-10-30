@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["factorials","`1` 以上 `size` 未満の `n` について、`n` の階乗 (mod `modulo`) と、その乗法逆元を O(`size`) で計算します。参考"]]});
+initSidebarItems({"struct":[["Factorial","階乗とその乗法逆元、そして二項係数を扱います。"]]});
