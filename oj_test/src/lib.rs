@@ -102,7 +102,7 @@ impl Testcase for OnlineJudgeTestcase {
         let testcase_dir = self.testcase_dir();
         if testcase_dir.exists() {
             // clear temporary directory
-            fs::remove_dir_all(testcase_dir.as_path()).unwrap_or_else(|err| panic!(err));
+            fs::remove_dir_all(testcase_dir.as_path()).unwrap_or_else(|err| panic!("{}", err));
         }
         let mut oj_command = Command::new("oj");
         oj_command
@@ -145,7 +145,7 @@ impl TestProperty {
     }
 
     fn from(solver_path: &Path) -> Self {
-        let source_code = fs::read_to_string(solver_path).unwrap_or_else(|err| panic!(err));
+        let source_code = fs::read_to_string(solver_path).unwrap_or_else(|err| panic!("{}", err));
         Self::new(&source_code)
     }
 

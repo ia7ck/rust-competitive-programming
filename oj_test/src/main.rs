@@ -39,7 +39,7 @@ fn main() -> Result<()> {
         let path = entry?;
         solvers.push(ProblemSolver::new(path.as_path()));
     }
-    solvers.sort_by(|s1, s2| s1.solver_path().cmp(&s2.solver_path()));
+    solvers.sort_by(|s1, s2| s1.solver_path().cmp(s2.solver_path()));
 
     let chunk_size = solvers.len() / CHUNK_LENGTH + 1;
     info!("chunk size = {}", chunk_size);
