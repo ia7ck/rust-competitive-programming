@@ -45,7 +45,7 @@ jobs:
     - name: Install oj
       run: pip3 install --upgrade setuptools wheel pip && pip3 install online-judge-tools && oj --version
     - name: Run tests
-      run: cargo test --verbose
+      run: RUST_LOG='info' cargo test --verbose
   
   run-oj-test:
     runs-on: ubuntu-latest
@@ -60,7 +60,7 @@ jobs:
     - name: Install oj
       run: pip3 install --upgrade setuptools wheel pip && pip3 install online-judge-tools && oj --version
     - name: Run tests
-      run: cargo run --bin oj_test --verbose -- ${{ matrix.range }}
+      run: RUST_LOG='info' cargo run --bin oj_test --verbose -- ${{ matrix.range }}
 
   publish-doc:
     runs-on: ubuntu-latest
