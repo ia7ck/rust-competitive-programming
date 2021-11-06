@@ -52,7 +52,7 @@ jobs:
     - name: Install oj
       run: pip3 install --upgrade setuptools wheel pip && pip3 install online-judge-tools && oj --version
     - name: Run additional tests
-      run: cargo run --bin oj_test_all
+      run: cargo run
 
   publish-doc:
     runs-on: ubuntu-latest
