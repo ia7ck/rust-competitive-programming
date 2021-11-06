@@ -1,10 +1,9 @@
 use anyhow::Result;
 use glob::glob;
 
+use std::collections::HashMap;
 use std::env;
 use std::fs;
-use std::fs::File;
-use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -72,25 +71,21 @@ fn main() -> Result<()> {
     let mut tests = Vec::new();
     for entry in glob("**/examples/*.rs")? {
         let path = entry?;
-        let file = File::open(&path)?;
-        let mut reader = BufReader::new(file);
-        let mut first_line = String::new();
-        reader.read_line(&mut first_line)?;
-        if let Some(url) = parse_property(&first_line, "problem") {
-            let mut second_line = String::new();
-            reader.read_line(&mut second_line)?;
-            let t = if let Some(judge_program) = parse_property(&second_line, "judge_program_rs") {
+        let source_code = fs::read_to_string(&path)?;
+        let property = TestProperty::new(&source_code);
+        if let Some(url) = property.get("problem") {
+            let t = if let Some(judge_program) = property.get("judge_program_rs") {
                 let judge_program_path = path.parent().unwrap().join(&judge_program);
                 Test {
                     judge_type: JudgeType::SpecialJudge { judge_program_path },
                     solver_path: path,
-                    problem_url: url,
+                    problem_url: url.to_string(),
                 }
             } else {
                 Test {
                     judge_type: JudgeType::Normal,
                     solver_path: path,
-                    problem_url: url,
+                    problem_url: url.to_string(),
                 }
             };
             tests.push(t);
@@ -123,47 +118,67 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn parse_property(s: &str, key: &str) -> Option<String> {
-    let v: Vec<&str> = s.splitn(2, ':').map(|t| t.trim()).collect();
-    if v.len() != 2 {
-        return None;
+struct TestProperty {
+    properties: HashMap<String, String>,
+}
+
+impl TestProperty {
+    fn new(source_code: &str) -> Self {
+        let mut properties = HashMap::new();
+        for l in source_code.lines() {
+            let v: Vec<&str> = l.splitn(2, ':').map(|t| t.trim()).collect();
+            if v.len() != 2 {
+                continue;
+            }
+            if !v[0].starts_with("//") {
+                continue;
+            }
+            let key = v[0].trim_start_matches('/').trim();
+            properties.insert(key.to_string(), v[1].to_string());
+        }
+        Self { properties }
     }
-    if !v[0].starts_with("//") {
-        return None;
+    fn get(&self, key: &str) -> Option<&String> {
+        self.properties.get(key)
     }
-    if !v[0].ends_with(key) {
-        return None;
-    }
-    Some(v[1].to_string())
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::parse_property;
+    use crate::TestProperty;
 
     #[test]
     fn parse_property_test() {
-        assert_eq!(
-            parse_property("// problem: http://example.com", "problem"),
-            Some("http://example.com".to_string())
-        );
-        assert_eq!(
-            parse_property("//problem: http://example.com", "problem"),
-            Some("http://example.com".to_string())
-        );
-        assert_eq!(
-            parse_property("// problem:http://example.com", "problem"),
-            Some("http://example.com".to_string())
-        );
-        assert_eq!(
-            parse_property("// problem : http://example.com", "problem"),
-            Some("http://example.com".to_string())
-        );
+        let source_code = r#"// problem1: https://example1.com
+//problem2: https://example2.com
+ // problem3:https://example3.com
+// problem4 : https://example4.com
 
+// judge_program_rs: ./my_judge.rs
+fn main() {
+// return;
+}"#;
+        let property = TestProperty::new(source_code);
         assert_eq!(
-            parse_property("// judge_program_rs: ./my_judge.rs", "judge_program_rs"),
+            property.get("problem1").cloned(),
+            Some("https://example1.com".to_string())
+        );
+        assert_eq!(
+            property.get("problem2").cloned(),
+            Some("https://example2.com".to_string())
+        );
+        assert_eq!(
+            property.get("problem3").cloned(),
+            Some("https://example3.com".to_string())
+        );
+        assert_eq!(
+            property.get("problem4").cloned(),
+            Some("https://example4.com".to_string())
+        );
+        assert_eq!(
+            property.get("judge_program_rs").cloned(),
             Some("./my_judge.rs".to_string())
         );
-        assert_eq!(parse_property("fn main() {", "judge_program_rs"), None);
+        assert_eq!(property.get("return"), None);
     }
 }
