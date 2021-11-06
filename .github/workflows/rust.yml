@@ -34,25 +34,30 @@ jobs:
       run: rustup component add rustfmt
     - name: Check format
       run: cargo fmt -- --check
-  
+
   run-test:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Run tests
-      run: cargo test --verbose
-  
-  run-example-test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
       with:
-          python-version: '3.x'
+        python-version: '3.x'
     - name: Install oj
       run: pip3 install --upgrade setuptools wheel pip && pip3 install online-judge-tools && oj --version
-    - name: Run additional tests
-      run: cargo run --bin oj_test_all
+    - name: Run tests
+      run: cargo test --verbose
+  
+  run-oj-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    - name: Install oj
+      run: pip3 install --upgrade setuptools wheel pip && pip3 install online-judge-tools && oj --version
+    - name: Run tests
+      run: cargo run --bin oj_test --verbose
 
   publish-doc:
     runs-on: ubuntu-latest

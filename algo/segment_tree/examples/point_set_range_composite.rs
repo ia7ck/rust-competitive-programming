@@ -1,4 +1,4 @@
-// oj: https://judge.yosupo.jp/problem/point_set_range_composite
+// problem: https://judge.yosupo.jp/problem/point_set_range_composite
 use proconio::{fastout, input};
 use segment_tree::SegmentTree;
 

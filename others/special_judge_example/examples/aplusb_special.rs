@@ -1,5 +1,5 @@
-// oj: https://judge.yosupo.jp/problem/aplusb
-// oj_judge_rs_program: ./judge.rs
+// problem: https://judge.yosupo.jp/problem/aplusb
+// judge_program_rs: ./judge.rs
 use proconio::input;
 use special_judge_example::add;
 

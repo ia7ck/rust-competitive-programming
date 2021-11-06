@@ -1,4 +1,4 @@
-// oj: https://judge.yosupo.jp/problem/number_of_substrings
+// problem: https://judge.yosupo.jp/problem/number_of_substrings
 use proconio::marker::Chars;
 use proconio::{fastout, input};
 use suffix_array::{lcp_array, suffix_array};

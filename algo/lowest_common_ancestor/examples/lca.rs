@@ -1,4 +1,4 @@
-// oj: https://judge.yosupo.jp/problem/lca
+// problem: https://judge.yosupo.jp/problem/lca
 use lowest_common_ancestor::LowestCommonAncestor;
 use proconio::{fastout, input};
 

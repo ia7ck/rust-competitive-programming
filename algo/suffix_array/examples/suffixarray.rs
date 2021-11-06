@@ -1,4 +1,4 @@
-// oj: https://judge.yosupo.jp/problem/suffixarray
+// problem: https://judge.yosupo.jp/problem/suffixarray
 use join::Join;
 use proconio::marker::Chars;
 use proconio::{fastout, input};
