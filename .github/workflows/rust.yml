@@ -73,6 +73,8 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    env:
+      RUST_LOG: info
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -87,7 +89,7 @@ jobs:
           override: true
       - uses: actions-rs/cargo@v1
         with:
-          command: RUST_LOG='info' test
+          command: test
 
   oj-test:
     runs-on: ubuntu-latest
