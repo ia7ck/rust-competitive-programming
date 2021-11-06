@@ -31,12 +31,10 @@ impl UnionFind {
     /// assert_ne!(leaders[0], leaders[5]);
     /// ```
     pub fn find(&mut self, i: usize) -> usize {
-        if self.par[i] == i {
-            self.par[i]
-        } else {
+        if self.par[i] != i {
             self.par[i] = self.find(self.par[i]);
-            self.par[i]
         }
+        self.par[i]
     }
     /// 頂点 `i` の属する連結成分と頂点 `j` の属する連結成分をつなげます。
     pub fn unite(&mut self, i: usize, j: usize) {
