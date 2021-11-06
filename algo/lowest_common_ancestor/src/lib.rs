@@ -36,8 +36,7 @@ impl LowestCommonAncestor {
         }
         let mut depth = vec![0; n];
         let mut parent = vec![ILLEGAL; n];
-        let mut stack = Vec::new();
-        stack.push((0, ILLEGAL));
+        let mut stack = vec![(0, ILLEGAL)];
         while let Some((u, p)) = stack.pop() {
             for &v in &g[u] {
                 if v != p {
