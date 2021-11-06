@@ -92,8 +92,6 @@
 <span id="92">92</span>
 <span id="93">93</span>
 <span id="94">94</span>
-<span id="95">95</span>
-<span id="96">96</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/// Union Find はグラフの連結成分を管理します。</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UnionFind</span> {
@@ -128,12 +126,10 @@
     <span class="doccomment">/// assert_ne!(leaders[0], leaders[5]);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">par</span>[<span class="ident">i</span>] <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
-            <span class="self">self</span>.<span class="ident">par</span>[<span class="ident">i</span>]
-        } <span class="kw">else</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">par</span>[<span class="ident">i</span>] <span class="op">!</span><span class="op">=</span> <span class="ident">i</span> {
             <span class="self">self</span>.<span class="ident">par</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="self">self</span>.<span class="ident">find</span>(<span class="self">self</span>.<span class="ident">par</span>[<span class="ident">i</span>]);
-            <span class="self">self</span>.<span class="ident">par</span>[<span class="ident">i</span>]
         }
+        <span class="self">self</span>.<span class="ident">par</span>[<span class="ident">i</span>]
     }
     <span class="doccomment">/// 頂点 `i` の属する連結成分と頂点 `j` の属する連結成分をつなげます。</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unite</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">j</span>: <span class="ident">usize</span>) {
