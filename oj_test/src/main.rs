@@ -16,7 +16,7 @@ enum JudgeType {
 struct Test {
     judge_type: JudgeType,
     solver_path: PathBuf,
-    url: String,
+    problem_url: String,
 }
 
 impl Test {
@@ -84,13 +84,13 @@ fn main() -> Result<()> {
                 Test {
                     judge_type: JudgeType::SpecialJudge { judge_program_path },
                     solver_path: path,
-                    url,
+                    problem_url: url,
                 }
             } else {
                 Test {
                     judge_type: JudgeType::Normal,
                     solver_path: path,
-                    url,
+                    problem_url: url,
                 }
             };
             tests.push(t);
@@ -104,12 +104,12 @@ fn main() -> Result<()> {
         }
         println!(
             "oj download {} --directory {} --system --silent",
-            t.url,
+            t.problem_url,
             download_dir.display()
         );
         let status = Command::new("oj")
             .arg("download")
-            .arg(&t.url)
+            .arg(&t.problem_url)
             .arg("--directory")
             .arg(download_dir.as_os_str())
             .arg("--system")
