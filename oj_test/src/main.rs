@@ -19,7 +19,7 @@ struct Test {
 }
 
 impl Test {
-    pub fn run(&self, testcase_dir: &Path) -> Result<()> {
+    fn run(&self, testcase_dir: &Path) -> Result<()> {
         let solver_name = self.solver_path.file_stem().unwrap().to_string_lossy();
         let solve_command = format!("cargo run --quiet --release --example {}", solver_name);
         match &self.judge_type {
