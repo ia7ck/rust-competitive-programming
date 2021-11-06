@@ -192,6 +192,7 @@ impl<M: Modulo, T: Into<ModInt<M>>> Mul<T> for ModInt<M> {
     }
 }
 
+#[allow(clippy::suspicious_op_assign_impl)]
 impl<M: Modulo, T: Into<ModInt<M>>> DivAssign<T> for ModInt<M> {
     fn div_assign(&mut self, rhs: T) {
         *self *= rhs.into().inv();
