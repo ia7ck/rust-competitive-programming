@@ -76,10 +76,10 @@ fn main() -> Result<()> {
         let mut reader = BufReader::new(file);
         let mut first_line = String::new();
         reader.read_line(&mut first_line)?;
-        if let Some(url) = parse_problem_url(&first_line) {
+        if let Some(url) = parse_property(&first_line, "problem") {
             let mut second_line = String::new();
             reader.read_line(&mut second_line)?;
-            let t = if let Some(judge_program) = parse_judge_rs_program(&second_line) {
+            let t = if let Some(judge_program) = parse_property(&second_line, "judge_program_rs") {
                 let judge_program_path = path.parent().unwrap().join(&judge_program);
                 Test {
                     judge_type: JudgeType::SpecialJudge { judge_program_path },
@@ -123,59 +123,47 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn parse_problem_url(s: &str) -> Option<String> {
-    if s.trim_start().starts_with("//") {
-        let t = s.replacen("//", "", 1);
-        if t.trim_start().starts_with("problem") {
-            let u = t.replacen("problem", "", 1);
-            if u.trim_start().starts_with(':') {
-                return Some(u.replacen(':', "", 1).trim().to_string());
-            }
-        }
+fn parse_property(s: &str, key: &str) -> Option<String> {
+    let v: Vec<&str> = s.splitn(2, ':').map(|t| t.trim()).collect();
+    if v.len() != 2 {
+        return None;
     }
-    None
-}
-
-fn parse_judge_rs_program(s: &str) -> Option<String> {
-    if s.trim_start().starts_with("//") {
-        let t = s.replacen("//", "", 1);
-        if t.trim_start().starts_with("judge_program_rs") {
-            let u = t.replacen("judge_program_rs", "", 1);
-            if u.trim_start().starts_with(':') {
-                return Some(u.replacen(':', "", 1).trim().to_string());
-            }
-        }
+    if !v[0].starts_with("//") {
+        return None;
     }
-    None
+    if !v[0].ends_with(key) {
+        return None;
+    }
+    Some(v[1].to_string())
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{parse_judge_rs_program, parse_problem_url};
+    use crate::parse_property;
 
     #[test]
-    fn parse_meta_data_test() {
+    fn parse_property_test() {
         assert_eq!(
-            parse_problem_url("// problem: http://example.com"),
+            parse_property("// problem: http://example.com", "problem"),
             Some("http://example.com".to_string())
         );
         assert_eq!(
-            parse_problem_url("//problem: http://example.com"),
+            parse_property("//problem: http://example.com", "problem"),
             Some("http://example.com".to_string())
         );
         assert_eq!(
-            parse_problem_url("// problem:http://example.com"),
+            parse_property("// problem:http://example.com", "problem"),
             Some("http://example.com".to_string())
         );
         assert_eq!(
-            parse_problem_url("// problem : http://example.com"),
+            parse_property("// problem : http://example.com", "problem"),
             Some("http://example.com".to_string())
         );
 
         assert_eq!(
-            parse_judge_rs_program("// judge_program_rs: ./my_judge.rs"),
+            parse_property("// judge_program_rs: ./my_judge.rs", "judge_program_rs"),
             Some("./my_judge.rs".to_string())
         );
-        assert_eq!(parse_judge_rs_program("fn main() {"), None);
+        assert_eq!(parse_property("fn main() {", "judge_program_rs"), None);
     }
 }
