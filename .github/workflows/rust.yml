@@ -35,29 +35,27 @@ jobs:
     - name: Check format
       run: cargo fmt -- --check
 
-  install-oj:
+  run-test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
       with:
         python-version: '3.x'
-    - name: Install
+    - name: Install oj
       run: pip3 install --upgrade setuptools wheel pip && pip3 install online-judge-tools && oj --version
-
-  run-test:
-    runs-on: ubuntu-latest
-    needs: install-oj
-    steps:
-    - uses: actions/checkout@v2
     - name: Run tests
       run: cargo test --verbose
   
   run-oj-test:
     runs-on: ubuntu-latest
-    needs: install-oj
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    - name: Install oj
+      run: pip3 install --upgrade setuptools wheel pip && pip3 install online-judge-tools && oj --version
     - name: Run tests
       run: cargo run --bin oj_test --verbose
 
