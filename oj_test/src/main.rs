@@ -12,17 +12,24 @@ enum JudgeType {
     SpecialJudge { judge_program_path: PathBuf }, // For problem which has one or more answers.
 }
 
-struct Test {
-    judge_type: JudgeType,
-    solver_path: PathBuf,
-    problem_url: String,
+struct ProblemSolver {
+    path: PathBuf,
+    test_property: TestProperty,
 }
 
-impl Test {
-    fn run(&self, testcase_dir: &Path) -> Result<()> {
-        let solver_name = self.solver_path.file_stem().unwrap().to_string_lossy();
+impl ProblemSolver {
+    fn new(path: &Path) -> Self {
+        let source_code = fs::read_to_string(path).unwrap_or_else(|err| panic!(err));
+        Self {
+            path: path.to_path_buf(),
+            test_property: TestProperty::new(&source_code),
+        }
+    }
+
+    fn run_test(&self, testcase_dir: &Path) -> Result<()> {
+        let solver_name = self.path.file_stem().unwrap().to_string_lossy();
         let solve_command = format!("cargo run --quiet --release --example {}", solver_name);
-        match &self.judge_type {
+        match self.judge_type().unwrap() {
             JudgeType::Normal => {
                 println!(
                     "oj test --directory {} --command \"{}\" --jobs 2",
@@ -65,46 +72,43 @@ impl Test {
         }
         Ok(())
     }
+
+    fn url(&self) -> String {
+        self.test_property.get("problem").unwrap().clone()
+    }
+
+    fn judge_type(&self) -> Option<JudgeType> {
+        let _problem_url = self.test_property.get("problem")?;
+        match self.test_property.get("judge_program_rs") {
+            Some(judge_program_rs) => {
+                let judge_program_path = self.path.parent().unwrap().join(&judge_program_rs);
+                Some(JudgeType::SpecialJudge { judge_program_path })
+            }
+            None => Some(JudgeType::Normal),
+        }
+    }
 }
 
 fn main() -> Result<()> {
-    let mut tests = Vec::new();
+    let mut solvers = Vec::new();
     for entry in glob("**/examples/*.rs")? {
         let path = entry?;
-        let source_code = fs::read_to_string(&path)?;
-        let property = TestProperty::new(&source_code);
-        if let Some(url) = property.get("problem") {
-            let t = if let Some(judge_program) = property.get("judge_program_rs") {
-                let judge_program_path = path.parent().unwrap().join(&judge_program);
-                Test {
-                    judge_type: JudgeType::SpecialJudge { judge_program_path },
-                    solver_path: path,
-                    problem_url: url.to_string(),
-                }
-            } else {
-                Test {
-                    judge_type: JudgeType::Normal,
-                    solver_path: path,
-                    problem_url: url.to_string(),
-                }
-            };
-            tests.push(t);
-        }
+        solvers.push(ProblemSolver::new(&path));
     }
-    tests.sort_by(|t1, t2| t1.solver_path.cmp(&t2.solver_path));
-    for t in tests {
-        let download_dir = env::temp_dir().join(t.solver_path.with_extension(""));
+    solvers.sort_by(|s1, s2| s1.path.cmp(&s2.path));
+    for s in solvers {
+        let download_dir = env::temp_dir().join(s.path.with_extension(""));
         if download_dir.exists() {
             fs::remove_dir_all(&download_dir)?;
         }
         println!(
             "oj download {} --directory {} --system --silent",
-            t.problem_url,
+            s.url(),
             download_dir.display()
         );
         let status = Command::new("oj")
             .arg("download")
-            .arg(&t.problem_url)
+            .arg(&s.url())
             .arg("--directory")
             .arg(download_dir.as_os_str())
             .arg("--system")
@@ -112,7 +116,7 @@ fn main() -> Result<()> {
             .status()?;
         assert!(status.success(), "failed: oj download");
 
-        t.run(&download_dir)?;
+        s.run_test(&download_dir)?;
     }
 
     Ok(())
