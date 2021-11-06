@@ -17,6 +17,7 @@ sourcesIndex["least_prime_factors"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["lowest_common_ancestor"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["mod_int"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["next_permutation"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["oj_test"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["pascal_triangle"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["prime_factorization"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["rolling_hash"] = {"name":"","files":["lib.rs"]};
