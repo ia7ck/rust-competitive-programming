@@ -307,6 +307,7 @@
 <span id="307">307</span>
 <span id="308">308</span>
 <span id="309">309</span>
+<span id="310">310</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! `ModInt` は整数の四則演算を mod `p` で行う構造体です。</span>
 <span class="doccomment">//!</span>
@@ -502,6 +503,7 @@
     }
 }
 
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">suspicious_op_assign_impl</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">M</span>: <span class="ident">Modulo</span>, <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ModInt</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">DivAssign</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ModInt</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">div_assign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">T</span>) {
         <span class="kw-2">*</span><span class="self">self</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">rhs</span>.<span class="ident">into</span>().<span class="ident">inv</span>();
