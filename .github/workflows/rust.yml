@@ -8,15 +8,26 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  CACHE_NAME: cache_v0
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/cache@v2
+      with:
+        # https://github.com/actions/cache/blob/main/examples.md#rust---cargo
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key: ${{ runner.os }}-cargo-build-release-examples-${{ env.CACHE_NAME }}
     - name: Build
-      run: cargo build --verbose
-  
+      run: cargo build --release --examples --verbose
+
   clippy:
     runs-on: ubuntu-latest
     steps:
@@ -25,7 +36,7 @@ jobs:
       run: rustup component add clippy
     - name: Clippy
       run: cargo clippy -- --deny warnings
-  
+
   check-format:
     runs-on: ubuntu-latest
     steps:
@@ -46,12 +57,13 @@ jobs:
       run: pip3 install --upgrade setuptools wheel pip && pip3 install online-judge-tools && oj --version
     - name: Run tests
       run: RUST_LOG='info' cargo test --verbose
-  
+
   run-oj-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         range: [0-2, 2-4, 4-6, 6-8, 8-10]
+    needs: build
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
@@ -59,6 +71,15 @@ jobs:
         python-version: '3.x'
     - name: Install oj
       run: pip3 install --upgrade setuptools wheel pip && pip3 install online-judge-tools && oj --version
+    - uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key: ${{ runner.os }}-cargo-build-release-examples-${{ env.CACHE_NAME }}
     - name: Run tests
       run: RUST_LOG='info' cargo run --bin oj_test --verbose -- ${{ matrix.range }}
 
