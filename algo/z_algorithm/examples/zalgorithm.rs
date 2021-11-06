@@ -1,4 +1,4 @@
-// oj: https://judge.yosupo.jp/problem/zalgorithm
+// problem: https://judge.yosupo.jp/problem/zalgorithm
 
 use join::Join;
 use proconio::marker::Chars;

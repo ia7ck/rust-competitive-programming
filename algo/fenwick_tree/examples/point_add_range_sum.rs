@@ -1,4 +1,4 @@
-// oj:https://judge.yosupo.jp/problem/point_add_range_sum
+// problem:https://judge.yosupo.jp/problem/point_add_range_sum
 use fenwick_tree::FenwickTree;
 use join::Join;
 use proconio::{fastout, input};

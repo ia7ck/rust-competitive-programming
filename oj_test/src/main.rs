@@ -126,8 +126,8 @@ fn main() -> Result<()> {
 fn parse_problem_url(s: &str) -> Option<String> {
     if s.trim_start().starts_with("//") {
         let t = s.replacen("//", "", 1);
-        if t.trim_start().starts_with("oj") {
-            let u = t.replacen("oj", "", 1);
+        if t.trim_start().starts_with("problem") {
+            let u = t.replacen("problem", "", 1);
             if u.trim_start().starts_with(':') {
                 return Some(u.replacen(':', "", 1).trim().to_string());
             }
@@ -139,8 +139,8 @@ fn parse_problem_url(s: &str) -> Option<String> {
 fn parse_judge_rs_program(s: &str) -> Option<String> {
     if s.trim_start().starts_with("//") {
         let t = s.replacen("//", "", 1);
-        if t.trim_start().starts_with("oj_judge_rs_program") {
-            let u = t.replacen("oj_judge_rs_program", "", 1);
+        if t.trim_start().starts_with("judge_program_rs") {
+            let u = t.replacen("judge_program_rs", "", 1);
             if u.trim_start().starts_with(':') {
                 return Some(u.replacen(':', "", 1).trim().to_string());
             }
@@ -156,24 +156,24 @@ mod tests {
     #[test]
     fn parse_meta_data_test() {
         assert_eq!(
-            parse_problem_url("// oj: http://example.com"),
+            parse_problem_url("// problem: http://example.com"),
             Some("http://example.com".to_string())
         );
         assert_eq!(
-            parse_problem_url("//oj: http://example.com"),
+            parse_problem_url("//problem: http://example.com"),
             Some("http://example.com".to_string())
         );
         assert_eq!(
-            parse_problem_url("// oj:http://example.com"),
+            parse_problem_url("// problem:http://example.com"),
             Some("http://example.com".to_string())
         );
         assert_eq!(
-            parse_problem_url("// oj : http://example.com"),
+            parse_problem_url("// problem : http://example.com"),
             Some("http://example.com".to_string())
         );
 
         assert_eq!(
-            parse_judge_rs_program("// oj_judge_rs_program: ./my_judge.rs"),
+            parse_judge_rs_program("// judge_program_rs: ./my_judge.rs"),
             Some("./my_judge.rs".to_string())
         );
         assert_eq!(parse_judge_rs_program("fn main() {"), None);

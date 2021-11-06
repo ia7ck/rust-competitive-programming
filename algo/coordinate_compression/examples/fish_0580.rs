@@ -1,4 +1,4 @@
-// oj: https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=0580
+// problem: https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=0580
 
 use coordinate_compression::CoordinateCompression;
 use proconio::input;

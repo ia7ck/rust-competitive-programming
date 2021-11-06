@@ -1,4 +1,4 @@
-//oj:https://judge.yosupo.jp/problem/many_aplusb
+//problem:https://judge.yosupo.jp/problem/many_aplusb
 use input_i_scanner::InputIScanner;
 
 fn main() {

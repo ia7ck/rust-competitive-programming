@@ -1,5 +1,5 @@
-// oj: https://judge.yosupo.jp/problem/cycle_detection
-// oj_judge_rs_program: ./judge_cycle_detection.rs
+// problem: https://judge.yosupo.jp/problem/cycle_detection
+// judge_program_rs: ./judge_cycle_detection.rs
 
 use detect_cycle::detect_cycle_directed;
 use proconio::input;

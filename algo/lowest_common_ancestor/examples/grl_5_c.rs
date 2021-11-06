@@ -1,4 +1,4 @@
-// oj: https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=GRL_5_C
+// problem: https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=GRL_5_C
 use lowest_common_ancestor::LowestCommonAncestor;
 use proconio::{fastout, input};
 

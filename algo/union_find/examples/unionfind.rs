@@ -1,4 +1,4 @@
-// oj: https://judge.yosupo.jp/problem/unionfind
+// problem: https://judge.yosupo.jp/problem/unionfind
 use join::Join;
 use proconio::{fastout, input};
 use union_find::UnionFind;

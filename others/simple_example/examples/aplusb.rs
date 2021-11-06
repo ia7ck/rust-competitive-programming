@@ -1,4 +1,4 @@
-// oj: https://judge.yosupo.jp/problem/aplusb
+// problem: https://judge.yosupo.jp/problem/aplusb
 use proconio::input;
 use simple_example::add;
 
