@@ -2,7 +2,7 @@ use std::path::{Path, PathBuf};
 
 use anyhow::Result;
 
-use oj_test::{ProblemSolver, Testcase};
+use oj_test::{check_oj_version, ProblemSolver, Testcase};
 
 struct LocalTestcase {}
 
@@ -20,6 +20,8 @@ impl Testcase for LocalTestcase {
 
 #[test]
 fn local_testcase() {
+    check_oj_version().unwrap();
+
     let solver = ProblemSolver::new(
         Path::new(std::env!("CARGO_MANIFEST_DIR"))
             .join("examples")

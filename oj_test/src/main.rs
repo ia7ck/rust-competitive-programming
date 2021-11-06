@@ -4,10 +4,12 @@ use anyhow::Result;
 use glob::glob;
 use log::info;
 
-use oj_test::{OnlineJudgeTestcase, ProblemSolver};
+use oj_test::{check_oj_version, OnlineJudgeTestcase, ProblemSolver};
 
 fn main() -> Result<()> {
     env_logger::init();
+
+    check_oj_version()?;
 
     let mut solvers = Vec::new();
     for entry in glob("**/examples/*.rs")? {
