@@ -27,6 +27,5 @@ fn local_testcase() {
             .as_path(),
     );
     let testcase = LocalTestcase {};
-    let result = solver.run(testcase);
-    assert!(result.is_ok());
+    solver.run(testcase).unwrap();
 }
