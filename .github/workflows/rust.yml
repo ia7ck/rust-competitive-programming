@@ -118,7 +118,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-cargo-build-${{ env.CACHE_NAME }}
     - name: Run tests
-      run: RUST_LOG='info' cargo run --bin oj_test --verbose -- ${{ matrix.range }}
+      run: RUST_LOG='info' cargo run --bin oj_test -- ${{ matrix.range }}
 
   publish-doc:
     runs-on: ubuntu-latest
