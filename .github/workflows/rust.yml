@@ -42,7 +42,7 @@ jobs:
     - name: Run tests
       run: cargo test --verbose
   
-  run-example-test:
+  run-oj-test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -51,7 +51,7 @@ jobs:
           python-version: '3.x'
     - name: Install oj
       run: pip3 install --upgrade setuptools wheel pip && pip3 install online-judge-tools && oj --version
-    - name: Run additional tests
+    - name: Run tests
       run: cargo run
 
   publish-doc:
