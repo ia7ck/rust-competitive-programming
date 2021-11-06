@@ -1,5 +1,6 @@
-use anyhow::Result;
+use anyhow::{ensure, Result};
 use glob::glob;
+use log::info;
 
 use std::collections::HashMap;
 use std::env;
@@ -31,32 +32,24 @@ impl ProblemSolver {
         let solve_command = format!("cargo run --quiet --release --example {}", solver_name);
         match self.judge_type().unwrap() {
             JudgeType::Normal => {
-                println!(
-                    "oj test --directory {} --command \"{}\" --jobs 2",
-                    testcase_dir.display(),
-                    solve_command
-                );
-                let status = Command::new("oj")
+                let mut oj_command = Command::new("oj");
+                oj_command
                     .arg("test")
                     .arg("--directory")
                     .arg(testcase_dir.as_os_str())
                     .arg("--command")
                     .arg(solve_command)
                     .arg("--jobs")
-                    .arg("2")
-                    .status()?;
-                assert!(status.success(), "failed: oj test");
+                    .arg("2");
+                info!("execute {:?}", oj_command);
+                let status = oj_command.status()?;
+                ensure!(status.success(), "failed: oj test");
             }
             JudgeType::SpecialJudge { judge_program_path } => {
                 let judge_name = judge_program_path.file_stem().unwrap().to_string_lossy();
                 let judge_command = format!("cargo run --quiet --release --example {}", judge_name);
-                println!(
-                    "oj test --directory {} --command \"{}\" --judge-command \"{}\" --jobs 2",
-                    testcase_dir.display(),
-                    solve_command,
-                    judge_command,
-                );
-                let status = Command::new("oj")
+                let mut oj_command = Command::new("oj");
+                oj_command
                     .arg("test")
                     .arg("--directory")
                     .arg(testcase_dir.as_os_str())
@@ -65,9 +58,10 @@ impl ProblemSolver {
                     .arg("--judge-command")
                     .arg(judge_command)
                     .arg("--jobs")
-                    .arg("2")
-                    .status()?;
-                assert!(status.success(), "failed: oj test");
+                    .arg("2");
+                info!("execute {:?}", oj_command);
+                let status = oj_command.status()?;
+                ensure!(status.success(), "failed: oj test");
             }
         }
         Ok(())
@@ -90,6 +84,8 @@ impl ProblemSolver {
 }
 
 fn main() -> Result<()> {
+    env_logger::init();
+
     let mut solvers = Vec::new();
     for entry in glob("**/examples/*.rs")? {
         let path = entry?;
@@ -101,20 +97,17 @@ fn main() -> Result<()> {
         if download_dir.exists() {
             fs::remove_dir_all(&download_dir)?;
         }
-        println!(
-            "oj download {} --directory {} --system --silent",
-            s.url(),
-            download_dir.display()
-        );
-        let status = Command::new("oj")
+        let mut oj_command = Command::new("oj");
+        oj_command
             .arg("download")
             .arg(&s.url())
             .arg("--directory")
             .arg(download_dir.as_os_str())
             .arg("--system")
-            .arg("--silent")
-            .status()?;
-        assert!(status.success(), "failed: oj download");
+            .arg("--silent");
+        info!("execute {:?}", oj_command);
+        let status = oj_command.status()?;
+        ensure!(status.success(), "failed: oj download");
 
         s.run_test(&download_dir)?;
     }
