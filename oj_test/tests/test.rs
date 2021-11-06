@@ -20,6 +20,8 @@ impl Testcase for LocalTestcase {
 
 #[test]
 fn local_testcase() {
+    env_logger::init();
+
     check_oj_version().unwrap();
 
     let solver = ProblemSolver::new(
