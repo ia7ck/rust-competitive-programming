@@ -25,6 +25,10 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    env:
+      # https://doc.rust-lang.org/cargo/reference/profiles.html#release
+      # https://doc.rust-lang.org/cargo/reference/environment-variables.html
+      CARGO_INCREMENTAL: 1
     steps:
     - uses: actions/checkout@v2
     - uses: actions/cache@v2
