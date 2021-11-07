@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::env;
 use std::fmt::{Debug, Formatter};
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -36,16 +37,13 @@ impl ProblemSolver {
     {
         testcase.setup()?;
 
-        let solver_name = self.solver_path.file_stem().unwrap().to_string_lossy();
-        let solve_command = format!("cargo run --quiet --release --example {}", solver_name);
-
         let mut oj_command = Command::new("oj");
         oj_command
             .arg("test")
             .arg("--directory")
             .arg(testcase.testcase_dir().as_os_str())
             .arg("--command")
-            .arg(solve_command);
+            .arg(example_binary_path(self.solver_path.as_path()));
 
         if std::env::consts::OS != "windows" {
             oj_command.arg("--jobs").arg("2");
@@ -54,9 +52,9 @@ impl ProblemSolver {
         // special judge
         // for problem which has multiple answers
         if let Some(judge_program_path) = self.judge_program_path() {
-            let judge_name = judge_program_path.file_stem().unwrap().to_string_lossy();
-            let judge_command = format!("cargo run --quiet --release --example {}", judge_name);
-            oj_command.arg("--judge-command").arg(judge_command);
+            oj_command
+                .arg("--judge-command")
+                .arg(example_binary_path(judge_program_path.as_path()));
         }
 
         info!("execute {:?}", oj_command);
@@ -102,7 +100,7 @@ impl Testcase for OnlineJudgeTestcase {
         let testcase_dir = self.testcase_dir();
         if testcase_dir.exists() {
             // clear temporary directory
-            fs::remove_dir_all(testcase_dir.as_path()).unwrap_or_else(|err| panic!(err));
+            fs::remove_dir_all(testcase_dir.as_path()).unwrap_or_else(|err| panic!("{}", err));
         }
         let mut oj_command = Command::new("oj");
         oj_command
@@ -145,7 +143,7 @@ impl TestProperty {
     }
 
     fn from(solver_path: &Path) -> Self {
-        let source_code = fs::read_to_string(solver_path).unwrap_or_else(|err| panic!(err));
+        let source_code = fs::read_to_string(solver_path).unwrap_or_else(|err| panic!("{}", err));
         Self::new(&source_code)
     }
 
@@ -158,8 +156,37 @@ pub fn check_oj_version() -> Result<()> {
     let mut cmd = Command::new("oj");
     cmd.arg("--version");
     info!("{:?}", cmd);
-    ensure!(cmd.status().is_ok(), "oj is not installed");
+    let status = cmd.status()?;
+    ensure!(status.success(), "oj is not installed");
     Ok(())
+}
+
+fn cargo_target_examples_dir() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("..")
+        .join("target")
+        .join("release")
+        .join("examples")
+}
+
+pub fn exists_artifacts() -> Result<()> {
+    let dir = cargo_target_examples_dir();
+    ensure!(
+        dir.exists(),
+        "directory {:?} is not found. try `$ cargo build --release --examples`",
+        dir
+    );
+    Ok(())
+}
+
+fn example_binary_path(source_path: &Path) -> PathBuf {
+    let file_name = source_path.file_name().unwrap();
+    let path = cargo_target_examples_dir().join(file_name);
+    if env::consts::OS == "windows" {
+        path.with_extension("exe")
+    } else {
+        path.with_extension("")
+    }
 }
 
 #[cfg(test)]
