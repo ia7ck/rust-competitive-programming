@@ -158,7 +158,8 @@ pub fn check_oj_version() -> Result<()> {
     let mut cmd = Command::new("oj");
     cmd.arg("--version");
     info!("{:?}", cmd);
-    ensure!(cmd.status().is_ok(), "oj is not installed");
+    let status = cmd.status()?;
+    ensure!(status.success(), "oj is not installed");
     Ok(())
 }
 
