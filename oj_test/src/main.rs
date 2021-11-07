@@ -4,7 +4,7 @@ use anyhow::{anyhow, ensure, Result};
 use glob::glob;
 use log::info;
 
-use oj_test::{check_oj_version, OnlineJudgeTestcase, ProblemSolver};
+use oj_test::{check_oj_version, exists_artifacts, OnlineJudgeTestcase, ProblemSolver};
 
 const CHUNK_LENGTH: usize = 10;
 
@@ -23,6 +23,7 @@ fn main() -> Result<()> {
     env_logger::init();
 
     check_oj_version()?;
+    exists_artifacts()?;
 
     let args: Vec<String> = env::args().collect();
     let target_range = target_chunk_range(&args).map_err(|_| {

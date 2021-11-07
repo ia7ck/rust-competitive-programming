@@ -2,7 +2,7 @@ use std::path::{Path, PathBuf};
 
 use anyhow::Result;
 
-use oj_test::{check_oj_version, ProblemSolver, Testcase};
+use oj_test::{check_oj_version, exists_artifacts, ProblemSolver, Testcase};
 
 struct LocalTestcase {}
 
@@ -23,6 +23,7 @@ fn local_testcase() {
     env_logger::init();
 
     check_oj_version().unwrap();
+    exists_artifacts().unwrap();
 
     let solver = ProblemSolver::new(
         Path::new(std::env!("CARGO_MANIFEST_DIR"))
