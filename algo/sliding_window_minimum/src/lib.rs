@@ -62,14 +62,11 @@ where
     for (i, v) in a.iter().enumerate() {
         while !arg_min_max_candidates.is_empty() {
             let back = arg_min_max_candidates.back().unwrap();
-            if choose_minimum {
-                if a[*back].cmp(v) == Less {
-                    break;
-                }
-            } else {
-                if a[*back].cmp(v) == Greater {
-                    break;
-                }
+            if choose_minimum && a[*back].cmp(v) == Less {
+                break;
+            }
+            if !choose_minimum && a[*back].cmp(v) == Greater {
+                break;
             }
             arg_min_max_candidates.pop_back();
         }
