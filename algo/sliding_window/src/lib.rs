@@ -44,7 +44,7 @@ where
     sliding_window(a, window_width, true)
 }
 
-/// [sliding_window](fn.sliding_window.html) の最大値バージョンです。
+/// [`sliding_window_minimum`](fn.sliding_window_minimum.html) の最大値バージョンです。
 pub fn sliding_window_maximum<T>(a: &[T], window_width: usize) -> Vec<T>
 where
     T: Ord + Clone,
