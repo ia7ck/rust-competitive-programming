@@ -20,7 +20,7 @@ use std::collections::VecDeque;
 /// # Examples
 ///
 /// ```
-/// use sliding_window_minimum::sliding_window_minimum;
+/// use sliding_window::sliding_window_minimum;
 ///
 /// let a = vec![4, 7, 7, 8, 5, 7, 6, 9, 9, 2, 8, 3];
 /// let minimums = sliding_window_minimum(&a, 6);
@@ -44,7 +44,7 @@ where
     sliding_window(a, window_width, true)
 }
 
-/// [sliding_window_minimum](fn.sliding_window_minimum.html) の最大値バージョンです。
+/// [sliding_window](fn.sliding_window.html) の最大値バージョンです。
 pub fn sliding_window_maximum<T>(a: &[T], window_width: usize) -> Vec<T>
 where
     T: Ord + Clone,

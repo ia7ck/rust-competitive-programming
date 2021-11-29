@@ -3,7 +3,7 @@
 use proconio::input;
 
 use join::Join;
-use sliding_window_minimum::sliding_window_minimum;
+use sliding_window::sliding_window_minimum;
 
 fn main() {
     input! {
