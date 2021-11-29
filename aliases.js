@@ -22,6 +22,7 @@ ALIASES["pascal_triangle"] = {};
 ALIASES["prime_factorization"] = {};
 ALIASES["rolling_hash"] = {};
 ALIASES["segment_tree"] = {};
+ALIASES["sliding_window"] = {};
 ALIASES["suffix_array"] = {};
 ALIASES["topological_sort"] = {};
 ALIASES["union_find"] = {};

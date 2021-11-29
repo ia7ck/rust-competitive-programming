@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["sliding_window_maximum","`sliding_window_minimum` の最大値バージョンです。"],["sliding_window_minimum","幅 `window_width` の区間すべてに対し最小値を求めます。"]]});
