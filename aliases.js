@@ -24,6 +24,7 @@ ALIASES["prime_factorization"] = {};
 ALIASES["rolling_hash"] = {};
 ALIASES["segment_tree"] = {};
 ALIASES["sliding_window"] = {};
+ALIASES["strongly_connected_components"] = {};
 ALIASES["suffix_array"] = {};
 ALIASES["topological_sort"] = {};
 ALIASES["union_find"] = {};

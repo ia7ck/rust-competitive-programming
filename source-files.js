@@ -24,6 +24,7 @@ sourcesIndex["prime_factorization"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["rolling_hash"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["segment_tree"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["sliding_window"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["strongly_connected_components"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["suffix_array"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["topological_sort"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["union_find"] = {"name":"","files":["lib.rs"]};
