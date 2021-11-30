@@ -3,6 +3,7 @@ ALIASES["arithmetic_series"] = {};
 ALIASES["binary_search"] = {};
 ALIASES["ceil_log2"] = {};
 ALIASES["coordinate_compression"] = {};
+ALIASES["cumulative_sum_2d"] = {};
 ALIASES["detect_cycle"] = {};
 ALIASES["dijkstra"] = {};
 ALIASES["divisors"] = {};
