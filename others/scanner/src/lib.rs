@@ -3,23 +3,23 @@ use std::io;
 use std::str;
 
 /// 空白・改行区切りの入力を読みます。
-pub struct InputIScanner<R> {
+pub struct Scanner<R> {
     r: R,
     l: String,
     i: usize,
 }
 
-impl<R: io::BufRead> InputIScanner<R> {
+impl<R: io::BufRead> Scanner<R> {
     /// 標準入力から読み込みたいときの構築例です。ファイルからの読み込みは [`BufRead`](https://doc.rust-lang.org/std/io/trait.BufRead.html) の Examples を参考にしてください。
     ///
     /// # Examples
     /// ```
     /// use std::io;
-    /// use input_i_scanner::InputIScanner;
+    /// use scanner::Scanner;
     ///
     /// let stdin = io::stdin();
-    /// let mut scanner = InputIScanner::new(io::BufReader::new(stdin));
-    /// // InputIScanner::new(io::BufReader::new(stdin.lock())); のほうが気持ち速いです
+    /// let mut scanner = Scanner::new(io::BufReader::new(stdin));
+    /// // Scanner::new(io::BufReader::new(stdin.lock())); のほうが気持ち速いです
     /// ```
     pub fn new(reader: R) -> Self {
         Self {
@@ -33,9 +33,9 @@ impl<R: io::BufRead> InputIScanner<R> {
     ///
     /// # Examples
     /// ```
-    /// use input_i_scanner::InputIScanner;
+    /// use scanner::Scanner;
     ///
-    /// let mut sc = InputIScanner::from("123 abc\nx");
+    /// let mut sc = Scanner::from("123 abc\nx");
     /// let n = sc.scan::<usize>();
     /// assert_eq!(n, 123);
     /// let s: String = sc.scan();
@@ -47,9 +47,9 @@ impl<R: io::BufRead> InputIScanner<R> {
     /// タプルやベクタを scan する例です。
     ///
     /// ```
-    /// use input_i_scanner::InputIScanner;
+    /// use scanner::Scanner;
     ///
-    /// let mut sc = InputIScanner::from(r#"
+    /// let mut sc = Scanner::from(r#"
     /// 42
     /// 123 abc
     /// 9 8 7 6 5
@@ -120,13 +120,13 @@ impl<R: io::BufRead> InputIScanner<R> {
     }
 }
 
-impl<'a> From<&'a str> for InputIScanner<&'a [u8]> {
+impl<'a> From<&'a str> for Scanner<&'a [u8]> {
     fn from(s: &'a str) -> Self {
         Self::new(s.as_bytes())
     }
 }
 
-impl<'a> From<io::StdinLock<'a>> for InputIScanner<io::BufReader<io::StdinLock<'a>>> {
+impl<'a> From<io::StdinLock<'a>> for Scanner<io::BufReader<io::StdinLock<'a>>> {
     fn from(stdin: io::StdinLock<'a>) -> Self {
         Self::new(io::BufReader::new(stdin))
     }
@@ -134,21 +134,21 @@ impl<'a> From<io::StdinLock<'a>> for InputIScanner<io::BufReader<io::StdinLock<'
 
 #[cfg(test)]
 mod tests {
-    use crate::InputIScanner;
+    use crate::Scanner;
 
     #[test]
     fn test_single() {
-        let mut sc = InputIScanner::from("42");
+        let mut sc = Scanner::from("42");
         assert_eq!(sc.scan::<i32>(), 42);
-        let mut sc = InputIScanner::from("a");
+        let mut sc = Scanner::from("a");
         assert_eq!(sc.scan::<char>(), 'a');
-        let mut sc = InputIScanner::from("abc");
+        let mut sc = Scanner::from("abc");
         assert_eq!(sc.scan::<String>(), "abc");
     }
 
     #[test]
     fn test_space_separated() {
-        let mut sc = InputIScanner::from("123 -123 a abc");
+        let mut sc = Scanner::from("123 -123 a abc");
         assert_eq!(sc.scan::<usize>(), 123);
         assert_eq!(sc.scan::<i32>(), -123);
         assert_eq!(sc.scan::<char>(), 'a');
@@ -157,7 +157,7 @@ mod tests {
 
     #[test]
     fn test_line_separated() {
-        let mut sc = InputIScanner::from("123\n-123\n\n\na\r\nabc");
+        let mut sc = Scanner::from("123\n-123\n\n\na\r\nabc");
         assert_eq!(sc.scan::<usize>(), 123);
         assert_eq!(sc.scan::<i32>(), -123);
         assert_eq!(sc.scan::<char>(), 'a');
@@ -167,7 +167,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "reached EOF")]
     fn too_many_scan() {
-        let mut sc = InputIScanner::from("123");
+        let mut sc = Scanner::from("123");
         assert_eq!(sc.scan::<usize>(), 123);
         sc.scan::<usize>();
     }
@@ -175,7 +175,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn cannot_parse_string_as_char() {
-        let mut sc = InputIScanner::from("abc");
+        let mut sc = Scanner::from("abc");
         sc.scan::<char>(); // mismatch type
     }
 }
