@@ -1,9 +1,9 @@
 //problem:https://judge.yosupo.jp/problem/many_aplusb
-use input_i_scanner::InputIScanner;
+use scanner::Scanner;
 
 fn main() {
     let stdin = std::io::stdin();
-    let mut _i_i = InputIScanner::from(stdin.lock());
+    let mut _i_i = Scanner::from(stdin.lock());
 
     macro_rules! scan {
         (($($t: ty),+)) => {
