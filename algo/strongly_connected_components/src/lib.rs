@@ -1,4 +1,4 @@
-/// 強連結成分分解です。
+/// 強連結成分分解です。[参考](https://manabitimes.jp/math/1250)
 ///
 /// 返り値を `components` とすると `components` の各要素は強連結成分をなす頂点のベクタです。
 pub fn strongly_connected_components(
