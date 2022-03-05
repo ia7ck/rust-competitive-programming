@@ -1,3 +1,6 @@
+/// 強連結成分分解です。
+///
+/// 返り値を `components` とすると `components` の各要素は強連結成分をなす頂点のベクタです。
 pub fn strongly_connected_components(
     n: usize,
     edges: impl Iterator<Item = (usize, usize)>,
