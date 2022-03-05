@@ -107,7 +107,13 @@
 <span id="107">107</span>
 <span id="108">108</span>
 <span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="doccomment">/// 強連結成分分解です。</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// 返り値を `components` とすると `components` の各要素は強連結成分をなす頂点のベクタです。</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">strongly_connected_components</span>(
     <span class="ident">n</span>: <span class="ident">usize</span>,
     <span class="ident">edges</span>: <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> (<span class="ident">usize</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>,
