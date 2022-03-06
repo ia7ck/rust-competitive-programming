@@ -1,6 +1,6 @@
 var N = null;var sourcesIndex = {};
 sourcesIndex["arithmetic_series"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["binary_search"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["binary_search_range"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["ceil_log2"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["coordinate_compression"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["cumulative_sum_2d"] = {"name":"","files":["lib.rs"]};

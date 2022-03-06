@@ -1,6 +1,6 @@
 var ALIASES = {};
 ALIASES["arithmetic_series"] = {};
-ALIASES["binary_search"] = {};
+ALIASES["binary_search_range"] = {};
 ALIASES["ceil_log2"] = {};
 ALIASES["coordinate_compression"] = {};
 ALIASES["cumulative_sum_2d"] = {};

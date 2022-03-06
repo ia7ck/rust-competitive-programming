@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["BinarySearchRange","ソート済みの列を検索します。"]]});

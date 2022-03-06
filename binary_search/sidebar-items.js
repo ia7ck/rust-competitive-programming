@@ -1,1 +1,0 @@
-initSidebarItems({"trait":[["BinarySearch","ソート済の列に対して二分法で\"境目\"を探します。"]]});
