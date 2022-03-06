@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["CoordinateCompression","座標圧縮です。"]]});
+initSidebarItems({"struct":[["OrderMap","座標圧縮です。"]]});
