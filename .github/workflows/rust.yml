@@ -95,7 +95,8 @@ jobs:
     - name: oj test
       uses: actions-rs/cargo@v1
       with:
-        command: run --bin oj_test -- ${{ matrix.range }}
+        command: run
+        args: --bin oj_test -- ${{ matrix.range }}
 
   publish-doc:
     runs-on: ubuntu-latest
