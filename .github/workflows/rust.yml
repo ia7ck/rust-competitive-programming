@@ -91,7 +91,8 @@ jobs:
     - name: Release build
       uses: actions-rs/cargo@v1
       with:
-        command: build --release --examples --verbose
+        command: build
+        args: --release --examples --verbose
     - name: oj test
       uses: actions-rs/cargo@v1
       with:
