@@ -66,6 +66,11 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
+      - name: Release build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --examples --verbose
       - uses: actions-rs/cargo@v1
         with:
           command: test
