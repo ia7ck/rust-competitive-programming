@@ -53,24 +53,12 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    env:
-      RUST_LOG: info
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
-      - name: Install oj
-        run: pip3 install --upgrade setuptools wheel pip && pip3 install online-judge-tools && oj --version
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: stable
-      - name: Release build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release --examples --verbose
       - uses: actions-rs/cargo@v1
         with:
           command: test

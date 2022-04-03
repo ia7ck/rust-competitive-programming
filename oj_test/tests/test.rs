@@ -19,6 +19,7 @@ impl Testcase for LocalTestcase {
 }
 
 #[test]
+#[ignore]
 fn local_testcase() {
     env_logger::init();
 
