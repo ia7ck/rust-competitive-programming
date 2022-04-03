@@ -10,7 +10,7 @@ fn main() {
         m: usize,
         edges: [(usize, usize); m],
     }
-    if let Some(cycle) = detect_cycle_directed(n, edges.iter().copied()) {
+    if let Some(cycle) = detect_cycle_directed(n, &edges) {
         println!("{}", cycle.len());
         for i in cycle {
             println!("{}", i);

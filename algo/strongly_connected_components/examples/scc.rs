@@ -13,7 +13,7 @@ fn main() {
         edges: [(usize, usize); m],
     };
 
-    let scc = strongly_connected_components(n, edges.iter().copied());
+    let scc = strongly_connected_components(n, &edges);
     println!("{}", scc.len());
     for com in scc {
         print!("{} ", com.len());
