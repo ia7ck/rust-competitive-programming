@@ -10,8 +10,7 @@ use ceil_log2::CeilLog2;
 /// // |    |
 /// // 1    3
 ///
-/// let edges = vec![(0, 1), (0, 2), (2, 3), (2, 4)];
-/// let lca = LowestCommonAncestor::new(5, edges.iter().copied());
+/// let lca = LowestCommonAncestor::new(5, &[(0, 1), (0, 2), (2, 3), (2, 4)]);
 /// assert_eq!(lca.get(0, 1), 0);
 /// assert_eq!(lca.get(0, 4), 0);
 /// assert_eq!(lca.get(1, 1), 1);
@@ -28,9 +27,9 @@ const ILLEGAL: usize = std::usize::MAX;
 
 impl LowestCommonAncestor {
     /// 頂点数と `n` と木をなす無向辺の集合 `edges` を渡します。
-    pub fn new(n: usize, edges: impl Iterator<Item = (usize, usize)>) -> Self {
+    pub fn new(n: usize, edges: &[(usize, usize)]) -> Self {
         let mut g = vec![vec![]; n];
-        for (u, v) in edges {
+        for &(u, v) in edges {
             g[u].push(v);
             g[v].push(u);
         }
@@ -125,7 +124,7 @@ mod tests {
 
     #[test]
     fn single_node_test() {
-        let lca = LowestCommonAncestor::new(1, std::iter::empty());
+        let lca = LowestCommonAncestor::new(1, &[]);
         assert_eq!(lca.get(0, 0), 0);
     }
 }

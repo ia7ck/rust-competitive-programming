@@ -4,19 +4,15 @@
 /// ```
 /// use topological_sort::topological_sort;
 ///
-/// let edges = vec![(0, 1), (0, 2), (1, 3), (2, 3)];
-/// let order = topological_sort(4, edges.iter().copied());
+/// let order = topological_sort(4, &[(0, 1), (0, 2), (1, 3), (2, 3)]);
 /// assert!(order == Some(vec![0, 1, 2, 3]) || order == Some(vec![0, 2, 1, 3]));
 /// ```
-pub fn topological_sort(
-    n: usize,
-    edges: impl Iterator<Item = (usize, usize)>,
-) -> Option<Vec<usize>> {
+pub fn topological_sort(n: usize, edges: &[(usize, usize)]) -> Option<Vec<usize>> {
     use std::collections::VecDeque;
 
     let mut g = vec![vec![]; n];
     let mut in_deg = vec![0; n];
-    for (s, t) in edges {
+    for &(s, t) in edges {
         g[s].push(t);
         in_deg[t] += 1;
     }
@@ -53,22 +49,19 @@ mod tests {
 
     #[test]
     fn two_ways() {
-        let edges = vec![(0, 1), (0, 2), (1, 3), (2, 3)];
-        let order = topological_sort(4, edges.iter().copied());
+        let order = topological_sort(4, &[(0, 1), (0, 2), (1, 3), (2, 3)]);
         assert!(order == Some(vec![0, 1, 2, 3]) || order == Some(vec![0, 2, 1, 3]));
     }
 
     #[test]
     fn line() {
-        let edges = vec![(0, 1), (1, 2), (2, 3)];
-        let order = topological_sort(4, edges.iter().copied());
+        let order = topological_sort(4, &[(0, 1), (1, 2), (2, 3)]);
         assert_eq!(order, Some(vec![0, 1, 2, 3]));
     }
 
     #[test]
     fn contain_cycle() {
-        let edges = vec![(0, 1), (1, 2), (2, 3), (3, 1), (3, 4)];
-        let order = topological_sort(5, edges.iter().copied());
+        let order = topological_sort(5, &[(0, 1), (1, 2), (2, 3), (3, 1), (3, 4)]);
         assert_eq!(order, None);
     }
 }

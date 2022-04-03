@@ -16,8 +16,7 @@
 /// //         (4) --- (3)
 /// //              4
 ///
-/// let edges = vec![(0, 1), (1, 2), (2, 3), (2, 5), (3, 4), (4, 1)];
-/// let cycle = detect_cycle_undirected(6, edges.iter().copied()).unwrap();
+/// let cycle = detect_cycle_undirected(6, &[(0, 1), (1, 2), (2, 3), (2, 5), (3, 4), (4, 1)]).unwrap();
 /// let candidates = vec![
 ///     vec![1, 2, 4, 5],
 ///     vec![2, 4, 5, 1],
@@ -30,10 +29,7 @@
 /// ];
 /// assert!(candidates.contains(&cycle));
 /// ```
-pub fn detect_cycle_undirected(
-    n: usize,
-    edges: impl Iterator<Item = (usize, usize)>,
-) -> Option<Vec<usize>> {
+pub fn detect_cycle_undirected(n: usize, edges: &[(usize, usize)]) -> Option<Vec<usize>> {
     fn dfs(
         curr: usize,
         prev: usize,
@@ -57,7 +53,6 @@ pub fn detect_cycle_undirected(
         None
     }
 
-    let edges: Vec<(usize, usize)> = edges.collect();
     let mut g = vec![vec![]; n];
     for (idx, &(u, v)) in edges.iter().enumerate() {
         g[u].push((v, idx));
@@ -112,14 +107,10 @@ pub fn detect_cycle_undirected(
 /// //         (4) <-- (3)
 /// //              4
 ///
-/// let edges = vec![(0, 1), (1, 2), (2, 3), (2, 5), (3, 4), (4, 1)];
-/// let cycle = detect_cycle_directed(6, edges.iter().copied());
+/// let cycle = detect_cycle_directed(6, &[(0, 1), (1, 2), (2, 3), (2, 5), (3, 4), (4, 1)]);
 /// assert_eq!(cycle, Some(vec![1, 2, 4, 5]));
 /// ```
-pub fn detect_cycle_directed(
-    n: usize,
-    edges: impl Iterator<Item = (usize, usize)>,
-) -> Option<Vec<usize>> {
+pub fn detect_cycle_directed(n: usize, edges: &[(usize, usize)]) -> Option<Vec<usize>> {
     fn dfs(
         curr: usize,
         g: &[Vec<(usize, usize)>],
@@ -155,7 +146,7 @@ pub fn detect_cycle_directed(
     }
 
     let mut g = vec![vec![]; n];
-    for (idx, (u, v)) in edges.enumerate() {
+    for (idx, &(u, v)) in edges.iter().enumerate() {
         g[u].push((v, idx));
     }
     let mut seen = vec![false; n];
@@ -178,13 +169,13 @@ mod tests {
 
     #[test]
     fn test_directed_triangle() {
-        let cycle = detect_cycle_directed(3, [(0, 2), (2, 1), (1, 0)].iter().copied());
+        let cycle = detect_cycle_directed(3, &[(0, 2), (2, 1), (1, 0)]);
         assert_eq!(cycle, Some(vec![0, 1, 2]));
     }
 
     #[test]
     fn test_directed_v() {
-        let cycle = detect_cycle_directed(3, [(0, 2), (0, 1)].iter().copied());
+        let cycle = detect_cycle_directed(3, &[(0, 2), (0, 1)]);
         assert_eq!(cycle, None);
     }
 }

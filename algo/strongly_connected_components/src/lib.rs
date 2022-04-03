@@ -1,12 +1,9 @@
 /// 強連結成分分解です。[参考](https://manabitimes.jp/math/1250)
 ///
 /// 返り値を `components` とすると `components` の各要素は強連結成分をなす頂点のベクタです。
-pub fn strongly_connected_components(
-    n: usize,
-    edges: impl Iterator<Item = (usize, usize)>,
-) -> Vec<Vec<usize>> {
+pub fn strongly_connected_components(n: usize, edges: &[(usize, usize)]) -> Vec<Vec<usize>> {
     let mut graph = vec![vec![]; n];
-    for (u, v) in edges {
+    for &(u, v) in edges {
         graph[u].push(v);
     }
 
@@ -83,7 +80,7 @@ mod tests {
 
     #[test]
     fn test_single_node() {
-        let scc = strongly_connected_components(1, std::iter::empty());
+        let scc = strongly_connected_components(1, &[]);
         assert_eq!(scc, vec![vec![0]]);
     }
 
@@ -91,19 +88,19 @@ mod tests {
     fn test_small() {
         // 0 -> 1
         assert_eq!(
-            strongly_connected_components(2, std::iter::once((0, 1))),
+            strongly_connected_components(2, &[(0, 1)]),
             vec![vec![0], vec![1]]
         );
 
         // 0 -> 1
         // 0 -> 1
         assert_eq!(
-            strongly_connected_components(2, vec![(0, 1), (0, 1)].iter().copied()),
+            strongly_connected_components(2, &[(0, 1), (0, 1)]),
             vec![vec![0], vec![1]]
         );
 
         // 0 <-> 1
-        let mut scc = strongly_connected_components(2, vec![(0, 1), (1, 0)].iter().copied());
+        let mut scc = strongly_connected_components(2, &[(0, 1), (1, 0)]);
         for com in &mut scc {
             com.sort();
         }
