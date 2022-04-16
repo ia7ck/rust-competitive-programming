@@ -16,11 +16,12 @@
 //!
 //! のどちらかを使えば十分だと思います。
 //!
-//! それ以外の法で `ModInt` を使いたいときは `define_mod_int_p` マクロを呼んでください。
+//! それ以外の法で `ModInt` を使いたいときは `define_modulo` マクロを呼んでください。
 //!
 //! ```
-//! use mod_int::{define_mod_int_p, Modulo, ModInt};
-//! define_mod_int_p!(Mod1000000009, ModInt1000000009, 1000000009);
+//! use mod_int::{define_modulo, Modulo, ModInt};
+//! define_modulo!(Mod1000000009, 1000000009);
+//! type ModInt1000000009 = ModInt<Mod1000000009>;
 //! assert_eq!((ModInt1000000009::new(1000000008) + ModInt1000000009::new(2)).val(), 1);
 //! ```
 //!
@@ -123,10 +124,10 @@ impl<M: Modulo> ModInt<M> {
     /// ```
     ///
     /// ```should_panic
-    /// use mod_int::{Modulo, ModInt, define_mod_int_p};
-    /// define_mod_int_p!(Mod10, ModInt10, 10);
+    /// use mod_int::{Modulo, ModInt, define_modulo};
+    /// define_modulo!(Mod10, 10);
     /// // 6 * n : 0, 6, 2, 8, 4, 0, 6, 2, 8, 4
-    /// ModInt10::new(6).inv(); // panic
+    /// ModInt::<Mod10>::new(6).inv(); // panic
     /// ```
     pub fn inv(self) -> Self {
         assert_ne!(self.0, 0, "Don't divide by zero!");
@@ -236,42 +237,42 @@ macro_rules! impl_from_large_int {
 
 impl_from_large_int!(u64, usize);
 
-/// 好きな法の `ModInt` を定義します。
+/// 好きな法の `Modulo` を定義します。
 ///
-/// - `$mod`: `Modulo` トレイトを実装する構造体の名前になります。ユーザー側で使うことはないと思うので適当でよいです。
-/// - `$mod_int`: `ModInt` 構造体の名前になります。
+/// - `$mod`: `Modulo` トレイトを実装する構造体の名前になります。
 /// - `$p`: `ModInt` の各種演算に使われる法を指定します。割り算をする予定があるならばこの値は素数にしてください。
 ///
 /// # Examples
 /// ```
-/// use mod_int::{Modulo, ModInt, define_mod_int_p};
-/// define_mod_int_p!(Mod19, ModInt19, 19);
-/// type Mint = ModInt19;
+/// use mod_int::{Modulo, ModInt, define_modulo};
+/// define_modulo!(Mod19, 19);
+/// type Mint = ModInt<Mod19>;
 /// assert_eq!(Mint::p(), 19);
 /// assert_eq!((Mint::new(18) + Mint::new(2)).val(), 1);
 /// ```
 #[macro_export]
-macro_rules! define_mod_int_p {
-    ($mod: ident, $mod_int: ident, $p: expr) => {
+macro_rules! define_modulo {
+    ($mod: ident, $p: expr) => {
         #[derive(Clone, Copy, Debug)]
         pub struct $mod;
         impl Modulo for $mod {
             const P: i64 = $p;
         }
-        pub type $mod_int = ModInt<$mod>;
     };
 }
-define_mod_int_p!(Mod1000000007, ModInt1000000007, 1_000_000_000 + 7);
-define_mod_int_p!(Mod998244353, ModInt998244353, 998_244_353);
+define_modulo!(Mod1000000007, 1_000_000_000 + 7);
+pub type ModInt1000000007 = ModInt<Mod1000000007>;
+define_modulo!(Mod998244353, 998_244_353);
+pub type ModInt998244353 = ModInt<Mod998244353>;
 
 #[cfg(test)]
 mod tests {
-    use super::{define_mod_int_p, ModInt, Modulo};
+    use super::{define_modulo, ModInt, Modulo};
 
     #[test]
     fn ops_test() {
-        define_mod_int_p!(Mod19, ModInt19, 19);
-        type Mint = ModInt19;
+        define_modulo!(Mod19, 19);
+        type Mint = ModInt<Mod19>;
         for a in 0..50 {
             for b in 0..50 {
                 // add
