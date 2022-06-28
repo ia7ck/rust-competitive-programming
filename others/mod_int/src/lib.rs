@@ -33,28 +33,28 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 use ext_gcd::ext_gcd;
 
 pub trait Modulo: Copy + Clone + Debug {
-    const P: i64;
+    fn modulo() -> i64;
 }
 
 #[derive(Copy, Clone, Debug)]
 pub struct ModInt<M>(i64, PhantomData<M>);
 
 impl<M: Modulo> ModInt<M> {
-    /// 整数を `0 <= x < p` に正規化してインスタンスを作ります。
+    /// 整数を `0 <= x < modulo` に正規化してインスタンスを作ります。
     pub fn new(x: i64) -> Self {
-        if 0 <= x && x < M::P {
+        if 0 <= x && x < M::modulo() {
             Self::new_raw(x)
         } else {
-            Self::new_raw(x.rem_euclid(M::P))
+            Self::new_raw(x.rem_euclid(M::modulo()))
         }
     }
 
     fn new_raw(x: i64) -> Self {
-        debug_assert!(0 <= x && x < M::P);
+        debug_assert!(0 <= x && x < M::modulo());
         Self(x, PhantomData)
     }
 
-    /// `ModInt` に格納されている値 `x` を返します。
+    /// `ModInt` に格納されている値を返します。
     ///
     /// # Examples
     /// ```
@@ -65,16 +65,16 @@ impl<M: Modulo> ModInt<M> {
         self.0
     }
 
-    /// 法 `p` を返します。
+    /// 法を返します。
     ///
     /// # Examples
     /// ```
     /// use mod_int::{ModInt1000000007, ModInt998244353};
-    /// assert_eq!(ModInt1000000007::p(), 1000000007);
-    /// assert_eq!(ModInt998244353::p(), 998244353);
+    /// assert_eq!(ModInt1000000007::modulo(), 1000000007);
+    /// assert_eq!(ModInt998244353::modulo(), 998244353);
     /// ```
-    pub fn p() -> i64 {
-        M::P
+    pub fn modulo() -> i64 {
+        M::modulo()
     }
 
     /// 二分累乗法で `x^exp % p` を計算します。
@@ -94,10 +94,10 @@ impl<M: Modulo> ModInt<M> {
         while exp > 0 {
             if exp & 1 == 1 {
                 res *= base;
-                res %= M::P;
+                res %= M::modulo();
             }
             base *= base;
-            base %= M::P;
+            base %= M::modulo();
             exp >>= 1;
         }
         Self::new_raw(res)
@@ -108,7 +108,7 @@ impl<M: Modulo> ModInt<M> {
     /// # Examples
     /// ```
     /// use mod_int::ModInt1000000007;
-    /// let (x, p) = (2, ModInt1000000007::p());
+    /// let (x, p) = (2, ModInt1000000007::modulo());
     /// let y = ModInt1000000007::new(x).inv().val();
     /// assert_eq!(x * y % p, 1);
     /// ```
@@ -126,8 +126,8 @@ impl<M: Modulo> ModInt<M> {
     /// ```
     pub fn inv(self) -> Self {
         assert_ne!(self.0, 0, "Don't divide by zero!");
-        let (x, _, g) = ext_gcd(self.0, M::P);
-        assert_eq!(g, 1, "{} is not prime!", M::P);
+        let (x, _, g) = ext_gcd(self.0, M::modulo());
+        assert_eq!(g, 1, "{} is not prime!", M::modulo());
         Self::new(x)
     }
 }
@@ -135,9 +135,9 @@ impl<M: Modulo> ModInt<M> {
 impl<M: Modulo, T: Into<ModInt<M>>> AddAssign<T> for ModInt<M> {
     fn add_assign(&mut self, rhs: T) {
         self.0 += rhs.into().0;
-        debug_assert!(0 <= self.0 && self.0 <= (M::P - 1) * 2);
-        if self.0 >= M::P {
-            self.0 -= M::P;
+        debug_assert!(0 <= self.0 && self.0 <= (M::modulo() - 1) * 2);
+        if self.0 >= M::modulo() {
+            self.0 -= M::modulo();
         }
     }
 }
@@ -154,9 +154,9 @@ impl<M: Modulo, T: Into<ModInt<M>>> Add<T> for ModInt<M> {
 impl<M: Modulo, T: Into<ModInt<M>>> SubAssign<T> for ModInt<M> {
     fn sub_assign(&mut self, rhs: T) {
         self.0 -= rhs.into().0;
-        debug_assert!(-(M::P - 1) <= self.0 && self.0 < M::P);
+        debug_assert!(-(M::modulo() - 1) <= self.0 && self.0 < M::modulo());
         if self.0 < 0 {
-            self.0 += M::P;
+            self.0 += M::modulo();
         }
     }
 }
@@ -173,8 +173,8 @@ impl<M: Modulo, T: Into<ModInt<M>>> Sub<T> for ModInt<M> {
 impl<M: Modulo, T: Into<ModInt<M>>> MulAssign<T> for ModInt<M> {
     fn mul_assign(&mut self, rhs: T) {
         self.0 *= rhs.into().0;
-        if self.0 >= M::P {
-            self.0 %= M::P;
+        if self.0 >= M::modulo() {
+            self.0 %= M::modulo();
         }
     }
 }
@@ -223,7 +223,7 @@ macro_rules! impl_from_large_int {
         $(
             impl<M: Modulo> From<$t> for ModInt<M> {
                 fn from(x: $t) -> Self {
-                    Self::new((x % (M::P as $t)) as i64)
+                    Self::new((x % (M::modulo() as $t)) as i64)
                 }
             }
         )+
@@ -234,31 +234,33 @@ impl_from_large_int!(u64, usize);
 
 /// 好きな法の `Modulo` を定義します。
 ///
-/// - `$mod`: `Modulo` トレイトを実装する構造体の名前になります。
-/// - `$p`: `ModInt` の各種演算に使われる法を指定します。割り算をする予定があるならばこの値は素数にしてください。const な値しか受け付けません。😭
+/// - `$struct`: `Modulo` トレイトを実装する構造体の名前になります。
+/// - `$mod`: `ModInt` の各種演算に使われる法を指定します。割り算をする予定があるならばこの値は素数にしてください。const な値しか受け付けません。😭
 ///
 /// # Examples
 /// ```
 /// use mod_int::{Modulo, ModInt, define_modulo};
-/// define_modulo!(Mod19, 19);
-/// type Mint = ModInt<Mod19>;
-/// assert_eq!(Mint::p(), 19);
+/// define_modulo!(Modulo19, 19);
+/// type Mint = ModInt<Modulo19>;
+/// assert_eq!(Mint::modulo(), 19);
 /// assert_eq!((Mint::new(18) + Mint::new(2)).val(), 1);
 /// ```
 #[macro_export]
 macro_rules! define_modulo {
-    ($mod: ident, $p: expr) => {
+    ($struct: ident, $mod: expr) => {
         #[derive(Clone, Copy, Debug)]
-        pub struct $mod;
-        impl Modulo for $mod {
-            const P: i64 = $p;
+        pub struct $struct;
+        impl Modulo for $struct {
+            fn modulo() -> i64 {
+                $mod
+            }
         }
     };
 }
-define_modulo!(Mod1000000007, 1_000_000_000 + 7);
-pub type ModInt1000000007 = ModInt<Mod1000000007>;
-define_modulo!(Mod998244353, 998_244_353);
-pub type ModInt998244353 = ModInt<Mod998244353>;
+define_modulo!(Modulo1000000007, 1_000_000_000 + 7);
+pub type ModInt1000000007 = ModInt<Modulo1000000007>;
+define_modulo!(Modulo998244353, 998_244_353);
+pub type ModInt998244353 = ModInt<Modulo998244353>;
 
 #[cfg(test)]
 mod tests {
@@ -266,8 +268,8 @@ mod tests {
 
     #[test]
     fn ops_test() {
-        define_modulo!(Mod19, 19);
-        type Mint = ModInt<Mod19>;
+        define_modulo!(Modulo19, 19);
+        type Mint = ModInt<Modulo19>;
         for a in 0..50 {
             for b in 0..50 {
                 // add
