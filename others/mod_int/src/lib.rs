@@ -216,7 +216,7 @@ macro_rules! impl_from_int {
     };
 }
 
-impl_from_int!(i32, i64, u32);
+impl_from_int!(i8, i16, i32, i64, isize, u8, u16, u32);
 
 macro_rules! impl_from_large_int {
     ($($t:ty),+) => {
