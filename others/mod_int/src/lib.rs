@@ -26,7 +26,6 @@
 //! ```
 //!
 
-use std::convert::TryInto;
 use std::fmt::Debug;
 use std::marker::PhantomData;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
@@ -84,18 +83,14 @@ impl<M: Modulo> ModInt<M> {
     /// ```
     /// use mod_int::ModInt1000000007;
     /// use std::iter::repeat;
-    /// let (x, exp, p) = (123, 100, 1000000007);
+    /// let (x, exp, p) = (123, 100_u32, 1000000007);
     /// let y = repeat(x).take(exp as usize).fold(1, |acc, x| acc * x % p);
     /// assert_eq!(y, ModInt1000000007::new(x).pow(exp).val());
     /// ```
-    pub fn pow<T>(self, exp: T) -> Self
-    where
-        T: TryInto<u64>,
-        <T as TryInto<u64>>::Error: Debug,
-    {
+    pub fn pow(self, exp: u32) -> Self {
         let mut res = 1;
         let mut base = self.0;
-        let mut exp = exp.try_into().unwrap();
+        let mut exp = exp;
         while exp > 0 {
             if exp & 1 == 1 {
                 res *= base;
