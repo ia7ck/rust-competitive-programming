@@ -26,6 +26,7 @@
 //! ```
 //!
 
+use std::cell::UnsafeCell;
 use std::fmt::Debug;
 use std::marker::PhantomData;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
@@ -245,6 +246,17 @@ impl_from_large_int!(u64, usize);
 /// assert_eq!(Mint::modulo(), 19);
 /// assert_eq!((Mint::new(18) + Mint::new(2)).val(), 1);
 /// ```
+/// 
+/// 実行時に法を変えたいときはこちらです。
+/// 
+/// ```ignore
+/// use mod_int::{ModInt, DynamicModulo};
+/// let p = 23;
+/// DynamicModulo::set(p);
+/// type Mint = ModInt<DynamicModulo>;
+/// assert_eq!(Mint::modulo(), p);
+/// assert_eq!((Mint::new(22) + Mint::new(2)).val(), 1);
+/// ```
 #[macro_export]
 macro_rules! define_modulo {
     ($struct: ident, $mod: expr) => {
@@ -261,6 +273,18 @@ define_modulo!(Modulo1000000007, 1_000_000_000 + 7);
 pub type ModInt1000000007 = ModInt<Modulo1000000007>;
 define_modulo!(Modulo998244353, 998_244_353);
 pub type ModInt998244353 = ModInt<Modulo998244353>;
+thread_local! {
+    static DYNAMIC_MODULO: UnsafeCell<i64> = UnsafeCell::new(998_244_353)
+}
+define_modulo!(
+    DynamicModulo,
+    DYNAMIC_MODULO.with(|cell| unsafe { *cell.get() })
+);
+impl DynamicModulo {
+    pub fn set(modulo: i64) {
+        DYNAMIC_MODULO.with(|cell| unsafe { *cell.get() = modulo });
+    }
+}
 
 #[cfg(test)]
 mod tests {
