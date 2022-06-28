@@ -246,9 +246,9 @@ impl_from_large_int!(u64, usize);
 /// assert_eq!(Mint::modulo(), 19);
 /// assert_eq!((Mint::new(18) + Mint::new(2)).val(), 1);
 /// ```
-/// 
+///
 /// 実行時に法を変えたいときはこちらです。
-/// 
+///
 /// ```ignore
 /// use mod_int::{ModInt, DynamicModulo};
 /// let p = 23;
