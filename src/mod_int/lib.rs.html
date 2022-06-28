@@ -309,6 +309,27 @@
 <span id="309">309</span>
 <span id="310">310</span>
 <span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! `ModInt` は整数の四則演算を mod `p` で行う構造体です。</span>
 <span class="doccomment">//!</span>
@@ -338,7 +359,7 @@
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryInto</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">UnsafeCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Add</span>, <span class="ident">AddAssign</span>, <span class="ident">Div</span>, <span class="ident">DivAssign</span>, <span class="ident">Mul</span>, <span class="ident">MulAssign</span>, <span class="ident">Sub</span>, <span class="ident">SubAssign</span>};
@@ -346,28 +367,28 @@
 <span class="kw">use</span> <span class="ident">ext_gcd</span>::<span class="ident">ext_gcd</span>;
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Modulo</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">Debug</span> {
-    <span class="kw">const</span> <span class="ident">P</span>: <span class="ident">i64</span>;
+    <span class="kw">fn</span> <span class="ident">modulo</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i64</span>;
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ModInt</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>(<span class="ident">i64</span>, <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>);
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">M</span>: <span class="ident">Modulo</span><span class="op">&gt;</span> <span class="ident">ModInt</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// 整数を `0 &lt;= x &lt; p` に正規化してインスタンスを作ります。</span>
+    <span class="doccomment">/// 整数を `0 &lt;= x &lt; modulo` に正規化してインスタンスを作ります。</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">x</span>: <span class="ident">i64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="kw">if</span> <span class="number">0</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">x</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">x</span> <span class="op">&lt;</span> <span class="ident">M</span>::<span class="ident">P</span> {
+        <span class="kw">if</span> <span class="number">0</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">x</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">x</span> <span class="op">&lt;</span> <span class="ident">M</span>::<span class="ident">modulo</span>() {
             <span class="self">Self</span>::<span class="ident">new_raw</span>(<span class="ident">x</span>)
         } <span class="kw">else</span> {
-            <span class="self">Self</span>::<span class="ident">new_raw</span>(<span class="ident">x</span>.<span class="ident">rem_euclid</span>(<span class="ident">M</span>::<span class="ident">P</span>))
+            <span class="self">Self</span>::<span class="ident">new_raw</span>(<span class="ident">x</span>.<span class="ident">rem_euclid</span>(<span class="ident">M</span>::<span class="ident">modulo</span>()))
         }
     }
 
     <span class="kw">fn</span> <span class="ident">new_raw</span>(<span class="ident">x</span>: <span class="ident">i64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="number">0</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">x</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">x</span> <span class="op">&lt;</span> <span class="ident">M</span>::<span class="ident">P</span>);
+        <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="number">0</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">x</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">x</span> <span class="op">&lt;</span> <span class="ident">M</span>::<span class="ident">modulo</span>());
         <span class="self">Self</span>(<span class="ident">x</span>, <span class="ident">PhantomData</span>)
     }
 
-    <span class="doccomment">/// `ModInt` に格納されている値 `x` を返します。</span>
+    <span class="doccomment">/// `ModInt` に格納されている値を返します。</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">/// ```</span>
@@ -378,16 +399,16 @@
         <span class="self">self</span>.<span class="number">0</span>
     }
 
-    <span class="doccomment">/// 法 `p` を返します。</span>
+    <span class="doccomment">/// 法を返します。</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">/// use mod_int::{ModInt1000000007, ModInt998244353};</span>
-    <span class="doccomment">/// assert_eq!(ModInt1000000007::p(), 1000000007);</span>
-    <span class="doccomment">/// assert_eq!(ModInt998244353::p(), 998244353);</span>
+    <span class="doccomment">/// assert_eq!(ModInt1000000007::modulo(), 1000000007);</span>
+    <span class="doccomment">/// assert_eq!(ModInt998244353::modulo(), 998244353);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">p</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i64</span> {
-        <span class="ident">M</span>::<span class="ident">P</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">modulo</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i64</span> {
+        <span class="ident">M</span>::<span class="ident">modulo</span>()
     }
 
     <span class="doccomment">/// 二分累乗法で `x^exp % p` を計算します。</span>
@@ -396,25 +417,21 @@
     <span class="doccomment">/// ```</span>
     <span class="doccomment">/// use mod_int::ModInt1000000007;</span>
     <span class="doccomment">/// use std::iter::repeat;</span>
-    <span class="doccomment">/// let (x, exp, p) = (123, 100, 1000000007);</span>
+    <span class="doccomment">/// let (x, exp, p) = (123, 100_u32, 1000000007);</span>
     <span class="doccomment">/// let y = repeat(x).take(exp as usize).fold(1, |acc, x| acc * x % p);</span>
     <span class="doccomment">/// assert_eq!(y, ModInt1000000007::new(x).pow(exp).val());</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pow</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">exp</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">TryInto</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
-        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">TryInto</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">Error</span>: <span class="ident">Debug</span>,
-    {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pow</span>(<span class="self">self</span>, <span class="ident">exp</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="number">1</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">base</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exp</span> <span class="op">=</span> <span class="ident">exp</span>.<span class="ident">try_into</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exp</span> <span class="op">=</span> <span class="ident">exp</span>;
         <span class="kw">while</span> <span class="ident">exp</span> <span class="op">&gt;</span> <span class="number">0</span> {
             <span class="kw">if</span> <span class="ident">exp</span> <span class="op">&amp;</span> <span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
                 <span class="ident">res</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">base</span>;
-                <span class="ident">res</span> <span class="op">%</span><span class="op">=</span> <span class="ident">M</span>::<span class="ident">P</span>;
+                <span class="ident">res</span> <span class="op">%</span><span class="op">=</span> <span class="ident">M</span>::<span class="ident">modulo</span>();
             }
             <span class="ident">base</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">base</span>;
-            <span class="ident">base</span> <span class="op">%</span><span class="op">=</span> <span class="ident">M</span>::<span class="ident">P</span>;
+            <span class="ident">base</span> <span class="op">%</span><span class="op">=</span> <span class="ident">M</span>::<span class="ident">modulo</span>();
             <span class="ident">exp</span> <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="number">1</span>;
         }
         <span class="self">Self</span>::<span class="ident">new_raw</span>(<span class="ident">res</span>)
@@ -425,7 +442,7 @@
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">/// use mod_int::ModInt1000000007;</span>
-    <span class="doccomment">/// let (x, p) = (2, ModInt1000000007::p());</span>
+    <span class="doccomment">/// let (x, p) = (2, ModInt1000000007::modulo());</span>
     <span class="doccomment">/// let y = ModInt1000000007::new(x).inv().val();</span>
     <span class="doccomment">/// assert_eq!(x * y % p, 1);</span>
     <span class="doccomment">/// ```</span>
@@ -443,8 +460,8 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inv</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="macro">assert_ne</span><span class="macro">!</span>(<span class="self">self</span>.<span class="number">0</span>, <span class="number">0</span>, <span class="string">&quot;Don&#39;t divide by zero!&quot;</span>);
-        <span class="kw">let</span> (<span class="ident">x</span>, <span class="kw">_</span>, <span class="ident">g</span>) <span class="op">=</span> <span class="ident">ext_gcd</span>(<span class="self">self</span>.<span class="number">0</span>, <span class="ident">M</span>::<span class="ident">P</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">g</span>, <span class="number">1</span>, <span class="string">&quot;{} is not prime!&quot;</span>, <span class="ident">M</span>::<span class="ident">P</span>);
+        <span class="kw">let</span> (<span class="ident">x</span>, <span class="kw">_</span>, <span class="ident">g</span>) <span class="op">=</span> <span class="ident">ext_gcd</span>(<span class="self">self</span>.<span class="number">0</span>, <span class="ident">M</span>::<span class="ident">modulo</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">g</span>, <span class="number">1</span>, <span class="string">&quot;{} is not prime!&quot;</span>, <span class="ident">M</span>::<span class="ident">modulo</span>());
         <span class="self">Self</span>::<span class="ident">new</span>(<span class="ident">x</span>)
     }
 }
@@ -452,9 +469,9 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">M</span>: <span class="ident">Modulo</span>, <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ModInt</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">AddAssign</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ModInt</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">add_assign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">T</span>) {
         <span class="self">self</span>.<span class="number">0</span> <span class="op">+</span><span class="op">=</span> <span class="ident">rhs</span>.<span class="ident">into</span>().<span class="number">0</span>;
-        <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="number">0</span> <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="number">0</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="self">self</span>.<span class="number">0</span> <span class="op">&lt;</span><span class="op">=</span> (<span class="ident">M</span>::<span class="ident">P</span> <span class="op">-</span> <span class="number">1</span>) <span class="op">*</span> <span class="number">2</span>);
-        <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">M</span>::<span class="ident">P</span> {
-            <span class="self">self</span>.<span class="number">0</span> <span class="op">-</span><span class="op">=</span> <span class="ident">M</span>::<span class="ident">P</span>;
+        <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="number">0</span> <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="number">0</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="self">self</span>.<span class="number">0</span> <span class="op">&lt;</span><span class="op">=</span> (<span class="ident">M</span>::<span class="ident">modulo</span>() <span class="op">-</span> <span class="number">1</span>) <span class="op">*</span> <span class="number">2</span>);
+        <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">M</span>::<span class="ident">modulo</span>() {
+            <span class="self">self</span>.<span class="number">0</span> <span class="op">-</span><span class="op">=</span> <span class="ident">M</span>::<span class="ident">modulo</span>();
         }
     }
 }
@@ -471,9 +488,9 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">M</span>: <span class="ident">Modulo</span>, <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ModInt</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">SubAssign</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ModInt</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">sub_assign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">T</span>) {
         <span class="self">self</span>.<span class="number">0</span> <span class="op">-</span><span class="op">=</span> <span class="ident">rhs</span>.<span class="ident">into</span>().<span class="number">0</span>;
-        <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="op">-</span>(<span class="ident">M</span>::<span class="ident">P</span> <span class="op">-</span> <span class="number">1</span>) <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="number">0</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="self">self</span>.<span class="number">0</span> <span class="op">&lt;</span> <span class="ident">M</span>::<span class="ident">P</span>);
+        <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="op">-</span>(<span class="ident">M</span>::<span class="ident">modulo</span>() <span class="op">-</span> <span class="number">1</span>) <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="number">0</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="self">self</span>.<span class="number">0</span> <span class="op">&lt;</span> <span class="ident">M</span>::<span class="ident">modulo</span>());
         <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span> <span class="op">&lt;</span> <span class="number">0</span> {
-            <span class="self">self</span>.<span class="number">0</span> <span class="op">+</span><span class="op">=</span> <span class="ident">M</span>::<span class="ident">P</span>;
+            <span class="self">self</span>.<span class="number">0</span> <span class="op">+</span><span class="op">=</span> <span class="ident">M</span>::<span class="ident">modulo</span>();
         }
     }
 }
@@ -490,8 +507,8 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">M</span>: <span class="ident">Modulo</span>, <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ModInt</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">MulAssign</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ModInt</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">mul_assign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">T</span>) {
         <span class="self">self</span>.<span class="number">0</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">rhs</span>.<span class="ident">into</span>().<span class="number">0</span>;
-        <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">M</span>::<span class="ident">P</span> {
-            <span class="self">self</span>.<span class="number">0</span> <span class="op">%</span><span class="op">=</span> <span class="ident">M</span>::<span class="ident">P</span>;
+        <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">M</span>::<span class="ident">modulo</span>() {
+            <span class="self">self</span>.<span class="number">0</span> <span class="op">%</span><span class="op">=</span> <span class="ident">M</span>::<span class="ident">modulo</span>();
         }
     }
 }
@@ -533,14 +550,14 @@
     };
 }
 
-<span class="macro">impl_from_int</span><span class="macro">!</span>(<span class="ident">i32</span>, <span class="ident">i64</span>, <span class="ident">u32</span>);
+<span class="macro">impl_from_int</span><span class="macro">!</span>(<span class="ident">i8</span>, <span class="ident">i16</span>, <span class="ident">i32</span>, <span class="ident">i64</span>, <span class="ident">isize</span>, <span class="ident">u8</span>, <span class="ident">u16</span>, <span class="ident">u32</span>);
 
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">impl_from_large_int</span> {
     ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">ty</span>),<span class="op">+</span>) <span class="op">=</span><span class="op">&gt;</span> {
         $(
             <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">M</span>: <span class="ident">Modulo</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ModInt</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span> {
                 <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">x</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-                    <span class="self">Self</span>::<span class="ident">new</span>((<span class="ident">x</span> <span class="op">%</span> (<span class="ident">M</span>::<span class="ident">P</span> <span class="kw">as</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)) <span class="kw">as</span> <span class="ident">i64</span>)
+                    <span class="self">Self</span>::<span class="ident">new</span>((<span class="ident">x</span> <span class="op">%</span> (<span class="ident">M</span>::<span class="ident">modulo</span>() <span class="kw">as</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)) <span class="kw">as</span> <span class="ident">i64</span>)
                 }
             }
         )<span class="op">+</span>
@@ -551,31 +568,56 @@
 
 <span class="doccomment">/// 好きな法の `Modulo` を定義します。</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// - `$mod`: `Modulo` トレイトを実装する構造体の名前になります。</span>
-<span class="doccomment">/// - `$p`: `ModInt` の各種演算に使われる法を指定します。割り算をする予定があるならばこの値は素数にしてください。const な値しか受け付けません。😭</span>
+<span class="doccomment">/// - `$struct`: `Modulo` トレイトを実装する構造体の名前になります。</span>
+<span class="doccomment">/// - `$mod`: `ModInt` の各種演算に使われる法を指定します。割り算をする予定があるならばこの値は素数にしてください。const な値しか受け付けません。😭</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use mod_int::{Modulo, ModInt, define_modulo};</span>
-<span class="doccomment">/// define_modulo!(Mod19, 19);</span>
-<span class="doccomment">/// type Mint = ModInt&lt;Mod19&gt;;</span>
-<span class="doccomment">/// assert_eq!(Mint::p(), 19);</span>
+<span class="doccomment">/// define_modulo!(Modulo19, 19);</span>
+<span class="doccomment">/// type Mint = ModInt&lt;Modulo19&gt;;</span>
+<span class="doccomment">/// assert_eq!(Mint::modulo(), 19);</span>
 <span class="doccomment">/// assert_eq!((Mint::new(18) + Mint::new(2)).val(), 1);</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// 実行時に法を変えたいときはこちらです。</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```ignore</span>
+<span class="doccomment">/// use mod_int::{ModInt, DynamicModulo};</span>
+<span class="doccomment">/// let p = 23;</span>
+<span class="doccomment">/// DynamicModulo::set(p);</span>
+<span class="doccomment">/// type Mint = ModInt&lt;DynamicModulo&gt;;</span>
+<span class="doccomment">/// assert_eq!(Mint::modulo(), p);</span>
+<span class="doccomment">/// assert_eq!((Mint::new(22) + Mint::new(2)).val(), 1);</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">define_modulo</span> {
-    (<span class="macro-nonterminal">$</span><span class="kw">mod</span>: <span class="macro-nonterminal">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>: <span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="kw">struct</span>: <span class="macro-nonterminal">ident</span>, <span class="macro-nonterminal">$</span><span class="kw">mod</span>: <span class="macro-nonterminal">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
         <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="kw">mod</span>;
-        <span class="kw">impl</span> <span class="macro-nonterminal">Modulo</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="kw">mod</span> {
-            <span class="kw">const</span> <span class="macro-nonterminal">P</span>: <span class="ident">i64</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>;
+        <span class="kw">pub</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="kw">struct</span>;
+        <span class="kw">impl</span> <span class="macro-nonterminal">Modulo</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="kw">struct</span> {
+            <span class="kw">fn</span> <span class="macro-nonterminal">modulo</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i64</span> {
+                <span class="macro-nonterminal">$</span><span class="kw">mod</span>
+            }
         }
     };
 }
-<span class="macro">define_modulo</span><span class="macro">!</span>(<span class="ident">Mod1000000007</span>, <span class="number">1_000_000_000</span> <span class="op">+</span> <span class="number">7</span>);
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ModInt1000000007</span> <span class="op">=</span> <span class="ident">ModInt</span><span class="op">&lt;</span><span class="ident">Mod1000000007</span><span class="op">&gt;</span>;
-<span class="macro">define_modulo</span><span class="macro">!</span>(<span class="ident">Mod998244353</span>, <span class="number">998_244_353</span>);
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ModInt998244353</span> <span class="op">=</span> <span class="ident">ModInt</span><span class="op">&lt;</span><span class="ident">Mod998244353</span><span class="op">&gt;</span>;
+<span class="macro-nonterminal">define_modulo</span><span class="op">!</span>(<span class="ident">Modulo1000000007</span>, <span class="number">1_000_000_000</span> <span class="op">+</span> <span class="number">7</span>);
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ModInt1000000007</span> <span class="op">=</span> <span class="ident">ModInt</span><span class="op">&lt;</span><span class="ident">Modulo1000000007</span><span class="op">&gt;</span>;
+<span class="macro">define_modulo</span><span class="macro">!</span>(<span class="ident">Modulo998244353</span>, <span class="number">998_244_353</span>);
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ModInt998244353</span> <span class="op">=</span> <span class="ident">ModInt</span><span class="op">&lt;</span><span class="ident">Modulo998244353</span><span class="op">&gt;</span>;
+<span class="macro">thread_local</span><span class="macro">!</span> {
+    <span class="kw">static</span> <span class="ident">DYNAMIC_MODULO</span>: <span class="ident">UnsafeCell</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">UnsafeCell</span>::<span class="ident">new</span>(<span class="number">998_244_353</span>)
+}
+<span class="macro">define_modulo</span><span class="macro">!</span>(
+    <span class="ident">DynamicModulo</span>,
+    <span class="ident">DYNAMIC_MODULO</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">cell</span><span class="op">|</span> <span class="kw">unsafe</span> { <span class="kw-2">*</span><span class="ident">cell</span>.<span class="ident">get</span>() })
+);
+<span class="kw">impl</span> <span class="ident">DynamicModulo</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="ident">modulo</span>: <span class="ident">i64</span>) {
+        <span class="ident">DYNAMIC_MODULO</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">cell</span><span class="op">|</span> <span class="kw">unsafe</span> { <span class="kw-2">*</span><span class="ident">cell</span>.<span class="ident">get</span>() <span class="op">=</span> <span class="ident">modulo</span> });
+    }
+}
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
@@ -583,8 +625,8 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">ops_test</span>() {
-        <span class="macro">define_modulo</span><span class="macro">!</span>(<span class="ident">Mod19</span>, <span class="number">19</span>);
-        <span class="kw">type</span> <span class="ident">Mint</span> <span class="op">=</span> <span class="ident">ModInt</span><span class="op">&lt;</span><span class="ident">Mod19</span><span class="op">&gt;</span>;
+        <span class="macro">define_modulo</span><span class="macro">!</span>(<span class="ident">Modulo19</span>, <span class="number">19</span>);
+        <span class="kw">type</span> <span class="ident">Mint</span> <span class="op">=</span> <span class="ident">ModInt</span><span class="op">&lt;</span><span class="ident">Modulo19</span><span class="op">&gt;</span>;
         <span class="kw">for</span> <span class="ident">a</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">50</span> {
             <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">50</span> {
                 <span class="comment">// add</span>

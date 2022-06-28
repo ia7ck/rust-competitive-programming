@@ -1,1 +1,1 @@
-initSidebarItems({"macro":[["define_modulo","好きな法の `Modulo` を定義します。"]],"struct":[["Mod1000000007",""],["Mod998244353",""],["ModInt",""]],"trait":[["Modulo",""]],"type":[["ModInt1000000007",""],["ModInt998244353",""]]});
+initSidebarItems({"macro":[["define_modulo","好きな法の `Modulo` を定義します。"]],"struct":[["DynamicModulo",""],["ModInt",""],["Modulo1000000007",""],["Modulo998244353",""]],"trait":[["Modulo",""]],"type":[["ModInt1000000007",""],["ModInt998244353",""]]});
