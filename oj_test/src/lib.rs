@@ -8,6 +8,7 @@ use std::process::Command;
 use anyhow::{ensure, Result};
 use log::info;
 
+#[derive(Clone)]
 pub struct ProblemSolver {
     solver_path: PathBuf,
     test_property: TestProperty,
@@ -89,6 +90,7 @@ pub fn download_online_judge_testcase(problem_url: &str, dir_suffix: &Path) -> R
     Ok(dir)
 }
 
+#[derive(Clone)]
 struct TestProperty {
     properties: HashMap<String, String>,
 }
