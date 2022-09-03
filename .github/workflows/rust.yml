@@ -65,9 +65,6 @@ jobs:
 
   oj-test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        range: [0-2, 2-4, 4-6, 6-8, 8-10]
     env:
       RUST_LOG: info
     steps:
@@ -90,7 +87,7 @@ jobs:
       uses: actions-rs/cargo@v1
       with:
         command: run
-        args: --bin oj_test -- ${{ matrix.range }}
+        args: --bin oj_test
 
   publish-doc:
     runs-on: ubuntu-latest

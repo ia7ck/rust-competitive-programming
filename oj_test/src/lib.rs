@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::env;
-use std::fmt::{Debug, Formatter};
+use std::fmt::{Display, Formatter};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -13,7 +13,7 @@ pub struct ProblemSolver {
     test_property: TestProperty,
 }
 
-impl Debug for ProblemSolver {
+impl Display for ProblemSolver {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", self.solver_path)
     }
@@ -31,21 +31,16 @@ impl ProblemSolver {
         self.solver_path.as_path()
     }
 
-    pub fn run<T>(&self, testcase: T) -> Result<()>
-    where
-        T: Testcase,
-    {
-        testcase.setup()?;
-
+    pub fn run(&self, testcase_dir: &Path) -> Result<()> {
         let mut oj_command = Command::new("oj");
         oj_command
             .arg("test")
             .arg("--directory")
-            .arg(testcase.testcase_dir().as_os_str())
+            .arg(testcase_dir.as_os_str())
             .arg("--command")
             .arg(example_binary_path(self.solver_path.as_path()));
 
-        if std::env::consts::OS != "windows" {
+        if env::consts::OS != "windows" {
             oj_command.arg("--jobs").arg("2");
         }
 
@@ -75,50 +70,23 @@ impl ProblemSolver {
     }
 }
 
-pub trait Testcase {
-    fn setup(&self) -> Result<()>;
-    fn testcase_dir(&self) -> PathBuf;
-}
-
-pub struct OnlineJudgeTestcase {
-    dir: PathBuf,
-    problem_url: String,
-}
-
-impl OnlineJudgeTestcase {
-    pub fn new(dir: &Path, problem_url: &str) -> Self {
-        Self {
-            dir: dir.to_path_buf(),
-            problem_url: problem_url.to_string(),
-        }
+pub fn download_online_judge_testcase(problem_url: &str, dir_suffix: &Path) -> Result<PathBuf> {
+    let dir = env::temp_dir().join(dir_suffix);
+    if dir.exists() {
+        fs::remove_dir_all(&dir).unwrap_or_else(|err| panic!("{}", err));
     }
-}
-
-impl Testcase for OnlineJudgeTestcase {
-    // download testcase
-    fn setup(&self) -> Result<()> {
-        let testcase_dir = self.testcase_dir();
-        if testcase_dir.exists() {
-            // clear temporary directory
-            fs::remove_dir_all(testcase_dir.as_path()).unwrap_or_else(|err| panic!("{}", err));
-        }
-        let mut oj_command = Command::new("oj");
-        oj_command
-            .arg("download")
-            .arg(self.problem_url.as_str())
-            .arg("--directory")
-            .arg(testcase_dir.as_os_str())
-            .arg("--system")
-            .arg("--silent");
-        info!("execute {:?}", oj_command);
-        let status = oj_command.status()?;
-        ensure!(status.success(), "failed: oj download");
-        Ok(())
-    }
-
-    fn testcase_dir(&self) -> PathBuf {
-        self.dir.clone()
-    }
+    let mut oj_command = Command::new("oj");
+    oj_command
+        .arg("download")
+        .arg(problem_url)
+        .arg("--directory")
+        .arg(dir.as_os_str())
+        .arg("--system")
+        .arg("--silent");
+    info!("execute {:?}", oj_command);
+    let status = oj_command.status()?;
+    ensure!(status.success(), "failed: oj download");
+    Ok(dir)
 }
 
 struct TestProperty {
@@ -152,31 +120,12 @@ impl TestProperty {
     }
 }
 
-pub fn check_oj_version() -> Result<()> {
-    let mut cmd = Command::new("oj");
-    cmd.arg("--version");
-    info!("{:?}", cmd);
-    let status = cmd.status()?;
-    ensure!(status.success(), "oj is not installed");
-    Ok(())
-}
-
 fn cargo_target_examples_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("..")
         .join("target")
         .join("release")
         .join("examples")
-}
-
-pub fn exists_artifacts() -> Result<()> {
-    let dir = cargo_target_examples_dir();
-    ensure!(
-        dir.exists(),
-        "directory {:?} is not found. try `$ cargo build --release --examples`",
-        dir
-    );
-    Ok(())
 }
 
 fn example_binary_path(source_path: &Path) -> PathBuf {
