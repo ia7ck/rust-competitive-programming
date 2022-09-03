@@ -1,4 +1,4 @@
-// problem: https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=0560
+// __problem: https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=0560
 
 use cumulative_sum_2d::CumulativeSum2D;
 use proconio::input;

@@ -1,4 +1,4 @@
-// problem: https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=DSL_3_D
+// __problem: https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=DSL_3_D
 
 use proconio::input;
 
