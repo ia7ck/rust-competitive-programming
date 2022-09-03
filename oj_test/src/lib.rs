@@ -40,7 +40,7 @@ impl ProblemSolver {
             .arg("--command")
             .arg(example_binary_path(self.solver_path.as_path()));
 
-        if std::env::consts::OS != "windows" {
+        if env::consts::OS != "windows" {
             oj_command.arg("--jobs").arg("2");
         }
 
