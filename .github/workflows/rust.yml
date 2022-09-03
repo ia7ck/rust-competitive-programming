@@ -83,6 +83,8 @@ jobs:
       with:
         command: build
         args: --release --examples --verbose
+    - name: Prepare Git repository
+      run: oj download --dry-run https://judge.yosupo.jp/problem/aplusb
     - name: oj test
       uses: actions-rs/cargo@v1
       with:
