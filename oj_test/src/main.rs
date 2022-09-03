@@ -2,13 +2,10 @@ use anyhow::Result;
 use glob::glob;
 use log::info;
 
-use oj_test::{check_oj_version, download_online_judge_testcase, exists_artifacts, ProblemSolver};
+use oj_test::{download_online_judge_testcase, ProblemSolver};
 
 fn main() -> Result<()> {
     env_logger::init();
-
-    check_oj_version()?;
-    exists_artifacts()?;
 
     let mut solvers = Vec::new();
     for entry in glob("**/examples/*.rs")? {

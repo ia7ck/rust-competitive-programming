@@ -120,31 +120,12 @@ impl TestProperty {
     }
 }
 
-pub fn check_oj_version() -> Result<()> {
-    let mut cmd = Command::new("oj");
-    cmd.arg("--version");
-    info!("{:?}", cmd);
-    let status = cmd.status()?;
-    ensure!(status.success(), "oj is not installed");
-    Ok(())
-}
-
 fn cargo_target_examples_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("..")
         .join("target")
         .join("release")
         .join("examples")
-}
-
-pub fn exists_artifacts() -> Result<()> {
-    let dir = cargo_target_examples_dir();
-    ensure!(
-        dir.exists(),
-        "directory {:?} is not found. try `$ cargo build --release --examples`",
-        dir
-    );
-    Ok(())
 }
 
 fn example_binary_path(source_path: &Path) -> PathBuf {
