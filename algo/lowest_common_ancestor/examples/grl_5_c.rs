@@ -17,7 +17,7 @@ fn main() {
             edges.push((i, c));
         }
     }
-    let lca = LowestCommonAncestor::new(n, &edges);
+    let lca = LowestCommonAncestor::new(n, 0, &edges);
     input! {
         q: usize,
     }

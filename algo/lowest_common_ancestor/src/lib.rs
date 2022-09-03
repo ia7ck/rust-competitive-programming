@@ -1,6 +1,7 @@
 use ceil_log2::CeilLog2;
+use std::collections::VecDeque;
 
-/// 頂点 `0` を根とする根付き木の LCA を求めます。
+/// 根付き木の LCA です。
 ///
 /// # Examples
 /// ```
@@ -10,7 +11,7 @@ use ceil_log2::CeilLog2;
 /// // |    |
 /// // 1    3
 ///
-/// let lca = LowestCommonAncestor::new(5, &[(0, 1), (0, 2), (2, 3), (2, 4)]);
+/// let lca = LowestCommonAncestor::new(5, 0, &[(0, 1), (0, 2), (2, 3), (2, 4)]);
 /// assert_eq!(lca.get(0, 1), 0);
 /// assert_eq!(lca.get(0, 4), 0);
 /// assert_eq!(lca.get(1, 1), 1);
@@ -19,6 +20,7 @@ use ceil_log2::CeilLog2;
 /// assert_eq!(lca.get(3, 4), 2);
 /// ```
 pub struct LowestCommonAncestor {
+    n: usize,
     ancestor: Vec<Vec<usize>>,
     depth: Vec<usize>,
 }
@@ -26,8 +28,9 @@ pub struct LowestCommonAncestor {
 const ILLEGAL: usize = std::usize::MAX;
 
 impl LowestCommonAncestor {
-    /// 頂点数と `n` と木をなす無向辺の集合 `edges` を渡します。
-    pub fn new(n: usize, edges: &[(usize, usize)]) -> Self {
+    /// 頂点数 `n`, 根 `root`, 木をなす無向辺の集合 `edges` を渡します。
+    pub fn new(n: usize, root: usize, edges: &[(usize, usize)]) -> Self {
+        assert!(root < n);
         let mut g = vec![vec![]; n];
         for &(u, v) in edges {
             g[u].push(v);
@@ -35,13 +38,15 @@ impl LowestCommonAncestor {
         }
         let mut depth = vec![0; n];
         let mut parent = vec![ILLEGAL; n];
-        let mut stack = vec![(0, ILLEGAL)];
-        while let Some((u, p)) = stack.pop() {
-            for &v in &g[u] {
-                if v != p {
-                    depth[v] = depth[u] + 1;
-                    parent[v] = u;
-                    stack.push((v, u));
+        let mut que = VecDeque::new();
+        depth[root] = 0;
+        que.push_back((root, ILLEGAL));
+        while let Some((curr, prev)) = que.pop_front() {
+            for &next in &g[curr] {
+                if next != prev {
+                    depth[next] = depth[curr] + 1;
+                    parent[next] = curr;
+                    que.push_back((next, curr));
                 }
             }
         }
@@ -59,13 +64,13 @@ impl LowestCommonAncestor {
                 })
                 .collect();
         }
-        Self { ancestor, depth }
+        Self { n, ancestor, depth }
     }
 
     /// `u` と `v` の LCA を返します。
     pub fn get(&self, u: usize, v: usize) -> usize {
-        assert!(u < self.depth.len());
-        assert!(v < self.depth.len());
+        assert!(u < self.n);
+        assert!(v < self.n);
         let (mut u, mut v) = if self.depth[u] >= self.depth[v] {
             (u, v)
         } else {
@@ -103,18 +108,22 @@ impl LowestCommonAncestor {
         self.depth[u]
     }
 
-    /// 頂点 `u` から根の方向に `2^i` 本の辺を登って着く頂点を返します。
-    pub fn ancestor(&self, i: usize, u: usize) -> Option<usize> {
-        if i >= self.ancestor.len() {
-            None
-        } else {
-            let a = self.ancestor[i][u];
-            if a == ILLEGAL {
-                None
-            } else {
-                Some(a)
+    /// 頂点 `u` から根の方向に `k` 本の辺を登って着く頂点を返します。
+    pub fn kth_parent(&self, u: usize, k: usize) -> Option<usize> {
+        assert!(u < self.n);
+        if k >= self.n - 1 {
+            return None;
+        }
+        let mut u = u;
+        for i in 0..self.ancestor.len() {
+            if self.depth[k] >> i & 1 == 1 {
+                u = self.ancestor[i][u];
+                if u == ILLEGAL {
+                    return None;
+                }
             }
         }
+        Some(u)
     }
 }
 
@@ -124,7 +133,7 @@ mod tests {
 
     #[test]
     fn single_node_test() {
-        let lca = LowestCommonAncestor::new(1, &[]);
+        let lca = LowestCommonAncestor::new(1, 0, &[]);
         assert_eq!(lca.get(0, 0), 0);
     }
 }
