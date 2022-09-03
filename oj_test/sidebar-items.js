@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["check_oj_version",""],["exists_artifacts",""]],"struct":[["OnlineJudgeTestcase",""],["ProblemSolver",""]],"trait":[["Testcase",""]]});
+initSidebarItems({"fn":[["download_online_judge_testcase",""]],"struct":[["ProblemSolver",""]]});
