@@ -1,22 +1,6 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
-use anyhow::Result;
-
-use oj_test::{check_oj_version, exists_artifacts, ProblemSolver, Testcase};
-
-struct LocalTestcase {}
-
-impl Testcase for LocalTestcase {
-    fn setup(&self) -> Result<()> {
-        Ok(())
-    }
-
-    fn testcase_dir(&self) -> PathBuf {
-        Path::new(std::env!("CARGO_MANIFEST_DIR"))
-            .join("tests")
-            .join("hand-made")
-    }
-}
+use oj_test::{check_oj_version, exists_artifacts, ProblemSolver};
 
 #[test]
 #[ignore]
@@ -32,6 +16,9 @@ fn local_testcase() {
             .join("double.rs")
             .as_path(),
     );
-    let testcase = LocalTestcase {};
-    solver.run(testcase).unwrap();
+    let testcase_dir = Path::new(std::env!("CARGO_MANIFEST_DIR"))
+        .join("tests")
+        .join("hand-made");
+
+    solver.run(testcase_dir.as_path()).unwrap();
 }

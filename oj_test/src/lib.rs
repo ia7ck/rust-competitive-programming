@@ -31,17 +31,12 @@ impl ProblemSolver {
         self.solver_path.as_path()
     }
 
-    pub fn run<T>(&self, testcase: T) -> Result<()>
-    where
-        T: Testcase,
-    {
-        testcase.setup()?;
-
+    pub fn run(&self, testcase_dir: &Path) -> Result<()> {
         let mut oj_command = Command::new("oj");
         oj_command
             .arg("test")
             .arg("--directory")
-            .arg(testcase.testcase_dir().as_os_str())
+            .arg(testcase_dir.as_os_str())
             .arg("--command")
             .arg(example_binary_path(self.solver_path.as_path()));
 
@@ -75,50 +70,23 @@ impl ProblemSolver {
     }
 }
 
-pub trait Testcase {
-    fn setup(&self) -> Result<()>;
-    fn testcase_dir(&self) -> PathBuf;
-}
-
-pub struct OnlineJudgeTestcase {
-    dir: PathBuf,
-    problem_url: String,
-}
-
-impl OnlineJudgeTestcase {
-    pub fn new(dir: &Path, problem_url: &str) -> Self {
-        Self {
-            dir: dir.to_path_buf(),
-            problem_url: problem_url.to_string(),
-        }
+pub fn download_online_judge_testcase(problem_url: &str, dir_suffix: &Path) -> Result<PathBuf> {
+    let dir = env::temp_dir().join(dir_suffix);
+    if dir.exists() {
+        fs::remove_dir_all(&dir).unwrap_or_else(|err| panic!("{}", err));
     }
-}
-
-impl Testcase for OnlineJudgeTestcase {
-    // download testcase
-    fn setup(&self) -> Result<()> {
-        let testcase_dir = self.testcase_dir();
-        if testcase_dir.exists() {
-            // clear temporary directory
-            fs::remove_dir_all(testcase_dir.as_path()).unwrap_or_else(|err| panic!("{}", err));
-        }
-        let mut oj_command = Command::new("oj");
-        oj_command
-            .arg("download")
-            .arg(self.problem_url.as_str())
-            .arg("--directory")
-            .arg(testcase_dir.as_os_str())
-            .arg("--system")
-            .arg("--silent");
-        info!("execute {:?}", oj_command);
-        let status = oj_command.status()?;
-        ensure!(status.success(), "failed: oj download");
-        Ok(())
-    }
-
-    fn testcase_dir(&self) -> PathBuf {
-        self.dir.clone()
-    }
+    let mut oj_command = Command::new("oj");
+    oj_command
+        .arg("download")
+        .arg(problem_url)
+        .arg("--directory")
+        .arg(dir.as_os_str())
+        .arg("--system")
+        .arg("--silent");
+    info!("execute {:?}", oj_command);
+    let status = oj_command.status()?;
+    ensure!(status.success(), "failed: oj download");
+    Ok(dir)
 }
 
 struct TestProperty {
