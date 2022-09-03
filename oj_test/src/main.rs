@@ -23,7 +23,7 @@ fn main() -> Result<()> {
             let testcase_dir = download_online_judge_testcase(problem_url, dir_suffix.as_path())?;
             s.run(testcase_dir.as_path())?;
         } else {
-            info!("skip {:?}", s);
+            info!("skip {}", s);
         }
     }
 

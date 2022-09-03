@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::env;
-use std::fmt::{Debug, Formatter};
+use std::fmt::{Display, Formatter};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -13,7 +13,7 @@ pub struct ProblemSolver {
     test_property: TestProperty,
 }
 
-impl Debug for ProblemSolver {
+impl Display for ProblemSolver {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", self.solver_path)
     }
