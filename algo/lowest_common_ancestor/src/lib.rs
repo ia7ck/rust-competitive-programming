@@ -20,6 +20,7 @@ use std::collections::VecDeque;
 /// assert_eq!(lca.get(3, 4), 2);
 /// ```
 pub struct LowestCommonAncestor {
+    n: usize,
     ancestor: Vec<Vec<usize>>,
     depth: Vec<usize>,
 }
@@ -63,13 +64,13 @@ impl LowestCommonAncestor {
                 })
                 .collect();
         }
-        Self { ancestor, depth }
+        Self { n, ancestor, depth }
     }
 
     /// `u` と `v` の LCA を返します。
     pub fn get(&self, u: usize, v: usize) -> usize {
-        assert!(u < self.depth.len());
-        assert!(v < self.depth.len());
+        assert!(u < self.n);
+        assert!(v < self.n);
         let (mut u, mut v) = if self.depth[u] >= self.depth[v] {
             (u, v)
         } else {
@@ -107,18 +108,22 @@ impl LowestCommonAncestor {
         self.depth[u]
     }
 
-    /// 頂点 `u` から根の方向に `2^i` 本の辺を登って着く頂点を返します。
-    pub fn ancestor(&self, i: usize, u: usize) -> Option<usize> {
-        if i >= self.ancestor.len() {
-            None
-        } else {
-            let a = self.ancestor[i][u];
-            if a == ILLEGAL {
-                None
-            } else {
-                Some(a)
+    /// 頂点 `u` から根の方向に `k` 本の辺を登って着く頂点を返します。
+    pub fn kth_parent(&self, u: usize, k: usize) -> Option<usize> {
+        assert!(u < self.n);
+        if k >= self.n - 1 {
+            return None;
+        }
+        let mut u = u;
+        for i in 0..self.ancestor.len() {
+            if self.depth[k] >> i & 1 == 1 {
+                u = self.ancestor[i][u];
+                if u == ILLEGAL {
+                    return None;
+                }
             }
         }
+        Some(u)
     }
 }
 
