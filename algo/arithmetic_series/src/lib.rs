@@ -1,7 +1,7 @@
 /// 初項 `a`, 項数 `n`, 公差 `d` の等差数列の和を求めます。
 ///
 /// # Panics
-/// if `n` is negative or zero.
+/// if `n` is negative.
 ///
 /// # Examples
 /// ```
@@ -15,7 +15,12 @@
 /// assert_eq!(arithmetic_series(5, 6, -3), Some(-15));
 /// ```
 pub fn arithmetic_series<T: Int>(a: T, n: T, d: T) -> Option<T> {
+    if n == T::zero() {
+        return Some(T::zero());
+    }
+
     assert!(n.is_positive());
+
     let last = d.checked_mul(n.decrement())?.checked_add(a)?;
     a.checked_add(last)?.checked_mul(n)?.checked_div(T::two())
 }
@@ -26,6 +31,7 @@ pub trait Int: Copy + Ord {
     fn checked_add(self, rhs: Self) -> Option<Self>;
     fn checked_mul(self, rhs: Self) -> Option<Self>;
     fn checked_div(self, rhs: Self) -> Option<Self>;
+    fn zero() -> Self;
     fn two() -> Self;
 }
 
@@ -47,6 +53,9 @@ macro_rules! impl_int {
                 }
                 fn checked_div(self, rhs: Self) -> Option<Self> {
                     self.checked_div(rhs)
+                }
+                fn zero() -> Self {
+                    0
                 }
                 fn two() -> Self {
                     2
@@ -81,14 +90,13 @@ mod tests {
     }
 
     #[test]
-    fn test_too_large() {
-        assert_eq!(arithmetic_series(1, std::i64::MAX, 1), None);
+    fn test_empty() {
+        assert_eq!(arithmetic_series(42, 0, 3), Some(0));
     }
 
     #[test]
-    #[should_panic]
-    fn test_empty() {
-        arithmetic_series(42, 0, 3);
+    fn test_too_large() {
+        assert_eq!(arithmetic_series(1, std::i64::MAX, 1), None);
     }
 
     #[test]
