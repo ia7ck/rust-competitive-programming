@@ -1,4 +1,4 @@
-// __problem:https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_4_B
+// problem:https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_4_B
 
 use binary_search_range::BinarySearchRange;
 use proconio::input;
