@@ -19,7 +19,7 @@ fn main() {
         }
         edges.push(ConstEdge::new(a, b, c));
     }
-    let (d, prev) = dijkstra(n, edges.iter().copied(), s);
+    let (d, prev) = dijkstra(n, &edges, s);
     if d[t].is_none() {
         println!("{}", -1);
         return;

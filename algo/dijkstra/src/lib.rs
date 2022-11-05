@@ -75,7 +75,7 @@ where
 /// //     |                 |
 /// //     +-----------------+
 /// //
-/// let (d, prev) = dijkstra(4, edges.iter().copied(), 0);
+/// let (d, prev) = dijkstra(4, &edges, 0);
 /// assert_eq!(d[0], Some(0));
 /// assert_eq!(d[1], Some(1));
 /// assert_eq!(d[2], Some(1));
@@ -85,9 +85,8 @@ where
 /// assert_eq!(prev[2], Some(0));
 /// assert_eq!(prev[3], Some(2));
 /// ```
-pub fn dijkstra<I, E, T>(n: usize, edges: I, s: usize) -> (Vec<Option<T>>, Vec<Option<usize>>)
+pub fn dijkstra<E, T>(n: usize, edges: &[E], s: usize) -> (Vec<Option<T>>, Vec<Option<usize>>)
 where
-    I: Iterator<Item = E>,
     E: Edge<T> + Clone,
     T: Copy + Add<Output = T> + Default + Ord + Debug,
 {
@@ -105,6 +104,8 @@ where
             Some(dv) => {
                 if dv < d {
                     continue;
+                } else if dv > d {
+                    unreachable!();
                 } else {
                     assert_eq!(dv, d);
                 }
@@ -177,8 +178,11 @@ mod tests {
             for m in 0..=n * n {
                 let edges = generate(n, m);
                 let dd = floyd_warshall(n, &edges);
-                let edges = edges.into_iter().map(|(a, b, c)| ConstEdge::new(a, b, c));
-                let (d, _) = dijkstra(n, edges, 0);
+                let edges = edges
+                    .into_iter()
+                    .map(|(a, b, c)| ConstEdge::new(a, b, c))
+                    .collect::<Vec<_>>();
+                let (d, _) = dijkstra(n, &edges, 0);
                 for v in 0..n {
                     assert_eq!(d[v].unwrap_or(INF), dd[v]);
                 }
