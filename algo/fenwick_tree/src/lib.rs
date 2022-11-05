@@ -15,11 +15,14 @@ where
     /// 長さ `n` の列を作り、初期値 `e` で埋めます。雰囲気は `let mut a = vec![e; n];` です。
     pub fn new(n: usize, e: T) -> Self {
         let n = n.next_power_of_two();
-        Self {
-            n,
-            e,
-            dat: vec![e; n + 1],
+        let mut dat = vec![e; n + 1];
+        for i in (2..=n).step_by(2) {
+            let j = 1 << (i.trailing_zeros() - 1);
+            let mut y = dat[j];
+            y += dat[j];
+            dat[i] = y; // dat[j] * 2
         }
+        Self { n, e, dat }
     }
     // 0-indexed
     // a[k] += x
