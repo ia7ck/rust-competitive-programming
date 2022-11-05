@@ -1,7 +1,7 @@
 use std::ops::Range;
 
 /// Fenwick Tree (Binary Indexed Tree) [http://hos.ac/slides/20140319_bit.pdf](http://hos.ac/slides/20140319_bit.pdf)
-/// 
+///
 /// # Examples
 /// ```
 /// use fenwick_tree::FenwickTree;
