@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["FenwickTree",""]]});
+initSidebarItems({"struct":[["FenwickTree","Fenwick Tree (Binary Indexed Tree) http://hos.ac/slides/20140319_bit.pdf"]]});
