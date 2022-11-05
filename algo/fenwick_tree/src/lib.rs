@@ -81,8 +81,9 @@ mod tests {
         let mut rng = thread_rng();
         for _ in 0..100 {
             let n: usize = rng.gen_range(1, 20);
-            let mut a = vec![0; n];
-            let mut ft = FenwickTree::new(n, 0);
+            let e = rng.gen_range(-100, 100);
+            let mut a = vec![e; n];
+            let mut ft = FenwickTree::new(n, e);
             for _ in 0..100 {
                 let i: usize = rng.gen_range(0, n);
                 let x: i32 = rng.gen_range(-100, 100);
