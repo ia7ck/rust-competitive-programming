@@ -1,4 +1,5 @@
 //problem: https://judge.yosupo.jp/problem/shortest_path
+//judge_program_rs: ./judge_shortest_path.rs
 use dijkstra::{dijkstra, ConstEdge};
 use proconio::{fastout, input};
 
