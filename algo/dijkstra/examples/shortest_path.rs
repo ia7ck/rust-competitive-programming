@@ -1,4 +1,5 @@
 //problem: https://judge.yosupo.jp/problem/shortest_path
+//judge_program_rs: ./judge_shortest_path.rs
 use dijkstra::{dijkstra, ConstEdge};
 use proconio::{fastout, input};
 
@@ -19,7 +20,7 @@ fn main() {
         }
         edges.push(ConstEdge::new(a, b, c));
     }
-    let (d, prev) = dijkstra(n, edges.iter().copied(), s);
+    let (d, prev) = dijkstra(n, &edges, s);
     if d[t].is_none() {
         println!("{}", -1);
         return;
