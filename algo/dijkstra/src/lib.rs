@@ -100,6 +100,7 @@ where
     dist[s] = Some(T::default());
     heap.push((Reverse(T::default()), s));
     while let Some((Reverse(d), v)) = heap.pop() {
+        #[allow(clippy::comparison_chain)]
         match dist[v] {
             Some(dv) => {
                 if dv < d {
