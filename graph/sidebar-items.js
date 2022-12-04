@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["is_tree",""]]});
+initSidebarItems({"fn":[["connectivity",""],["is_tree",""]]});
