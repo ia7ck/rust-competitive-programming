@@ -1,24 +1,4 @@
-fn is_tree(n: usize, edges: &[(usize, usize)]) -> bool {
-    let mut g = vec![vec![]; n];
-    for &(u, v) in edges {
-        g[u].push(v);
-        g[v].push(u);
-    }
-
-    fn dfs(i: usize, p: usize, g: &[Vec<usize>]) -> usize {
-        let mut size = 1;
-        for &j in &g[i] {
-            if j == p {
-                continue;
-            }
-            size += dfs(j, i, g);
-        }
-        size
-    }
-
-    let size = dfs(0, 0, &g);
-    size == n
-}
+use graph::is_tree;
 
 pub fn tree_diameter(n: usize, edges: &[(usize, usize, u64)]) -> (u64, Vec<usize>) {
     if n == 0 {
