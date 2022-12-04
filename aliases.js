@@ -11,6 +11,7 @@ ALIASES["ext_gcd"] = {};
 ALIASES["factorials"] = {};
 ALIASES["fenwick_tree"] = {};
 ALIASES["floor_sqrt"] = {};
+ALIASES["graph"] = {};
 ALIASES["grid_search"] = {};
 ALIASES["join"] = {};
 ALIASES["least_prime_factors"] = {};

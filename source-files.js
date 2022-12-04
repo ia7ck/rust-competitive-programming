@@ -11,6 +11,7 @@ sourcesIndex["ext_gcd"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["factorials"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["fenwick_tree"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["floor_sqrt"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["graph"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["grid_search"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["join"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["least_prime_factors"] = {"name":"","files":["lib.rs"]};
