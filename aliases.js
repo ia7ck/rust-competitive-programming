@@ -28,5 +28,6 @@ ALIASES["sliding_window"] = {};
 ALIASES["strongly_connected_components"] = {};
 ALIASES["suffix_array"] = {};
 ALIASES["topological_sort"] = {};
+ALIASES["tree_diameter"] = {};
 ALIASES["union_find"] = {};
 ALIASES["z_algorithm"] = {};

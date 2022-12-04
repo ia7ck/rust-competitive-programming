@@ -28,6 +28,7 @@ sourcesIndex["sliding_window"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["strongly_connected_components"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["suffix_array"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["topological_sort"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["tree_diameter"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["union_find"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["z_algorithm"] = {"name":"","files":["lib.rs"]};
 createSourceSidebar();
