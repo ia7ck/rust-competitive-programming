@@ -1,14 +1,4 @@
 pub fn is_tree(n: usize, edges: &[(usize, usize)]) -> bool {
-    fn dfs(i: usize, g: &[Vec<usize>], visited: &mut Vec<bool>) {
-        for &j in &g[i] {
-            if visited[j] {
-                continue;
-            }
-            visited[j] = true;
-            dfs(j, g, visited);
-        }
-    }
-
     for &(a, b) in edges {
         assert!(a < n);
         assert!(b < n);
@@ -18,8 +8,18 @@ pub fn is_tree(n: usize, edges: &[(usize, usize)]) -> bool {
         return true;
     }
 
-    if edges.len() != n - 1 {
-        return false;
+    edges.len() == n - 1 && connectivity(n, edges)
+}
+
+pub fn connectivity(n: usize, edges: &[(usize, usize)]) -> bool {
+    fn dfs(i: usize, g: &[Vec<usize>], visited: &mut Vec<bool>) {
+        for &j in &g[i] {
+            if visited[j] {
+                continue;
+            }
+            visited[j] = true;
+            dfs(j, g, visited);
+        }
     }
 
     let mut g = vec![vec![]; n];
@@ -38,7 +38,7 @@ mod tests {
     use crate::is_tree;
 
     #[test]
-    fn test_small() {
+    fn test_is_tree_small() {
         assert_eq!(is_tree(0, &[]), true);
         assert_eq!(is_tree(1, &[]), true);
         assert_eq!(is_tree(2, &[(0, 1)]), true);
