@@ -22,6 +22,7 @@ sourcesIndex["oj_test"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["pascal_triangle"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["prime_factorization"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["rolling_hash"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["run_length"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["scanner"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["scanner_proc_macro"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["segment_tree"] = {"name":"","files":["lib.rs"]};

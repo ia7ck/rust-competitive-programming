@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["RunLength","run length encoding です。"]]});

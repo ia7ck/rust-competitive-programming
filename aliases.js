@@ -22,6 +22,7 @@ ALIASES["oj_test"] = {};
 ALIASES["pascal_triangle"] = {};
 ALIASES["prime_factorization"] = {};
 ALIASES["rolling_hash"] = {};
+ALIASES["run_length"] = {};
 ALIASES["scanner"] = {};
 ALIASES["scanner_proc_macro"] = {};
 ALIASES["segment_tree"] = {};
