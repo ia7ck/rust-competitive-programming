@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["tree_diameter",""]]});
+initSidebarItems({"fn":[["tree_diameter","木の直径と直径をなす頂点のベクタを返します。"]]});

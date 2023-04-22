@@ -1,1 +1,1 @@
-initSidebarItems({"trait":[["NextPermutation",""]]});
+initSidebarItems({"trait":[["NextPermutation","next permutation です。"]]});
