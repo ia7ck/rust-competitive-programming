@@ -1,3 +1,6 @@
+/// next permutation です。
+///
+/// [実装の参考資料](https://ngtkana.hatenablog.com/entry/2021/11/08/000209)
 pub trait NextPermutation {
     fn next_permutation(&mut self) -> bool;
 }
