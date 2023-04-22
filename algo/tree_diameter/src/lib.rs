@@ -1,5 +1,6 @@
 use graph::is_tree;
 
+/// 木の直径と直径をなす頂点のベクタを返します。
 pub fn tree_diameter(n: usize, edges: &[(usize, usize, u64)]) -> (u64, Vec<usize>) {
     if n == 0 {
         return (0, Vec::new());
