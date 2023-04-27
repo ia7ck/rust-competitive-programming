@@ -70,10 +70,9 @@ where
         assert!(x_end <= self.w);
         let sum = self.cum_sum[y_end - 1][x_end - 1];
         if y_start >= 1 && x_start >= 1 {
-            return sum
+            return sum + self.cum_sum[y_start - 1][x_start - 1]
                 - self.cum_sum[y_start - 1][x_end - 1]
-                - self.cum_sum[y_end - 1][x_start - 1]
-                + self.cum_sum[y_start - 1][x_start - 1];
+                - self.cum_sum[y_end - 1][x_start - 1];
         }
         if y_start >= 1 {
             assert_eq!(x_start, 0);
@@ -93,7 +92,7 @@ mod tests {
 
     #[test]
     fn test() {
-        let grid: Vec<Vec<i32>> = vec![
+        let grid: Vec<Vec<u32>> = vec![
             vec![3, 1, 4, 1, 5],
             vec![9, 2, 6, 5, 3],
             vec![5, 8, 9, 7, 9],
