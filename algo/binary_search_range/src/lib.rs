@@ -21,6 +21,7 @@ impl<T: Ord> BinarySearchRange<T> for [T] {
     /// ```
     fn range(&self, range: ops::Range<T>) -> ops::Range<usize> {
         assert!(!self.is_empty());
+        assert!(range.start < range.end);
 
         let first_ge = |x: &T| {
             if x.le(&self[0]) {
@@ -59,6 +60,12 @@ mod tests {
     #[should_panic]
     fn test_panic() {
         vec![].range(0..10);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_panic2() {
+        vec![1, 2, 3].range(2..2);
     }
 
     #[test]
