@@ -1,1 +1,0 @@
-initSidebarItems({"attr":[["insert_scanner",""]]});
