@@ -63,9 +63,9 @@ mod tests {
 
     #[test]
     fn test_empty() {
-        assert_eq!(vec![3, 4, 5].range(0..3).len(), 0);
-        assert_eq!(vec![3, 4, 5].range(4..4).len(), 0);
-        assert_eq!(vec![3, 4, 5].range(6..8).len(), 0);
+        assert_eq!(vec![3, 4, 8].range(0..3), 0..0);
+        assert_eq!(vec![3, 4, 8].range(5..8), 2..2);
+        assert_eq!(vec![3, 4, 8].range(9..12), 3..3);
     }
 
     #[test]
