@@ -1,7 +1,7 @@
 // problem: https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=0580
 
-use zarts::SortedSeq;
 use proconio::input;
+use zarts::SortedSeq;
 
 fn main() {
     input! {

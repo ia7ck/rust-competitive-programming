@@ -2,7 +2,7 @@ use std::fmt::Debug;
 use std::iter::FromIterator;
 
 /// 座標圧縮です。
-/// 
+///
 /// # Examples
 ///
 /// ```
