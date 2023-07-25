@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["OrderMap","座標圧縮です。"]]});
