@@ -20,9 +20,8 @@ impl<T: Ord> BinarySearchRange<T> for [T] {
     /// assert_eq!(a.range(4..8), 2..6); // [      4, 5, 7, 7]
     /// ```
     fn range(&self, range: ops::Range<T>) -> ops::Range<usize> {
-        if self.is_empty() {
-            return 0..0;
-        }
+        assert!(!self.is_empty());
+        assert!(range.start < range.end);
 
         let first_ge = |x: &T| {
             if x.le(&self[0]) {
@@ -58,11 +57,22 @@ mod tests {
     use crate::BinarySearchRange;
 
     #[test]
+    #[should_panic]
+    fn test_panic() {
+        vec![].range(0..10);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_panic2() {
+        vec![1, 2, 3].range(2..2);
+    }
+
+    #[test]
     fn test_empty() {
-        assert_eq!(vec![].range(0..10).len(), 0);
-        assert_eq!(vec![3, 4, 5].range(0..3).len(), 0);
-        assert_eq!(vec![3, 4, 5].range(4..4).len(), 0);
-        assert_eq!(vec![3, 4, 5].range(6..8).len(), 0);
+        assert_eq!(vec![3, 4, 8].range(0..3), 0..0);
+        assert_eq!(vec![3, 4, 8].range(5..8), 2..2);
+        assert_eq!(vec![3, 4, 8].range(9..12), 3..3);
     }
 
     #[test]
