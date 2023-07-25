@@ -1,6 +1,6 @@
 // problem: https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=0580
 
-use coordinate_compression::OrderMap;
+use zarts::SortedSeq;
 use proconio::input;
 
 fn main() {
@@ -10,19 +10,19 @@ fn main() {
         xydxyd: [(u64, u64, u64, u64, u64, u64); n],
     }
 
-    let cx: OrderMap<u64> = xydxyd
+    let cx: SortedSeq<u64> = xydxyd
         .iter()
         .copied()
         .map(|(x1, _, _, x2, _, _)| vec![x1, x2])
         .flatten()
         .collect();
-    let cy: OrderMap<u64> = xydxyd
+    let cy: SortedSeq<u64> = xydxyd
         .iter()
         .copied()
         .map(|(_, y1, _, _, y2, _)| vec![y1, y2])
         .flatten()
         .collect();
-    let cz: OrderMap<u64> = xydxyd
+    let cz: SortedSeq<u64> = xydxyd
         .iter()
         .copied()
         .map(|(_, _, z1, _, _, z2)| vec![z1, z2])
