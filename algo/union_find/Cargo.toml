@@ -9,5 +9,5 @@ edition = "2021"
 [dependencies]
 
 [dev-dependencies]
-proconio = {version = "0.3.4", features = ["derive"] }
+proconio = {version = "0.4.5", features = ["derive"] }
 join = { path = "../../others/join" }

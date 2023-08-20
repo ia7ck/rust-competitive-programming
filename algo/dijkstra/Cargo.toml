@@ -10,4 +10,4 @@ edition = "2021"
 
 [dev-dependencies]
 rand = "0.7"
-proconio = {version = "0.3.4", features = ["derive"] }
+proconio = {version = "0.4.5", features = ["derive"] }

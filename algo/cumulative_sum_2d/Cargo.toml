@@ -9,4 +9,4 @@ edition = "2021"
 [dependencies]
 
 [dev-dependencies]
-proconio = { version = "0.3.6" }
+proconio = { version = "0.4.5" }

@@ -10,4 +10,4 @@ edition = "2021"
 ceil_log2 = { path = "../ceil_log2" }
 
 [dev-dependencies]
-proconio = {version = "0.3.4", features = ["derive"] }
+proconio = {version = "0.4.5", features = ["derive"] }
