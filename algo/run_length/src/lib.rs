@@ -31,7 +31,7 @@ where
     }
 }
 
-impl<'a, I> Iterator for RunLength<I>
+impl<I> Iterator for RunLength<I>
 where
     I: Iterator,
     I::Item: Eq,
