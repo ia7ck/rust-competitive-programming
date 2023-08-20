@@ -1,1 +1,1 @@
-initSidebarItems({"trait":[["BinarySearchRange","ソート済みの列を検索します。"]]});
+window.SIDEBAR_ITEMS = {"trait":["BinarySearchRange"]};

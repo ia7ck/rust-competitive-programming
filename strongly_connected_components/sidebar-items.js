@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["strongly_connected_components","強連結成分分解です。参考"]]});
+window.SIDEBAR_ITEMS = {"fn":["strongly_connected_components"]};

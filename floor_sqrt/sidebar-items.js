@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["floor_sqrt","`floor(sqrt(n))` を返す。"]]});
+window.SIDEBAR_ITEMS = {"fn":["floor_sqrt"]};

@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["RollingHash","Rolling Hash です。O(文字列長) の前計算をしたうえで、部分文字列のハッシュ値を O(1) で計算します。"]]});
+window.SIDEBAR_ITEMS = {"struct":["RollingHash"]};

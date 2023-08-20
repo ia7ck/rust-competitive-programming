@@ -1,1 +1,1 @@
-initSidebarItems({"trait":[["CeilLog2","log2 の切り上げです。"]]});
+window.SIDEBAR_ITEMS = {"trait":["CeilLog2"]};

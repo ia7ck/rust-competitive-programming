@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["z_algorithm","`z[i]`: `a[i..]` と `a` との最長共通接頭辞の長さ、を返します。"]]});
+window.SIDEBAR_ITEMS = {"fn":["z_algorithm"]};

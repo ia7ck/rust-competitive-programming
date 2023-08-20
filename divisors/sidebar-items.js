@@ -1,1 +1,1 @@
-initSidebarItems({"trait":[["Divisors","非負整数の約数全体です。"]]});
+window.SIDEBAR_ITEMS = {"trait":["Divisors"]};

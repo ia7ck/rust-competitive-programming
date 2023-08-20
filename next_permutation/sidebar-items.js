@@ -1,1 +1,1 @@
-initSidebarItems({"trait":[["NextPermutation","next permutation です。"]]});
+window.SIDEBAR_ITEMS = {"trait":["NextPermutation"]};

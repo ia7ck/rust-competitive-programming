@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["detect_cycle_directed","有向グラフの閉路を求めます。"],["detect_cycle_undirected","無向グラフの閉路を求めます。"]]});
+window.SIDEBAR_ITEMS = {"fn":["detect_cycle_directed","detect_cycle_undirected"]};

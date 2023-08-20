@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["around","`(y, x)` を基点とした周辺座標を yield するイテレータを作ります。"]],"struct":[["Around","This `struct` is created by the [`around`] methods. See its documentation for more."]]});
+window.SIDEBAR_ITEMS = {"fn":["around"],"struct":["Around"]};

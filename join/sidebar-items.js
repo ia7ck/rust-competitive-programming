@@ -1,1 +1,1 @@
-initSidebarItems({"trait":[["Join",""]]});
+window.SIDEBAR_ITEMS = {"trait":["Join"]};

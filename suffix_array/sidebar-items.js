@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["lcp_array","LCP 配列を O(|s|) で求めます。"],["suffix_array","文字列 `s` の suffix array を O(|s|log|s|) で求めます。"]]});
+window.SIDEBAR_ITEMS = {"fn":["lcp_array","suffix_array"]};

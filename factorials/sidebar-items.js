@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Factorial","階乗とその乗法逆元、そして二項係数を扱います。"]]});
+window.SIDEBAR_ITEMS = {"struct":["Factorial"]};

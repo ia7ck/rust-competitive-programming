@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["ext_gcd","g = gcd(a, b), ax + by = g を満たす (x, y, g) を返します。"]]});
+window.SIDEBAR_ITEMS = {"fn":["ext_gcd"]};

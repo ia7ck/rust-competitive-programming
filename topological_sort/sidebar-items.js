@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["topological_sort","有向グラフの頂点をトポロジカル順に並べて返します。グラフが DAG でなければ None を返します。"]]});
+window.SIDEBAR_ITEMS = {"fn":["topological_sort"]};

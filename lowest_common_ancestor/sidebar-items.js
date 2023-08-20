@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["LowestCommonAncestor","根付き木の LCA です。"]]});
+window.SIDEBAR_ITEMS = {"struct":["LowestCommonAncestor"]};

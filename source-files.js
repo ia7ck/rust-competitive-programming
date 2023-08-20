@@ -1,34 +1,35 @@
-var N = null;var sourcesIndex = {};
-sourcesIndex["arithmetic_series"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["binary_search_range"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["ceil_log2"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["cumulative_sum_2d"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["detect_cycle"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["dijkstra"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["divisors"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["ext_gcd"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["factorials"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["fenwick_tree"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["floor_sqrt"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["graph"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["grid_search"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["join"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["least_prime_factors"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["lowest_common_ancestor"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["mod_int"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["next_permutation"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["oj_test"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["pascal_triangle"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["prime_factorization"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["rolling_hash"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["run_length"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["segment_tree"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["sliding_window"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["strongly_connected_components"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["suffix_array"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["topological_sort"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["tree_diameter"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["union_find"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["z_algorithm"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["zarts"] = {"name":"","files":["lib.rs"]};
+var sourcesIndex = JSON.parse('{\
+"arithmetic_series":["",[],["lib.rs"]],\
+"binary_search_range":["",[],["lib.rs"]],\
+"ceil_log2":["",[],["lib.rs"]],\
+"cumulative_sum_2d":["",[],["lib.rs"]],\
+"detect_cycle":["",[],["lib.rs"]],\
+"dijkstra":["",[],["lib.rs"]],\
+"divisors":["",[],["lib.rs"]],\
+"ext_gcd":["",[],["lib.rs"]],\
+"factorials":["",[],["lib.rs"]],\
+"fenwick_tree":["",[],["lib.rs"]],\
+"floor_sqrt":["",[],["lib.rs"]],\
+"graph":["",[],["lib.rs"]],\
+"grid_search":["",[],["lib.rs"]],\
+"join":["",[],["lib.rs"]],\
+"least_prime_factors":["",[],["lib.rs"]],\
+"lowest_common_ancestor":["",[],["lib.rs"]],\
+"mod_int":["",[],["lib.rs"]],\
+"next_permutation":["",[],["lib.rs"]],\
+"oj_test":["",[],["lib.rs"]],\
+"pascal_triangle":["",[],["lib.rs"]],\
+"prime_factorization":["",[],["lib.rs"]],\
+"rolling_hash":["",[],["lib.rs"]],\
+"run_length":["",[],["lib.rs"]],\
+"segment_tree":["",[],["lib.rs"]],\
+"sliding_window":["",[],["lib.rs"]],\
+"strongly_connected_components":["",[],["lib.rs"]],\
+"suffix_array":["",[],["lib.rs"]],\
+"topological_sort":["",[],["lib.rs"]],\
+"tree_diameter":["",[],["lib.rs"]],\
+"union_find":["",[],["lib.rs"]],\
+"z_algorithm":["",[],["lib.rs"]],\
+"zarts":["",[],["lib.rs"]]\
+}');
 createSourceSidebar();

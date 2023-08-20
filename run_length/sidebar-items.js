@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["RunLength","run length encoding です。"]]});
+window.SIDEBAR_ITEMS = {"struct":["RunLength"]};

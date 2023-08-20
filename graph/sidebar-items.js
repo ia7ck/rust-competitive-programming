@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["connectivity",""],["is_tree",""]]});
+window.SIDEBAR_ITEMS = {"fn":["connectivity","is_tree"]};

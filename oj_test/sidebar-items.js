@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["download_online_judge_testcase",""]],"struct":[["ProblemSolver",""]]});
+window.SIDEBAR_ITEMS = {"fn":["download_online_judge_testcase"],"struct":["ProblemSolver"]};
