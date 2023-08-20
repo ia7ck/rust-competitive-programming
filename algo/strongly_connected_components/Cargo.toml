@@ -2,12 +2,12 @@
 name = "strongly_connected_components"
 version = "0.1.0"
 authors = ["ia7ck <23146842+ia7ck@users.noreply.github.com>"]
-edition = "2018"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 
 [dev-dependencies]
-proconio = { version = "0.3.6" }
+proconio = { version = "0.4.5" }
 join = { path = "../../others/join" }
