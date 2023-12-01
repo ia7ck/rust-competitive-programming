@@ -3,6 +3,7 @@ name = "sliding_window"
 version = "0.1.0"
 authors = ["ia7ck <23146842+ia7ck@users.noreply.github.com>"]
 edition = "2021"
+license = "CC0-1.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
