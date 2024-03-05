@@ -11,8 +11,8 @@ const BASE: u64 = 1_000_000_000 + 9;
 ///
 /// [実装の参考資料](https://qiita.com/keymoon/items/11fac5627672a6d6a9f6)
 pub struct RollingHash {
-    h: Vec<u64>,
-    p: Vec<u64>,
+    hashes: Vec<u64>,
+    pows: Vec<u64>,
 }
 
 impl<T> FromIterator<T> for RollingHash
@@ -20,13 +20,13 @@ where
     T: Into<u64>,
 {
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
-        let mut h = vec![0];
-        let mut p = vec![1];
+        let mut hashes = vec![0];
+        let mut pows = vec![1];
         for (i, x) in iter.into_iter().enumerate() {
-            h.push(calc_mod(mul(h[i], BASE) + x.into()));
-            p.push(calc_mod(mul(p[i], BASE)));
+            hashes.push(calc_mod(mul(hashes[i], BASE) + x.into()));
+            pows.push(calc_mod(mul(pows[i], BASE)));
         }
-        Self { h, p }
+        Self { hashes, pows }
     }
 }
 
@@ -43,7 +43,7 @@ impl RollingHash {
     pub fn get(&self, range: ops::Range<usize>) -> u64 {
         let l = range.start;
         let r = range.end;
-        calc_mod(self.h[r] + POSITIVIZER - mul(self.h[l], self.p[r - l]))
+        calc_mod(self.hashes[r] + POSITIVIZER - mul(self.hashes[l], self.pows[r - l]))
     }
     /// 2 つの文字列を連結した文字列のハッシュ値を返します。
     ///
@@ -58,7 +58,7 @@ impl RollingHash {
     /// ```
     pub fn connect(&self, l_range: ops::Range<usize>, r_range: ops::Range<usize>) -> u64 {
         assert!(l_range.end <= r_range.start);
-        calc_mod(mul(self.get(l_range), self.p[r_range.len()]) + self.get(r_range))
+        calc_mod(mul(self.get(l_range), self.pows[r_range.len()]) + self.get(r_range))
     }
 }
 
