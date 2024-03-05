@@ -10,6 +10,7 @@ const BASE: u64 = 1_000_000_000 + 9;
 /// Rolling Hash です。O(文字列長) の前計算をしたうえで、部分文字列のハッシュ値を O(1) で計算します。
 ///
 /// [実装の参考資料](https://qiita.com/keymoon/items/11fac5627672a6d6a9f6)
+#[derive(Debug, Clone)]
 pub struct RollingHash {
     xs: Vec<u64>,
     hashes: Vec<u64>,
