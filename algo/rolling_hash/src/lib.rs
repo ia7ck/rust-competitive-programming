@@ -23,7 +23,9 @@ where
         let mut hashes = vec![0];
         let mut pows = vec![1];
         for (i, x) in iter.into_iter().enumerate() {
+            // hashes[i] * BASE + x
             hashes.push(calc_mod(mul(hashes[i], BASE) + x.into()));
+            // pows[i] * BASE
             pows.push(calc_mod(mul(pows[i], BASE)));
         }
         Self { hashes, pows }
@@ -31,34 +33,22 @@ where
 }
 
 impl RollingHash {
-    /// `range` が指す範囲の部分文字列のハッシュ値を返します。
+    /// 部分文字列のハッシュ値を返します。
     ///
     /// # Examples
     /// ```
     /// use std::iter::FromIterator;
     /// use rolling_hash::RollingHash;
     /// let rh = RollingHash::from_iter("abcxyzbcxy".bytes());
-    /// assert_eq!(rh.get(1..4), rh.get(6..9)); // "bcx"
+    /// assert_eq!(rh.hash(1..4), rh.hash(6..9)); // "bcx"
     /// ```
-    pub fn get(&self, range: ops::Range<usize>) -> u64 {
+    pub fn hash(&self, range: ops::Range<usize>) -> u64 {
         let l = range.start;
         let r = range.end;
+        assert!(l <= r);
+        assert!(r <= self.hashes.len());
+        // hashes[r] - hashes[l] * pows[r - l]
         calc_mod(self.hashes[r] + POSITIVIZER - mul(self.hashes[l], self.pows[r - l]))
-    }
-    /// 2 つの文字列を連結した文字列のハッシュ値を返します。
-    ///
-    /// # Examples
-    /// ```
-    /// use std::iter::FromIterator;
-    /// use rolling_hash::RollingHash;
-    /// let rh = RollingHash::from_iter("abcdexyz".bytes());
-    /// let left = rh.get(0..3);  // "abc"
-    /// let right = rh.get(5..8); // "xyz"
-    /// assert_eq!(rh.connect(0..3, 5..8), RollingHash::from_iter("abcxyz".bytes()).get(0..6));
-    /// ```
-    pub fn connect(&self, l_range: ops::Range<usize>, r_range: ops::Range<usize>) -> u64 {
-        assert!(l_range.end <= r_range.start);
-        calc_mod(mul(self.get(l_range), self.pows[r_range.len()]) + self.get(r_range))
     }
 }
 
@@ -86,28 +76,14 @@ fn calc_mod(x: u64) -> u64 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rand::prelude::*;
+
     #[test]
-    fn test() {
-        let bytes: Vec<u8> = "abxy".bytes().collect();
-        let mut rng = thread_rng();
-        for _ in 0..100 {
-            let n = rng.gen_range(1, 20);
-            let s: Vec<u8> = (0..n).map(|_| *bytes.choose(&mut rng).unwrap()).collect();
-            let rh = RollingHash::from_iter(s.clone());
-            for i in 0..n {
-                for j in i..n {
-                    for ii in j..n {
-                        for jj in ii..n {
-                            let t: Vec<u8> = s[i..j].iter().chain(&s[ii..jj]).cloned().collect();
-                            assert_eq!(
-                                rh.connect(i..j, ii..jj),
-                                RollingHash::from_iter(t.clone()).get(0..t.len())
-                            );
-                        }
-                    }
-                }
-            }
-        }
+    fn test_hash() {
+        let rh1 = RollingHash::from_iter("abcd".bytes());
+        let rh2 = RollingHash::from_iter("xxbcyy".bytes());
+        assert_eq!(
+            rh1.hash(1..3), // a"bc"d
+            rh2.hash(2..4), // xx"bc"yy
+        );
     }
 }
