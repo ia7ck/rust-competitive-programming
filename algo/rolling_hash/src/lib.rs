@@ -11,6 +11,7 @@ const BASE: u64 = 1_000_000_000 + 9;
 ///
 /// [実装の参考資料](https://qiita.com/keymoon/items/11fac5627672a6d6a9f6)
 pub struct RollingHash {
+    xs: Vec<u64>,
     hashes: Vec<u64>,
     pows: Vec<u64>,
 }
@@ -20,19 +21,39 @@ where
     T: Into<u64>,
 {
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
-        let mut hashes = vec![0];
-        let mut pows = vec![1];
-        for (i, x) in iter.into_iter().enumerate() {
-            // hashes[i] * BASE + x
-            hashes.push(calc_mod(mul(hashes[i], BASE) + x.into()));
-            // pows[i] * BASE
-            pows.push(calc_mod(mul(pows[i], BASE)));
-        }
-        Self { hashes, pows }
+        let xs = iter.into_iter().map(|x| x.into()).collect::<Vec<_>>();
+        Self::new(&xs)
     }
 }
 
 impl RollingHash {
+    pub fn new(xs: &[u64]) -> Self {
+        let n = xs.len();
+        let xs = xs.to_vec();
+        let mut hashes = vec![0; n + 1];
+        let mut pows = vec![1; n + 1];
+        for (i, &x) in xs.iter().enumerate() {
+            // hashes[i + 1] = hashes[i] * BASE + x
+            hashes[i + 1] = calc_mod(mul(hashes[i], BASE) + x);
+            // pows[i + 1] = pows[i] * BASE
+            pows[i + 1] = calc_mod(mul(pows[i], BASE));
+        }
+        Self { xs, hashes, pows }
+    }
+
+    pub fn len(&self) -> usize {
+        self.xs.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.xs.is_empty()
+    }
+
+    pub fn at(&self, i: usize) -> u64 {
+        assert!(i < self.len());
+        self.xs[i]
+    }
+
     /// 部分文字列のハッシュ値を返します。
     ///
     /// # Examples
