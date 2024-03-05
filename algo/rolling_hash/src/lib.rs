@@ -55,14 +55,6 @@ impl RollingHash {
     }
 
     /// 部分文字列のハッシュ値を返します。
-    ///
-    /// # Examples
-    /// ```
-    /// use std::iter::FromIterator;
-    /// use rolling_hash::RollingHash;
-    /// let rh = RollingHash::from_iter("abcxyzbcxy".bytes());
-    /// assert_eq!(rh.hash(1..4), rh.hash(6..9)); // "bcx"
-    /// ```
     pub fn hash(&self, range: ops::Range<usize>) -> u64 {
         let l = range.start;
         let r = range.end;
@@ -73,6 +65,30 @@ impl RollingHash {
         // - (xs[0] * BASE ^ (l - 1) + xs[1] * BASE ^ (l - 2) + ... + xs[l - 1]) * BASE ^ (r - l)
         // = xs[l] * BASE ^ (r - l - 1) + xs[l + 1] * BASE ^ (r - l - 2) + ... + xs[r - 1]
         calc_mod(self.hashes[r] + POSITIVIZER - mul(self.hashes[l], self.pows[r - l]))
+    }
+
+    /// self が other の部分文字列かどうかを返します。
+    ///
+    /// O(other.len())
+    ///
+    /// # Examples
+    /// ```
+    /// use rolling_hash::RollingHash;
+    /// let rh1 = RollingHash::from_iter("abcd".bytes());
+    /// let rh2 = RollingHash::from_iter("xxabcdyy".bytes());
+    /// assert!(rh1.is_substring(&rh2));
+    /// ```
+    // 出現位置をすべて返すようにしたほうがいいかも
+    pub fn is_substring(&self, other: &Self) -> bool {
+        for j in 0..other.len() {
+            if j + self.len() > other.len() {
+                break;
+            }
+            if self.hash(0..self.len()) == other.hash(j..(j + self.len())) {
+                return true;
+            }
+        }
+        false
     }
 }
 
@@ -109,5 +125,12 @@ mod tests {
             rh1.hash(1..3), // a"bc"d
             rh2.hash(2..4), // xx"bc"yy
         );
+    }
+
+    #[test]
+    fn test_is_substring() {
+        let rh1 = RollingHash::from_iter("xyz".bytes());
+        let rh2 = RollingHash::from_iter("abcxyz".bytes());
+        assert!(rh1.is_substring(&rh2));
     }
 }
