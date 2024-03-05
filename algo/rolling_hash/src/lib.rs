@@ -10,9 +10,11 @@ const BASE: u64 = 1_000_000_000 + 9;
 /// Rolling Hash です。O(文字列長) の前計算をしたうえで、部分文字列のハッシュ値を O(1) で計算します。
 ///
 /// [実装の参考資料](https://qiita.com/keymoon/items/11fac5627672a6d6a9f6)
+#[derive(Debug, Clone)]
 pub struct RollingHash {
-    h: Vec<u64>,
-    p: Vec<u64>,
+    xs: Vec<u64>,
+    hashes: Vec<u64>,
+    pows: Vec<u64>,
 }
 
 impl<T> FromIterator<T> for RollingHash
@@ -20,45 +22,74 @@ where
     T: Into<u64>,
 {
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
-        let mut h = vec![0];
-        let mut p = vec![1];
-        for (i, x) in iter.into_iter().enumerate() {
-            h.push(calc_mod(mul(h[i], BASE) + x.into()));
-            p.push(calc_mod(mul(p[i], BASE)));
-        }
-        Self { h, p }
+        let xs = iter.into_iter().map(|x| x.into()).collect::<Vec<_>>();
+        Self::new(&xs)
     }
 }
 
 impl RollingHash {
-    /// `range` が指す範囲の部分文字列のハッシュ値を返します。
-    ///
-    /// # Examples
-    /// ```
-    /// use std::iter::FromIterator;
-    /// use rolling_hash::RollingHash;
-    /// let rh = RollingHash::from_iter("abcxyzbcxy".bytes());
-    /// assert_eq!(rh.get(1..4), rh.get(6..9)); // "bcx"
-    /// ```
-    pub fn get(&self, range: ops::Range<usize>) -> u64 {
+    pub fn new(xs: &[u64]) -> Self {
+        let n = xs.len();
+        let xs = xs.to_vec();
+        let mut hashes = vec![0; n + 1];
+        let mut pows = vec![1; n + 1];
+        for (i, &x) in xs.iter().enumerate() {
+            // hashes[i + 1] = hashes[i] * BASE + x
+            hashes[i + 1] = calc_mod(mul(hashes[i], BASE) + x);
+            // pows[i + 1] = pows[i] * BASE
+            pows[i + 1] = calc_mod(mul(pows[i], BASE));
+        }
+        Self { xs, hashes, pows }
+    }
+
+    pub fn len(&self) -> usize {
+        self.xs.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.xs.is_empty()
+    }
+
+    pub fn at(&self, i: usize) -> u64 {
+        assert!(i < self.len());
+        self.xs[i]
+    }
+
+    /// 部分文字列のハッシュ値を返します。
+    pub fn hash(&self, range: ops::Range<usize>) -> u64 {
         let l = range.start;
         let r = range.end;
-        calc_mod(self.h[r] + POSITIVIZER - mul(self.h[l], self.p[r - l]))
+        assert!(l <= r);
+        assert!(r <= self.hashes.len());
+        // hashes[r] - hashes[l] * pows[r - l]
+        // = (xs[0] * BASE ^ (r - 1) + xs[1] * BASE ^ (r - 2) + ... + xs[r - 1])
+        //   - (xs[0] * BASE ^ (l - 1) + xs[1] * BASE ^ (l - 2) + ... + xs[l - 1]) * BASE ^ (r - l)
+        // = xs[l] * BASE ^ (r - l - 1) + xs[l + 1] * BASE ^ (r - l - 2) + ... + xs[r - 1]
+        calc_mod(self.hashes[r] + POSITIVIZER - mul(self.hashes[l], self.pows[r - l]))
     }
-    /// 2 つの文字列を連結した文字列のハッシュ値を返します。
+
+    /// self が other の部分文字列かどうかを返します。
+    ///
+    /// O(other.len())
     ///
     /// # Examples
     /// ```
-    /// use std::iter::FromIterator;
     /// use rolling_hash::RollingHash;
-    /// let rh = RollingHash::from_iter("abcdexyz".bytes());
-    /// let left = rh.get(0..3);  // "abc"
-    /// let right = rh.get(5..8); // "xyz"
-    /// assert_eq!(rh.connect(0..3, 5..8), RollingHash::from_iter("abcxyz".bytes()).get(0..6));
+    /// let rh1 = RollingHash::from_iter("abcd".bytes());
+    /// let rh2 = RollingHash::from_iter("xxabcdyy".bytes());
+    /// assert!(rh1.is_substring(&rh2));
     /// ```
-    pub fn connect(&self, l_range: ops::Range<usize>, r_range: ops::Range<usize>) -> u64 {
-        assert!(l_range.end <= r_range.start);
-        calc_mod(mul(self.get(l_range), self.p[r_range.len()]) + self.get(r_range))
+    // 出現位置をすべて返すようにしたほうがいいかも
+    pub fn is_substring(&self, other: &Self) -> bool {
+        for j in 0..other.len() {
+            if j + self.len() > other.len() {
+                break;
+            }
+            if self.hash(0..self.len()) == other.hash(j..(j + self.len())) {
+                return true;
+            }
+        }
+        false
     }
 }
 
@@ -86,28 +117,21 @@ fn calc_mod(x: u64) -> u64 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rand::prelude::*;
+
     #[test]
-    fn test() {
-        let bytes: Vec<u8> = "abxy".bytes().collect();
-        let mut rng = thread_rng();
-        for _ in 0..100 {
-            let n = rng.gen_range(1, 20);
-            let s: Vec<u8> = (0..n).map(|_| *bytes.choose(&mut rng).unwrap()).collect();
-            let rh = RollingHash::from_iter(s.clone());
-            for i in 0..n {
-                for j in i..n {
-                    for ii in j..n {
-                        for jj in ii..n {
-                            let t: Vec<u8> = s[i..j].iter().chain(&s[ii..jj]).cloned().collect();
-                            assert_eq!(
-                                rh.connect(i..j, ii..jj),
-                                RollingHash::from_iter(t.clone()).get(0..t.len())
-                            );
-                        }
-                    }
-                }
-            }
-        }
+    fn test_hash() {
+        let rh1 = RollingHash::from_iter("abcd".bytes());
+        let rh2 = RollingHash::from_iter("xxbcyy".bytes());
+        assert_eq!(
+            rh1.hash(1..3), // a"bc"d
+            rh2.hash(2..4), // xx"bc"yy
+        );
+    }
+
+    #[test]
+    fn test_is_substring() {
+        let rh1 = RollingHash::from_iter("xyz".bytes());
+        let rh2 = RollingHash::from_iter("abcxyz".bytes());
+        assert!(rh1.is_substring(&rh2));
     }
 }
