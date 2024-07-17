@@ -3,6 +3,7 @@ use std::ops::Range;
 /// __注意⚠__ この実装は遅いので time limit の厳しい問題には代わりに ACL のセグメントツリーを使うこと。
 ///
 /// セグメントツリーです。
+#[derive(Clone, Debug)]
 pub struct SegmentTree<T, F> {
     n: usize,
     dat: Vec<T>,

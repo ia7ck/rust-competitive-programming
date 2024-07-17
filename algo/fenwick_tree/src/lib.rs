@@ -17,6 +17,7 @@ use std::ops::Range;
 /// assert_eq!(ft.sum(2..5), 110);
 /// assert_eq!(ft.sum(0..5), 111);
 /// ```
+#[derive(Clone, Debug)]
 pub struct FenwickTree<T> {
     n: usize,
     e: T,
