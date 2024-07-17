@@ -76,11 +76,13 @@
 <a href="#76" id="76">76</a>
 <a href="#77" id="77">77</a>
 <a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::ops::Range;
 
 <span class="doccomment">/// __注意⚠__ この実装は遅いので time limit の厳しい問題には代わりに ACL のセグメントツリーを使うこと。
 ///
 /// セグメントツリーです。
+</span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>SegmentTree&lt;T, F&gt; {
     n: usize,
     dat: Vec&lt;T&gt;,

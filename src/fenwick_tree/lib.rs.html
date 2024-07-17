@@ -100,6 +100,7 @@
 <a href="#100" id="100">100</a>
 <a href="#101" id="101">101</a>
 <a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::ops::Range;
 
 <span class="doccomment">/// Fenwick Tree (Binary Indexed Tree) [http://hos.ac/slides/20140319_bit.pdf](http://hos.ac/slides/20140319_bit.pdf)
@@ -119,6 +120,7 @@
 /// assert_eq!(ft.sum(2..5), 110);
 /// assert_eq!(ft.sum(0..5), 111);
 /// ```
+</span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>FenwickTree&lt;T&gt; {
     n: usize,
     e: T,
