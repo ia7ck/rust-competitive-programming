@@ -13,81 +13,50 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      # https://github.com/actions-rs/meta/blob/master/recipes/quickstart.md
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-      - uses: actions-rs/cargo@v1
-        with:
-          command: check
+      - uses: actions/checkout@v4
+      - name: Check
+        run: cargo check
 
   clippy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-      - run: rustup component add clippy
-      - uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: -- -D warnings
+      - uses: actions/checkout@v4
+      - name: Add clippy
+        run: rustup component add clippy
+      - name: Clippy
+        run: cargo clippy -- -D warnings
 
   fmt:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-      - run: rustup component add rustfmt
-      - uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all -- --check
+      - uses: actions/checkout@v4
+      - name: Add rustfmt
+        run: rustup component add rustfmt
+      - name: Check format
+        run: cargo fmt --check
 
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
+      - uses: actions/checkout@v4
+      - name: Test
+        run: cargo test
 
   oj-test:
     runs-on: ubuntu-latest
     env:
       RUST_LOG: info
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
       with:
         python-version: '3.x'
     - name: Install oj
       run: pip3 install --upgrade setuptools wheel pip && pip3 install online-judge-tools && oj --version
-    - uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        toolchain: stable
     - name: Release build
-      uses: actions-rs/cargo@v1
-      with:
-        command: build
-        args: --release --examples --verbose
+      run: cargo build --release --examples
     - name: oj test
-      uses: actions-rs/cargo@v1
-      with:
-        command: run
-        args: --bin oj_test
+      run: cargo run --bin oj_test
 
   publish-doc:
     runs-on: ubuntu-latest
