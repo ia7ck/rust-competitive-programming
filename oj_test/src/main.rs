@@ -11,7 +11,7 @@ fn main() -> Result<()> {
     for entry in glob("**/examples/*.rs")? {
         let path = entry?;
         // oj download に失敗するのでスキップ
-        if path.ends_with("scc.rs") {
+        if path.ends_with("scc.rs") || path.ends_with("cycle_detection.rs") {
             continue;
         }
         solvers.push(ProblemSolver::new(path.as_path()));
