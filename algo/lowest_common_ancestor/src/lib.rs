@@ -1,4 +1,3 @@
-use ceil_log2::CeilLog2;
 use std::collections::VecDeque;
 
 /// 根付き木の LCA です。
@@ -50,7 +49,7 @@ impl LowestCommonAncestor {
                 }
             }
         }
-        let table_size = n.ceil_log2().max(1);
+        let table_size = n.ilog2().max(1) as usize;
         let mut ancestor = vec![vec![ILLEGAL; n]; table_size];
         ancestor[0] = parent;
         for i in 1..table_size {
