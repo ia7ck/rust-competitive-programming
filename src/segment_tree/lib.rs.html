@@ -77,12 +77,23 @@
 <a href="#77" id="77">77</a>
 <a href="#78" id="78">78</a>
 <a href="#79" id="79">79</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::ops::Range;
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::ops::Range;
 
 <span class="doccomment">/// __注意⚠__ この実装は遅いので time limit の厳しい問題には代わりに ACL のセグメントツリーを使うこと。
 ///
 /// セグメントツリーです。
-</span><span class="attr">#[derive(Clone, Debug)]
+</span><span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>SegmentTree&lt;T, F&gt; {
     n: usize,
     dat: Vec&lt;T&gt;,
@@ -141,6 +152,15 @@
             <span class="kw-2">&amp;</span><span class="self">self</span>._fold(range, i * <span class="number">2 </span>+ <span class="number">1</span>, i_range.start..m),
             <span class="kw-2">&amp;</span><span class="self">self</span>._fold(range, i * <span class="number">2 </span>+ <span class="number">2</span>, m..i_range.end),
         )
+    }
+}
+
+<span class="kw">impl</span>&lt;T, F&gt; fmt::Debug <span class="kw">for </span>SegmentTree&lt;T, F&gt;
+<span class="kw">where
+    </span>T: fmt::Debug,
+{
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;{:?}&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.dat[(<span class="self">self</span>.n - <span class="number">1</span>)..])
     }
 }
 
