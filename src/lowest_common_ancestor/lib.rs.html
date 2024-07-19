@@ -137,8 +137,11 @@
 <a href="#137" id="137">137</a>
 <a href="#138" id="138">138</a>
 <a href="#139" id="139">139</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>ceil_log2::CeilLog2;
-<span class="kw">use </span>std::collections::VecDeque;
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::VecDeque;
 
 <span class="doccomment">/// 根付き木の LCA です。
 ///
@@ -189,7 +192,12 @@
                 }
             }
         }
-        <span class="kw">let </span>table_size = n.ceil_log2().max(<span class="number">1</span>);
+        <span class="kw">let </span>table_size = <span class="kw">if </span>n == <span class="number">1 </span>{
+            <span class="number">1
+        </span>} <span class="kw">else </span>{
+            <span class="comment">// log2(n) の切り上げ
+            </span>n.ilog2() <span class="kw">as </span>usize + usize::from(!n.is_power_of_two())
+        };
         <span class="kw">let </span><span class="kw-2">mut </span>ancestor = <span class="macro">vec!</span>[<span class="macro">vec!</span>[ILLEGAL; n]; table_size];
         ancestor[<span class="number">0</span>] = parent;
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">1</span>..table_size {
