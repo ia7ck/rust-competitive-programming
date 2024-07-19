@@ -1,9 +1,10 @@
+use std::fmt;
 use std::ops::Range;
 
 /// __注意⚠__ この実装は遅いので time limit の厳しい問題には代わりに ACL のセグメントツリーを使うこと。
 ///
 /// セグメントツリーです。
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct SegmentTree<T, F> {
     n: usize,
     dat: Vec<T>,
@@ -62,6 +63,15 @@ where
             &self._fold(range, i * 2 + 1, i_range.start..m),
             &self._fold(range, i * 2 + 2, m..i_range.end),
         )
+    }
+}
+
+impl<T, F> fmt::Debug for SegmentTree<T, F>
+where
+    T: fmt::Debug,
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", &self.dat[(self.n - 1)..])
     }
 }
 
