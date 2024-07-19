@@ -43,7 +43,7 @@ jobs:
         run: cargo test
 
   oj-test:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     env:
       RUST_LOG: info
     steps:
