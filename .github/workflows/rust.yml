@@ -69,7 +69,7 @@ jobs:
     - name: Doc
       run: cargo doc --no-deps --lib --workspace --exclude=simple_example --exclude=special_judge_example --verbose
     - name: Deploy 🚀
-      uses: JamesIves/github-pages-deploy-action@4
+      uses: JamesIves/github-pages-deploy-action@v4
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BRANCH: gh-pages # The branch the action should deploy to.
