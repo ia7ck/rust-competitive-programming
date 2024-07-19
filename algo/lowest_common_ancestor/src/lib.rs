@@ -49,7 +49,12 @@ impl LowestCommonAncestor {
                 }
             }
         }
-        let table_size = n.ilog2().max(1) as usize;
+        let table_size = if n == 1 {
+            1
+        } else {
+            // log2(n) の切り上げ
+            n.ilog2() as usize + usize::from(!n.is_power_of_two())
+        };
         let mut ancestor = vec![vec![ILLEGAL; n]; table_size];
         ancestor[0] = parent;
         for i in 1..table_size {
