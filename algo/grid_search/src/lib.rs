@@ -40,8 +40,8 @@ pub fn around<'a>(y: usize, x: usize) -> Around<'a> {
     Around {
         y,
         x,
-        y_range: 0..std::usize::MAX,
-        x_range: 0..std::usize::MAX,
+        y_range: 0..usize::MAX,
+        x_range: 0..usize::MAX,
         directions: &[],
     }
 }
