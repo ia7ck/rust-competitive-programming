@@ -10,7 +10,6 @@ pub struct Around<'a> {
     y_range: Range<usize>,
     x_range: Range<usize>,
     directions: &'a [(isize, isize)],
-    dir_idx: usize,
 }
 
 /// `(y, x)` を基点とした周辺座標を yield するイテレータを作ります。
@@ -44,7 +43,6 @@ pub fn around<'a>(y: usize, x: usize) -> Around<'a> {
         y_range: 0..std::usize::MAX,
         x_range: 0..std::usize::MAX,
         directions: &[],
-        dir_idx: 0,
     }
 }
 
@@ -69,25 +67,18 @@ impl<'a> Around<'a> {
 impl<'a> Iterator for Around<'a> {
     type Item = (usize, usize);
     fn next(&mut self) -> Option<Self::Item> {
-        fn dest(u: usize, i: isize) -> Option<usize> {
-            if i.is_positive() {
-                u.checked_add(i as usize)
-            } else {
-                u.checked_sub((-i) as usize)
-            }
-        }
-        while let Some(&(dy, dx)) = self.directions.get(self.dir_idx) {
-            self.dir_idx += 1;
-            if let Some(ny) = dest(self.y, dy) {
-                if let Some(nx) = dest(self.x, dx) {
+        while let Some((&(dy, dx), rest)) = self.directions.split_first() {
+            self.directions = rest;
+            match (self.y.checked_add_signed(dy), self.x.checked_add_signed(dx)) {
+                (Some(ny), Some(nx))
                     if self.y_range.contains(&self.y)
                         && self.x_range.contains(&self.x)
                         && self.y_range.contains(&ny)
-                        && self.x_range.contains(&nx)
-                    {
-                        return Some((ny, nx));
-                    }
+                        && self.x_range.contains(&nx) =>
+                {
+                    return Some((ny, nx));
                 }
+                _ => {}
             }
         }
         None
