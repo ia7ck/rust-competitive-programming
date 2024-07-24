@@ -101,15 +101,20 @@ mod tests {
     }
 
     #[test]
-    fn out_of_bounds() {
-        let mut a = around(0, 0).y_range(0..10).x_range(0..10).directions(&NSEW);
-        assert_eq!(a.next(), Some((1, 0)));
-        assert_eq!(a.next(), Some((0, 1)));
+    fn out_of_bounds_dest() {
+        let mut a = around(1, 1).y_range(1..10).x_range(1..10).directions(&NSEW);
+        assert_eq!(a.next(), Some((2, 1)));
+        assert_eq!(a.next(), Some((1, 2)));
+        assert_eq!(a.next(), None); // != (0, 1), (1, 0)
+    }
+
+    #[test]
+    fn out_of_bounds_source() {
         let mut a = around(9, 10)
             .y_range(0..10)
             .x_range(0..10)
             .directions(&NSEW);
-        assert_eq!(a.next(), None);
+        assert_eq!(a.next(), None); // != (9, 9)
     }
 
     #[test]
