@@ -1,5 +1,4 @@
-use std::ops::Bound::{Excluded, Included, Unbounded};
-use std::ops::{Range, RangeBounds};
+use std::ops::Range;
 
 /// This `struct` is created by the [`around`] methods.
 /// See its documentation for more.
@@ -51,18 +50,12 @@ pub fn around<'a>(y: usize, x: usize) -> Around<'a> {
 
 impl<'a> Around<'a> {
     /// 上下方向の範囲をセットします。デフォルトは `0..usize::MAX` です。
-    pub fn y_range(self, y_rng: impl RangeBounds<usize>) -> Self {
-        Self {
-            y_range: half_open_range(y_rng),
-            ..self
-        }
+    pub fn y_range(self, r: Range<usize>) -> Self {
+        Self { y_range: r, ..self }
     }
     /// 左右方向の範囲をセットします。デフォルトは `0..usize::MAX` です。
-    pub fn x_range(self, x_rng: impl RangeBounds<usize>) -> Self {
-        Self {
-            x_range: half_open_range(x_rng),
-            ..self
-        }
+    pub fn x_range(self, r: Range<usize>) -> Self {
+        Self { x_range: r, ..self }
     }
     /// 基点からの相対座標たちをセットします。デフォルトは空のスライスです。
     pub fn directions(self, dirs: &'a [(isize, isize)]) -> Self {
@@ -99,20 +92,6 @@ impl<'a> Iterator for Around<'a> {
         }
         None
     }
-}
-
-fn half_open_range(rng: impl RangeBounds<usize>) -> Range<usize> {
-    let start = match rng.start_bound() {
-        Included(&s) => s,
-        Excluded(&s) => s + 1,
-        Unbounded => 0,
-    };
-    let end = match rng.end_bound() {
-        Included(&e) => e + 1,
-        Excluded(&e) => e,
-        Unbounded => std::usize::MAX,
-    };
-    start..end
 }
 
 #[cfg(test)]
