@@ -123,33 +123,7 @@
 <a href="#123" id="123">123</a>
 <a href="#124" id="124">124</a>
 <a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a>
-<a href="#127" id="127">127</a>
-<a href="#128" id="128">128</a>
-<a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a>
-<a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
-<a href="#135" id="135">135</a>
-<a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
-<a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a>
-<a href="#145" id="145">145</a>
-<a href="#146" id="146">146</a>
-<a href="#147" id="147">147</a>
-<a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::ops::Bound::{Excluded, Included, Unbounded};
-<span class="kw">use </span>std::ops::{Range, RangeBounds};
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::ops::Range;
 
 <span class="doccomment">/// This `struct` is created by the [`around`] methods.
 /// See its documentation for more.
@@ -161,7 +135,6 @@
     y_range: Range&lt;usize&gt;,
     x_range: Range&lt;usize&gt;,
     directions: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[(isize, isize)],
-    dir_idx: usize,
 }
 
 <span class="doccomment">/// `(y, x)` を基点とした周辺座標を yield するイテレータを作ります。
@@ -192,27 +165,20 @@
     Around {
         y,
         x,
-        y_range: <span class="number">0</span>..std::usize::MAX,
-        x_range: <span class="number">0</span>..std::usize::MAX,
+        y_range: <span class="number">0</span>..usize::MAX,
+        x_range: <span class="number">0</span>..usize::MAX,
         directions: <span class="kw-2">&amp;</span>[],
-        dir_idx: <span class="number">0</span>,
     }
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Around&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// 上下方向の範囲をセットします。デフォルトは `0..usize::MAX` です。
-    </span><span class="kw">pub fn </span>y_range(<span class="self">self</span>, y_rng: <span class="kw">impl </span>RangeBounds&lt;usize&gt;) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            y_range: half_open_range(y_rng),
-            ..<span class="self">self
-        </span>}
+    </span><span class="kw">pub fn </span>y_range(<span class="self">self</span>, r: Range&lt;usize&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ y_range: r, ..<span class="self">self </span>}
     }
     <span class="doccomment">/// 左右方向の範囲をセットします。デフォルトは `0..usize::MAX` です。
-    </span><span class="kw">pub fn </span>x_range(<span class="self">self</span>, x_rng: <span class="kw">impl </span>RangeBounds&lt;usize&gt;) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            x_range: half_open_range(x_rng),
-            ..<span class="self">self
-        </span>}
+    </span><span class="kw">pub fn </span>x_range(<span class="self">self</span>, r: Range&lt;usize&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ x_range: r, ..<span class="self">self </span>}
     }
     <span class="doccomment">/// 基点からの相対座標たちをセットします。デフォルトは空のスライスです。
     </span><span class="kw">pub fn </span>directions(<span class="self">self</span>, dirs: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[(isize, isize)]) -&gt; <span class="self">Self </span>{
@@ -226,43 +192,22 @@
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>Around&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">type </span>Item = (usize, usize);
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
-        <span class="kw">fn </span>dest(u: usize, i: isize) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
-            <span class="kw">if </span>i.is_positive() {
-                u.checked_add(i <span class="kw">as </span>usize)
-            } <span class="kw">else </span>{
-                u.checked_sub((-i) <span class="kw">as </span>usize)
-            }
-        }
-        <span class="kw">while let </span><span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>(dy, dx)) = <span class="self">self</span>.directions.get(<span class="self">self</span>.dir_idx) {
-            <span class="self">self</span>.dir_idx += <span class="number">1</span>;
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(ny) = dest(<span class="self">self</span>.y, dy) {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(nx) = dest(<span class="self">self</span>.x, dx) {
+        <span class="kw">while let </span><span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span>(dy, dx), rest)) = <span class="self">self</span>.directions.split_first() {
+            <span class="self">self</span>.directions = rest;
+            <span class="kw">match </span>(<span class="self">self</span>.y.checked_add_signed(dy), <span class="self">self</span>.x.checked_add_signed(dx)) {
+                (<span class="prelude-val">Some</span>(ny), <span class="prelude-val">Some</span>(nx))
                     <span class="kw">if </span><span class="self">self</span>.y_range.contains(<span class="kw-2">&amp;</span><span class="self">self</span>.y)
                         &amp;&amp; <span class="self">self</span>.x_range.contains(<span class="kw-2">&amp;</span><span class="self">self</span>.x)
                         &amp;&amp; <span class="self">self</span>.y_range.contains(<span class="kw-2">&amp;</span>ny)
-                        &amp;&amp; <span class="self">self</span>.x_range.contains(<span class="kw-2">&amp;</span>nx)
-                    {
-                        <span class="kw">return </span><span class="prelude-val">Some</span>((ny, nx));
-                    }
+                        &amp;&amp; <span class="self">self</span>.x_range.contains(<span class="kw-2">&amp;</span>nx) =&gt;
+                {
+                    <span class="kw">return </span><span class="prelude-val">Some</span>((ny, nx));
                 }
+                <span class="kw">_ </span>=&gt; {}
             }
         }
         <span class="prelude-val">None
     </span>}
-}
-
-<span class="kw">fn </span>half_open_range(rng: <span class="kw">impl </span>RangeBounds&lt;usize&gt;) -&gt; Range&lt;usize&gt; {
-    <span class="kw">let </span>start = <span class="kw">match </span>rng.start_bound() {
-        Included(<span class="kw-2">&amp;</span>s) =&gt; s,
-        Excluded(<span class="kw-2">&amp;</span>s) =&gt; s + <span class="number">1</span>,
-        Unbounded =&gt; <span class="number">0</span>,
-    };
-    <span class="kw">let </span>end = <span class="kw">match </span>rng.end_bound() {
-        Included(<span class="kw-2">&amp;</span>e) =&gt; e + <span class="number">1</span>,
-        Excluded(<span class="kw-2">&amp;</span>e) =&gt; e,
-        Unbounded =&gt; std::usize::MAX,
-    };
-    start..end
 }
 
 <span class="attr">#[cfg(test)]
@@ -281,16 +226,21 @@
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>out_of_bounds() {
-        <span class="kw">let </span><span class="kw-2">mut </span>a = around(<span class="number">0</span>, <span class="number">0</span>).y_range(<span class="number">0</span>..<span class="number">10</span>).x_range(<span class="number">0</span>..<span class="number">10</span>).directions(<span class="kw-2">&amp;</span>NSEW);
-        <span class="macro">assert_eq!</span>(a.next(), <span class="prelude-val">Some</span>((<span class="number">1</span>, <span class="number">0</span>)));
-        <span class="macro">assert_eq!</span>(a.next(), <span class="prelude-val">Some</span>((<span class="number">0</span>, <span class="number">1</span>)));
+    </span><span class="kw">fn </span>out_of_bounds_dest() {
+        <span class="kw">let </span><span class="kw-2">mut </span>a = around(<span class="number">1</span>, <span class="number">1</span>).y_range(<span class="number">1</span>..<span class="number">10</span>).x_range(<span class="number">1</span>..<span class="number">10</span>).directions(<span class="kw-2">&amp;</span>NSEW);
+        <span class="macro">assert_eq!</span>(a.next(), <span class="prelude-val">Some</span>((<span class="number">2</span>, <span class="number">1</span>)));
+        <span class="macro">assert_eq!</span>(a.next(), <span class="prelude-val">Some</span>((<span class="number">1</span>, <span class="number">2</span>)));
+        <span class="macro">assert_eq!</span>(a.next(), <span class="prelude-val">None</span>); <span class="comment">// != (0, 1), (1, 0)
+    </span>}
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>out_of_bounds_source() {
         <span class="kw">let </span><span class="kw-2">mut </span>a = around(<span class="number">9</span>, <span class="number">10</span>)
             .y_range(<span class="number">0</span>..<span class="number">10</span>)
             .x_range(<span class="number">0</span>..<span class="number">10</span>)
             .directions(<span class="kw-2">&amp;</span>NSEW);
-        <span class="macro">assert_eq!</span>(a.next(), <span class="prelude-val">None</span>);
-    }
+        <span class="macro">assert_eq!</span>(a.next(), <span class="prelude-val">None</span>); <span class="comment">// != (9, 9)
+    </span>}
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>no_directions() {
