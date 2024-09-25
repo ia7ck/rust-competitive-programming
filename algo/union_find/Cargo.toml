@@ -11,4 +11,4 @@ license = "CC0-1.0"
 
 [dev-dependencies]
 proconio = {version = "0.4.5", features = ["derive"] }
-join = { path = "../../others/join" }
+join = { path = "../join" }
