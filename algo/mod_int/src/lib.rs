@@ -8,51 +8,28 @@
 //! let y = ModInt1000000007::new(123) * a * b - c;
 //! assert_eq!(x, y.val());
 //! ```
-//!
-//! ほとんどのケースでは
-//!
-//! - `ModInt1000000007`
-//! - `ModInt998244353`
-//!
-//! のどちらかを使えば十分だと思います。
-//!
-//! それ以外の法で `ModInt` を使いたいときは `define_modulo` マクロを呼んでください。
-//!
-//! ```
-//! use mod_int::{define_modulo, Modulo, ModInt};
-//! define_modulo!(Mod1000000009, 1000000009);
-//! type ModInt1000000009 = ModInt<Mod1000000009>;
-//! assert_eq!((ModInt1000000009::new(1000000008) + ModInt1000000009::new(2)).val(), 1);
-//! ```
-//!
 
-use std::cell::UnsafeCell;
 use std::fmt::Debug;
-use std::marker::PhantomData;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
 use ext_gcd::ext_gcd;
 
-pub trait Modulo: Copy + Clone + Debug {
-    fn modulo() -> i64;
-}
+#[derive(Debug, Clone, Copy)]
+pub struct ModInt<const M: i64>(i64);
 
-#[derive(Copy, Clone, Debug)]
-pub struct ModInt<M>(i64, PhantomData<M>);
-
-impl<M: Modulo> ModInt<M> {
+impl<const M: i64> ModInt<M> {
     /// 整数を `0 <= x < modulo` に正規化してインスタンスを作ります。
     pub fn new(x: i64) -> Self {
-        if 0 <= x && x < M::modulo() {
+        if 0 <= x && x < M {
             Self::new_raw(x)
         } else {
-            Self::new_raw(x.rem_euclid(M::modulo()))
+            Self::new_raw(x.rem_euclid(M))
         }
     }
 
     fn new_raw(x: i64) -> Self {
-        debug_assert!(0 <= x && x < M::modulo());
-        Self(x, PhantomData)
+        debug_assert!(0 <= x && x < M);
+        Self(x)
     }
 
     /// `ModInt` に格納されている値を返します。
@@ -75,7 +52,7 @@ impl<M: Modulo> ModInt<M> {
     /// assert_eq!(ModInt998244353::modulo(), 998244353);
     /// ```
     pub fn modulo() -> i64 {
-        M::modulo()
+        M
     }
 
     /// 二分累乗法で `x^exp % p` を計算します。
@@ -95,10 +72,10 @@ impl<M: Modulo> ModInt<M> {
         while exp > 0 {
             if exp & 1 == 1 {
                 res *= base;
-                res %= M::modulo();
+                res %= M;
             }
             base *= base;
-            base %= M::modulo();
+            base %= M;
             exp >>= 1;
         }
         Self::new_raw(res)
@@ -120,30 +97,29 @@ impl<M: Modulo> ModInt<M> {
     /// ```
     ///
     /// ```should_panic
-    /// use mod_int::{Modulo, ModInt, define_modulo};
-    /// define_modulo!(Mod10, 10);
-    /// // 6 * n : 0, 6, 2, 8, 4, 0, 6, 2, 8, 4
-    /// ModInt::<Mod10>::new(6).inv(); // panic
+    /// use mod_int::ModInt;
+    /// // 6 * n % 10 : 0, 6, 2, 8, 4, 0, 6, 2, 8, 4
+    /// ModInt::<10>::new(6).inv(); // panic
     /// ```
     pub fn inv(self) -> Self {
         assert_ne!(self.0, 0, "Don't divide by zero!");
-        let (x, _, g) = ext_gcd(self.0, M::modulo());
-        assert_eq!(g, 1, "{} is not prime!", M::modulo());
+        let (x, _, g) = ext_gcd(self.0, M);
+        assert_eq!(g, 1, "{} is not prime!", M);
         Self::new(x)
     }
 }
 
-impl<M: Modulo, T: Into<ModInt<M>>> AddAssign<T> for ModInt<M> {
+impl<const M: i64, T: Into<ModInt<M>>> AddAssign<T> for ModInt<M> {
     fn add_assign(&mut self, rhs: T) {
         self.0 += rhs.into().0;
-        debug_assert!(0 <= self.0 && self.0 <= (M::modulo() - 1) * 2);
-        if self.0 >= M::modulo() {
-            self.0 -= M::modulo();
+        debug_assert!(0 <= self.0 && self.0 <= (M - 1) * 2);
+        if self.0 >= M {
+            self.0 -= M;
         }
     }
 }
 
-impl<M: Modulo, T: Into<ModInt<M>>> Add<T> for ModInt<M> {
+impl<const M: i64, T: Into<ModInt<M>>> Add<T> for ModInt<M> {
     type Output = ModInt<M>;
     fn add(self, rhs: T) -> Self::Output {
         let mut result = self;
@@ -152,17 +128,17 @@ impl<M: Modulo, T: Into<ModInt<M>>> Add<T> for ModInt<M> {
     }
 }
 
-impl<M: Modulo, T: Into<ModInt<M>>> SubAssign<T> for ModInt<M> {
+impl<const M: i64, T: Into<ModInt<M>>> SubAssign<T> for ModInt<M> {
     fn sub_assign(&mut self, rhs: T) {
         self.0 -= rhs.into().0;
-        debug_assert!(-(M::modulo() - 1) <= self.0 && self.0 < M::modulo());
+        debug_assert!(-(M - 1) <= self.0 && self.0 < M);
         if self.0 < 0 {
-            self.0 += M::modulo();
+            self.0 += M;
         }
     }
 }
 
-impl<M: Modulo, T: Into<ModInt<M>>> Sub<T> for ModInt<M> {
+impl<const M: i64, T: Into<ModInt<M>>> Sub<T> for ModInt<M> {
     type Output = ModInt<M>;
     fn sub(self, rhs: T) -> Self::Output {
         let mut result = self;
@@ -171,16 +147,16 @@ impl<M: Modulo, T: Into<ModInt<M>>> Sub<T> for ModInt<M> {
     }
 }
 
-impl<M: Modulo, T: Into<ModInt<M>>> MulAssign<T> for ModInt<M> {
+impl<const M: i64, T: Into<ModInt<M>>> MulAssign<T> for ModInt<M> {
     fn mul_assign(&mut self, rhs: T) {
         self.0 *= rhs.into().0;
-        if self.0 >= M::modulo() {
-            self.0 %= M::modulo();
+        if self.0 >= M {
+            self.0 %= M;
         }
     }
 }
 
-impl<M: Modulo, T: Into<ModInt<M>>> Mul<T> for ModInt<M> {
+impl<const M: i64, T: Into<ModInt<M>>> Mul<T> for ModInt<M> {
     type Output = ModInt<M>;
     fn mul(self, rhs: T) -> Self::Output {
         let mut result = self;
@@ -190,13 +166,13 @@ impl<M: Modulo, T: Into<ModInt<M>>> Mul<T> for ModInt<M> {
 }
 
 #[allow(clippy::suspicious_op_assign_impl)]
-impl<M: Modulo, T: Into<ModInt<M>>> DivAssign<T> for ModInt<M> {
+impl<const M: i64, T: Into<ModInt<M>>> DivAssign<T> for ModInt<M> {
     fn div_assign(&mut self, rhs: T) {
         *self *= rhs.into().inv();
     }
 }
 
-impl<M: Modulo, T: Into<ModInt<M>>> Div<T> for ModInt<M> {
+impl<const M: i64, T: Into<ModInt<M>>> Div<T> for ModInt<M> {
     type Output = ModInt<M>;
     fn div(self, rhs: T) -> Self::Output {
         let mut result = self;
@@ -208,92 +184,41 @@ impl<M: Modulo, T: Into<ModInt<M>>> Div<T> for ModInt<M> {
 macro_rules! impl_from_int {
     ($($t:ty),+) => {
         $(
-            impl<M: Modulo> From<$t> for ModInt<M> {
+            impl<const M: i64> From<$t> for ModInt<M> {
                 fn from(x: $t) -> Self {
-                    Self::new(x as i64)
+                    Self::new(i64::from(x))
                 }
             }
         )+
     };
 }
 
-impl_from_int!(i8, i16, i32, i64, isize, u8, u16, u32);
+impl_from_int!(i8, i16, i32, i64, u8, u16, u32);
 
 macro_rules! impl_from_large_int {
     ($($t:ty),+) => {
         $(
-            impl<M: Modulo> From<$t> for ModInt<M> {
+            impl<const M: i64> From<$t> for ModInt<M> {
                 fn from(x: $t) -> Self {
-                    Self::new((x % (M::modulo() as $t)) as i64)
+                    Self::new((x % (M as $t)) as i64)
                 }
             }
         )+
     };
 }
 
-impl_from_large_int!(u64, usize);
+impl_from_large_int!(u64, usize, isize);
 
-/// 好きな法の `Modulo` を定義します。
-///
-/// - `$struct`: `Modulo` トレイトを実装する構造体の名前になります。
-/// - `$mod`: `ModInt` の各種演算に使われる法を指定します。割り算をする予定があるならばこの値は素数にしてください。const な値しか受け付けません。😭
-///
-/// # Examples
-/// ```
-/// use mod_int::{Modulo, ModInt, define_modulo};
-/// define_modulo!(Modulo19, 19);
-/// type Mint = ModInt<Modulo19>;
-/// assert_eq!(Mint::modulo(), 19);
-/// assert_eq!((Mint::new(18) + Mint::new(2)).val(), 1);
-/// ```
-///
-/// 実行時に法を変えたいときはこちらです。
-///
-/// ```ignore
-/// use mod_int::{ModInt, DynamicModulo};
-/// let p = 23;
-/// DynamicModulo::set(p);
-/// type Mint = ModInt<DynamicModulo>;
-/// assert_eq!(Mint::modulo(), p);
-/// assert_eq!((Mint::new(22) + Mint::new(2)).val(), 1);
-/// ```
-#[macro_export]
-macro_rules! define_modulo {
-    ($struct: ident, $mod: expr) => {
-        #[derive(Clone, Copy, Debug)]
-        pub struct $struct;
-        impl Modulo for $struct {
-            fn modulo() -> i64 {
-                $mod
-            }
-        }
-    };
-}
-define_modulo!(Modulo1000000007, 1_000_000_000 + 7);
-pub type ModInt1000000007 = ModInt<Modulo1000000007>;
-define_modulo!(Modulo998244353, 998_244_353);
-pub type ModInt998244353 = ModInt<Modulo998244353>;
-thread_local! {
-    static DYNAMIC_MODULO: UnsafeCell<i64> = UnsafeCell::new(998_244_353)
-}
-define_modulo!(
-    DynamicModulo,
-    DYNAMIC_MODULO.with(|cell| unsafe { *cell.get() })
-);
-impl DynamicModulo {
-    pub fn set(modulo: i64) {
-        DYNAMIC_MODULO.with(|cell| unsafe { *cell.get() = modulo });
-    }
-}
+pub type ModInt1000000007 = ModInt<1_000_000_007>;
+pub type ModInt998244353 = ModInt<998_244_353>;
 
 #[cfg(test)]
 mod tests {
-    use super::{define_modulo, ModInt, Modulo};
+    use super::*;
 
     #[test]
     fn ops_test() {
-        define_modulo!(Modulo19, 19);
-        type Mint = ModInt<Modulo19>;
+        type Mint = ModInt<19>;
         for a in 0..50 {
             for b in 0..50 {
                 // add
