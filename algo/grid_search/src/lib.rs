@@ -1,5 +1,4 @@
-use std::ops::Bound::{Excluded, Included, Unbounded};
-use std::ops::{Range, RangeBounds};
+use std::ops::Range;
 
 /// This `struct` is created by the [`around`] methods.
 /// See its documentation for more.
@@ -11,7 +10,6 @@ pub struct Around<'a> {
     y_range: Range<usize>,
     x_range: Range<usize>,
     directions: &'a [(isize, isize)],
-    dir_idx: usize,
 }
 
 /// `(y, x)` を基点とした周辺座標を yield するイテレータを作ります。
@@ -42,27 +40,20 @@ pub fn around<'a>(y: usize, x: usize) -> Around<'a> {
     Around {
         y,
         x,
-        y_range: 0..std::usize::MAX,
-        x_range: 0..std::usize::MAX,
+        y_range: 0..usize::MAX,
+        x_range: 0..usize::MAX,
         directions: &[],
-        dir_idx: 0,
     }
 }
 
 impl<'a> Around<'a> {
     /// 上下方向の範囲をセットします。デフォルトは `0..usize::MAX` です。
-    pub fn y_range(self, y_rng: impl RangeBounds<usize>) -> Self {
-        Self {
-            y_range: half_open_range(y_rng),
-            ..self
-        }
+    pub fn y_range(self, r: Range<usize>) -> Self {
+        Self { y_range: r, ..self }
     }
     /// 左右方向の範囲をセットします。デフォルトは `0..usize::MAX` です。
-    pub fn x_range(self, x_rng: impl RangeBounds<usize>) -> Self {
-        Self {
-            x_range: half_open_range(x_rng),
-            ..self
-        }
+    pub fn x_range(self, r: Range<usize>) -> Self {
+        Self { x_range: r, ..self }
     }
     /// 基点からの相対座標たちをセットします。デフォルトは空のスライスです。
     pub fn directions(self, dirs: &'a [(isize, isize)]) -> Self {
@@ -76,43 +67,22 @@ impl<'a> Around<'a> {
 impl<'a> Iterator for Around<'a> {
     type Item = (usize, usize);
     fn next(&mut self) -> Option<Self::Item> {
-        fn dest(u: usize, i: isize) -> Option<usize> {
-            if i.is_positive() {
-                u.checked_add(i as usize)
-            } else {
-                u.checked_sub((-i) as usize)
-            }
-        }
-        while let Some(&(dy, dx)) = self.directions.get(self.dir_idx) {
-            self.dir_idx += 1;
-            if let Some(ny) = dest(self.y, dy) {
-                if let Some(nx) = dest(self.x, dx) {
+        while let Some((&(dy, dx), rest)) = self.directions.split_first() {
+            self.directions = rest;
+            match (self.y.checked_add_signed(dy), self.x.checked_add_signed(dx)) {
+                (Some(ny), Some(nx))
                     if self.y_range.contains(&self.y)
                         && self.x_range.contains(&self.x)
                         && self.y_range.contains(&ny)
-                        && self.x_range.contains(&nx)
-                    {
-                        return Some((ny, nx));
-                    }
+                        && self.x_range.contains(&nx) =>
+                {
+                    return Some((ny, nx));
                 }
+                _ => {}
             }
         }
         None
     }
-}
-
-fn half_open_range(rng: impl RangeBounds<usize>) -> Range<usize> {
-    let start = match rng.start_bound() {
-        Included(&s) => s,
-        Excluded(&s) => s + 1,
-        Unbounded => 0,
-    };
-    let end = match rng.end_bound() {
-        Included(&e) => e + 1,
-        Excluded(&e) => e,
-        Unbounded => std::usize::MAX,
-    };
-    start..end
 }
 
 #[cfg(test)]
@@ -131,15 +101,20 @@ mod tests {
     }
 
     #[test]
-    fn out_of_bounds() {
-        let mut a = around(0, 0).y_range(0..10).x_range(0..10).directions(&NSEW);
-        assert_eq!(a.next(), Some((1, 0)));
-        assert_eq!(a.next(), Some((0, 1)));
+    fn out_of_bounds_dest() {
+        let mut a = around(1, 1).y_range(1..10).x_range(1..10).directions(&NSEW);
+        assert_eq!(a.next(), Some((2, 1)));
+        assert_eq!(a.next(), Some((1, 2)));
+        assert_eq!(a.next(), None); // != (0, 1), (1, 0)
+    }
+
+    #[test]
+    fn out_of_bounds_source() {
         let mut a = around(9, 10)
             .y_range(0..10)
             .x_range(0..10)
             .directions(&NSEW);
-        assert_eq!(a.next(), None);
+        assert_eq!(a.next(), None); // != (9, 9)
     }
 
     #[test]
