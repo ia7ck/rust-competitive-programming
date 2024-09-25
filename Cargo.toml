@@ -1,6 +1,6 @@
 [workspace]
 members = [
     "algo/*",
-    "others/*",
-    "oj_test"
+    "oj_test",
+    "oj_test_examples/*",
 ]
