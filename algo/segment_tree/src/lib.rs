@@ -45,7 +45,7 @@ where
         }
     }
 
-    /// `range` が `l..r` として、`multiply(l番目の要素, multiply(..., multiply(r-1番目の要素, r番目の要素)))` の値を返します。
+    /// `range` が `l..r` として、`multiply(l番目の要素, multiply(..., multiply(r-2番目の要素, r-1番目の要素)))` の値を返します。
     ///
     /// 実際のアルゴリズムは、結合法則を使って `1 + (2 + (3 + 4))` ではなく `(1 + 2) + (3 + 4)` のように計算しています。
     pub fn fold(&self, range: Range<usize>) -> T {
