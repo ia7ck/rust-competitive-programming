@@ -1,4 +1,4 @@
-use std::{cmp::Eq, iter::Peekable};
+use std::cmp::Eq;
 
 /// [run length encoding](https://ja.wikipedia.org/wiki/%E9%80%A3%E9%95%B7%E5%9C%A7%E7%B8%AE) です。
 ///
@@ -6,49 +6,65 @@ use std::{cmp::Eq, iter::Peekable};
 /// use run_length::RunLength;
 ///
 /// let a = vec![1, 1, 2, 3, 4, 4, 4];
-/// let mut iter = RunLength::new(a.iter());
+/// let mut iter = RunLength::new(&a);
 /// assert_eq!(iter.next(), Some((&1, 2)));
 /// assert_eq!(iter.next(), Some((&2, 1)));
 /// assert_eq!(iter.next(), Some((&3, 1)));
 /// assert_eq!(iter.next(), Some((&4, 3)));
 /// assert_eq!(iter.next(), None);
 /// ```
-pub struct RunLength<I>
-where
-    I: Iterator,
-{
-    iter: Peekable<I>,
+pub struct RunLength<'a, T> {
+    items: &'a Vec<T>,
+    start: usize,
+    end: usize,
 }
 
-impl<I> RunLength<I>
-where
-    I: Iterator,
-{
-    pub fn new(iter: I) -> Self {
+impl<'a, T> RunLength<'a, T> {
+    pub fn new(items: &'a Vec<T>) -> Self {
         Self {
-            iter: iter.peekable(),
+            items,
+            start: 0,
+            end: items.len(),
         }
     }
 }
 
-impl<I> Iterator for RunLength<I>
+impl<'a, T> Iterator for RunLength<'a, T>
 where
-    I: Iterator,
-    I::Item: Eq,
+    T: Eq,
 {
-    type Item = (I::Item, usize);
+    type Item = (&'a T, usize);
 
     fn next(&mut self) -> Option<Self::Item> {
-        let x = self.iter.next()?;
-        let mut len = 1;
-        while let Some(y) = self.iter.peek() {
-            if &x == y {
-                len += 1;
-                self.iter.next(); // y
-            } else {
-                break;
-            }
+        if self.start >= self.end {
+            return None;
         }
+
+        let x = &self.items[self.start];
+        let mut len = 0;
+        while self.start + len < self.end && &self.items[self.start + len] == x {
+            len += 1;
+        }
+        self.start += len;
+        Some((x, len))
+    }
+}
+
+impl<'a, T> DoubleEndedIterator for RunLength<'a, T>
+where
+    T: Eq,
+{
+    fn next_back(&mut self) -> Option<Self::Item> {
+        if self.start >= self.end {
+            return None;
+        }
+
+        let x = &self.items[self.end - 1];
+        let mut len = 0;
+        while self.start < self.end - len && &self.items[self.end - len - 1] == x {
+            len += 1;
+        }
+        self.end -= len;
         Some((x, len))
     }
 }
@@ -59,20 +75,23 @@ mod tests {
 
     #[test]
     fn test() {
-        let a = vec![3, 1, 1, 4, 1, 5, 5, 5];
-        let mut iter = RunLength::new(a.iter());
+        let a = vec![3, 1, 1, 4, 1, 5, 5, 5, 9, 9, 9, 2, 2];
+        let mut iter = RunLength::new(&a);
         assert_eq!(iter.next(), Some((&3, 1)));
         assert_eq!(iter.next(), Some((&1, 2)));
         assert_eq!(iter.next(), Some((&4, 1)));
         assert_eq!(iter.next(), Some((&1, 1)));
         assert_eq!(iter.next(), Some((&5, 3)));
+        assert_eq!(iter.next_back(), Some((&2, 2)));
+        assert_eq!(iter.next_back(), Some((&9, 3)));
         assert_eq!(iter.next(), None);
+        assert_eq!(iter.next_back(), None);
     }
 
     #[test]
     fn test_all() {
         let a = vec![7, 7, 7];
-        let mut iter = RunLength::new(a.iter());
+        let mut iter = RunLength::new(&a);
         assert_eq!(iter.next(), Some((&7, 3)));
         assert_eq!(iter.next(), None);
     }
@@ -80,7 +99,7 @@ mod tests {
     #[test]
     fn empty() {
         let a = Vec::<i32>::new();
-        let mut iter = RunLength::new(a.iter());
+        let mut iter = RunLength::new(&a);
         assert_eq!(iter.next(), None);
     }
 }
