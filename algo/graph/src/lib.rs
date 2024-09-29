@@ -2,6 +2,7 @@ pub fn is_tree(n: usize, edges: &[(usize, usize)]) -> bool {
     for &(a, b) in edges {
         assert!(a < n);
         assert!(b < n);
+        assert_ne!(a, b);
     }
 
     if n == 0 {
