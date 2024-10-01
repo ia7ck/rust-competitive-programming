@@ -39,7 +39,7 @@ fn main() {
         if nodes.is_empty() {
             continue;
         }
-        let h = auxiliary_tree(&nodes, &inv_ord, &lca);
+        let (_, h) = auxiliary_tree(&nodes, &inv_ord, &lca);
         let mut parent = HashMap::new();
         for (&i, children) in &h {
             for &j in children {

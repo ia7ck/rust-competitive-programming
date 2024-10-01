@@ -19,7 +19,7 @@ use lowest_common_ancestor::LowestCommonAncestor;
 ///
 /// # 返り値
 ///
-/// 返り値を `g` とすると
+/// `(root, g)`
 ///
 /// * ` g.contains_key(&i)`: 頂点 `i` が圧縮後の木に含まれて、子のリストが `g[&i]` である
 /// * `!g.contains_key(&i)`: 頂点 `i` が圧縮後の木に含まれない
@@ -27,15 +27,14 @@ pub fn auxiliary_tree(
     nodes: &[usize],
     inv_ord: &[usize],
     lca: &LowestCommonAncestor, // trait にする？
-) -> HashMap<usize, Vec<usize>> {
+) -> (usize, HashMap<usize, Vec<usize>>) {
     // https://smijake3.hatenablog.com/entry/2019/09/15/200200
 
+    assert!(!nodes.is_empty());
+
     // nodes.len() < 2 だと .windows(2) が空になるので場合分け
-    if nodes.is_empty() {
-        return HashMap::new();
-    }
     if nodes.len() == 1 {
-        return HashMap::from([(nodes[0], vec![])]);
+        return (nodes[0], HashMap::from([(nodes[0], vec![])]));
     }
 
     let mut nodes = nodes.to_vec();
@@ -57,7 +56,7 @@ pub fn auxiliary_tree(
         assert!(!h.contains_key(&w[1]));
         h.insert(w[1], vec![]);
     }
-    h
+    (nodes[0], h)
 }
 
 #[cfg(test)]
@@ -74,7 +73,7 @@ mod tests {
                 &[0, 1, 2, 3, 4],
                 &LowestCommonAncestor::new(5, 0, &[(0, 1), (1, 2), (2, 3), (3, 4)])
             ),
-            HashMap::from([(2, vec![4]), (4, vec![])])
+            (2, HashMap::from([(2, vec![4]), (4, vec![])]))
         );
     }
 }
