@@ -1,5 +1,5 @@
 use std::fmt;
-use std::ops::Range;
+use std::ops::{Bound, Range, RangeBounds};
 
 /// __注意⚠__ この実装は遅いので time limit の厳しい問題には代わりに ACL のセグメントツリーを使うこと。
 ///
@@ -45,11 +45,22 @@ where
         }
     }
 
-    /// `range` が `l..r` として、`multiply(l番目の要素, multiply(..., multiply(r-1番目の要素, r番目の要素)))` の値を返します。
+    /// `range` が `l..r` として、`multiply(l番目の要素, multiply(..., multiply(r-2番目の要素, r-1番目の要素)))` の値を返します。
     ///
     /// 実際のアルゴリズムは、結合法則を使って `1 + (2 + (3 + 4))` ではなく `(1 + 2) + (3 + 4)` のように計算しています。
-    pub fn fold(&self, range: Range<usize>) -> T {
-        self._fold(&range, 0, 0..self.n)
+    pub fn fold(&self, range: impl RangeBounds<usize>) -> T {
+        let start = match range.start_bound() {
+            Bound::Included(&start) => start,
+            Bound::Excluded(&start) => start + 1,
+            Bound::Unbounded => 0,
+        };
+        let end = match range.end_bound() {
+            Bound::Included(&end) => end + 1,
+            Bound::Excluded(&end) => end,
+            Bound::Unbounded => self.n,
+        };
+        assert!(end <= self.n);
+        self._fold(&(start..end), 0, 0..self.n)
     }
     fn _fold(&self, range: &Range<usize>, i: usize, i_range: Range<usize>) -> T {
         if range.end <= i_range.start || i_range.end <= range.start {
@@ -78,6 +89,29 @@ where
 #[cfg(test)]
 mod tests {
     use crate::SegmentTree;
+
+    #[test]
+    fn test() {
+        let s = "abcdefgh";
+        let mut seg = SegmentTree::new(s.len(), String::new(), |a, b| format!("{a}{b}"));
+        for (i, c) in s.chars().enumerate() {
+            seg.update(i, c.to_string());
+        }
+
+        for i in 0..s.len() {
+            assert_eq!(s[..i], seg.fold(..i));
+            assert_eq!(s[i..], seg.fold(i..));
+        }
+
+        for i in 0..s.len() {
+            for j in i..s.len() {
+                assert_eq!(s[i..j], seg.fold(i..j));
+                if j + 1 < s.len() {
+                    assert_eq!(s[i..=j], seg.fold(i..=j));
+                }
+            }
+        }
+    }
 
     #[test]
     fn single_element() {
