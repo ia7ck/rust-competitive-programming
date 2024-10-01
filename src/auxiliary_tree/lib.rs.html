@@ -77,7 +77,6 @@
 <a href="#77" id="77">77</a>
 <a href="#78" id="78">78</a>
 <a href="#79" id="79">79</a>
-<a href="#80" id="80">80</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>lowest_common_ancestor::LowestCommonAncestor;
@@ -99,7 +98,7 @@
 ///
 /// # 返り値
 ///
-/// 返り値を `g` とすると
+/// `(root, g)`
 ///
 /// * ` g.contains_key(&amp;i)`: 頂点 `i` が圧縮後の木に含まれて、子のリストが `g[&amp;i]` である
 /// * `!g.contains_key(&amp;i)`: 頂点 `i` が圧縮後の木に含まれない
@@ -107,15 +106,14 @@
     nodes: <span class="kw-2">&amp;</span>[usize],
     inv_ord: <span class="kw-2">&amp;</span>[usize],
     lca: <span class="kw-2">&amp;</span>LowestCommonAncestor, <span class="comment">// trait にする？
-</span>) -&gt; HashMap&lt;usize, Vec&lt;usize&gt;&gt; {
+</span>) -&gt; (usize, HashMap&lt;usize, Vec&lt;usize&gt;&gt;) {
     <span class="comment">// https://smijake3.hatenablog.com/entry/2019/09/15/200200
 
-    // nodes.len() &lt; 2 だと .windows(2) が空になるので場合分け
-    </span><span class="kw">if </span>nodes.is_empty() {
-        <span class="kw">return </span>HashMap::new();
-    }
-    <span class="kw">if </span>nodes.len() == <span class="number">1 </span>{
-        <span class="kw">return </span>HashMap::from([(nodes[<span class="number">0</span>], <span class="macro">vec!</span>[])]);
+    </span><span class="macro">assert!</span>(!nodes.is_empty());
+
+    <span class="comment">// nodes.len() &lt; 2 だと .windows(2) が空になるので場合分け
+    </span><span class="kw">if </span>nodes.len() == <span class="number">1 </span>{
+        <span class="kw">return </span>(nodes[<span class="number">0</span>], HashMap::from([(nodes[<span class="number">0</span>], <span class="macro">vec!</span>[])]));
     }
 
     <span class="kw">let </span><span class="kw-2">mut </span>nodes = nodes.to_vec();
@@ -137,7 +135,7 @@
         <span class="macro">assert!</span>(!h.contains_key(<span class="kw-2">&amp;</span>w[<span class="number">1</span>]));
         h.insert(w[<span class="number">1</span>], <span class="macro">vec!</span>[]);
     }
-    h
+    (nodes[<span class="number">0</span>], h)
 }
 
 <span class="attr">#[cfg(test)]
@@ -154,7 +152,7 @@
                 <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>],
                 <span class="kw-2">&amp;</span>LowestCommonAncestor::new(<span class="number">5</span>, <span class="number">0</span>, <span class="kw-2">&amp;</span>[(<span class="number">0</span>, <span class="number">1</span>), (<span class="number">1</span>, <span class="number">2</span>), (<span class="number">2</span>, <span class="number">3</span>), (<span class="number">3</span>, <span class="number">4</span>)])
             ),
-            HashMap::from([(<span class="number">2</span>, <span class="macro">vec!</span>[<span class="number">4</span>]), (<span class="number">4</span>, <span class="macro">vec!</span>[])])
+            (<span class="number">2</span>, HashMap::from([(<span class="number">2</span>, <span class="macro">vec!</span>[<span class="number">4</span>]), (<span class="number">4</span>, <span class="macro">vec!</span>[])]))
         );
     }
 }
