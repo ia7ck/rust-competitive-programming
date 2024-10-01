@@ -1,0 +1,15 @@
+[package]
+name = "auxiliary_tree"
+version = "0.1.0"
+edition = "2021"
+authors = ["ia7ck <23146842+ia7ck@users.noreply.github.com>"]
+license = "CC0-1.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+lowest_common_ancestor = { path = "../lowest_common_ancestor" }
+
+[dev-dependencies]
+proconio = { version = "0.4.5" }
+graph = { path = "../graph" }
