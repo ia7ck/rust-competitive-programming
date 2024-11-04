@@ -1,5 +1,5 @@
 use std::fmt;
-use std::ops::{Bound, Range, RangeBounds};
+use std::ops::{Bound, RangeBounds};
 
 /// __注意⚠__ この実装は遅いので time limit の厳しい問題には代わりに ACL のセグメントツリーを使うこと。
 ///
@@ -12,6 +12,7 @@ pub struct SegmentTree<T, F> {
     multiply: F,
 }
 
+// https://hcpc-hokudai.github.io/archive/structure_segtree_001.pdf
 impl<T, F> SegmentTree<T, F>
 where
     T: Clone,
@@ -24,7 +25,7 @@ where
         let n = n.next_power_of_two();
         Self {
             n,
-            dat: vec![e.clone(); n * 2 - 1],
+            dat: vec![e.clone(); n * 2], // dat[0] is unused
             e,
             multiply,
         }
@@ -32,22 +33,20 @@ where
 
     /// 列の `i` 番目の要素を取得します。
     pub fn get(&self, i: usize) -> &T {
-        &self.dat[i + self.n - 1]
+        &self.dat[i + self.n]
     }
 
     /// 列の `i` 番目の要素を `x` で更新します。
     pub fn update(&mut self, i: usize, x: T) {
-        let mut k = i + self.n - 1;
+        let mut k = i + self.n;
         self.dat[k] = x;
-        while k > 0 {
-            k = (k - 1) / 2;
-            self.dat[k] = (self.multiply)(&self.dat[k * 2 + 1], &self.dat[k * 2 + 2]);
+        while k > 1 {
+            k >>= 1;
+            self.dat[k] = (self.multiply)(&self.dat[k << 1 | 0], &self.dat[k << 1 | 1]);
         }
     }
 
     /// `range` が `l..r` として、`multiply(l番目の要素, multiply(..., multiply(r-2番目の要素, r-1番目の要素)))` の値を返します。
-    ///
-    /// 実際のアルゴリズムは、結合法則を使って `1 + (2 + (3 + 4))` ではなく `(1 + 2) + (3 + 4)` のように計算しています。
     pub fn fold(&self, range: impl RangeBounds<usize>) -> T {
         let start = match range.start_bound() {
             Bound::Included(&start) => start,
@@ -60,20 +59,30 @@ where
             Bound::Unbounded => self.n,
         };
         assert!(end <= self.n);
-        self._fold(&(start..end), 0, 0..self.n)
+        self._fold(start, end)
     }
-    fn _fold(&self, range: &Range<usize>, i: usize, i_range: Range<usize>) -> T {
-        if range.end <= i_range.start || i_range.end <= range.start {
-            return self.e.clone();
+
+    fn _fold(&self, mut l: usize, mut r: usize) -> T {
+        let mut acc_l = self.e.clone();
+        let mut acc_r = self.e.clone();
+        l += self.n;
+        r += self.n;
+        while l < r {
+            if l & 1 == 1 {
+                // 右の子だったらいま足しておかないといけない
+                // 左の子だったら祖先のどれかで足されるのでよい
+                acc_l = (self.multiply)(&acc_l, &self.dat[l]);
+                l += 1;
+            }
+            if r & 1 == 1 {
+                // r が exclusive であることに注意する
+                r -= 1;
+                acc_r = (self.multiply)(&self.dat[r], &acc_r);
+            }
+            l >>= 1;
+            r >>= 1;
         }
-        if range.start <= i_range.start && i_range.end <= range.end {
-            return self.dat[i].clone();
-        }
-        let m = (i_range.start + i_range.end) / 2;
-        (self.multiply)(
-            &self._fold(range, i * 2 + 1, i_range.start..m),
-            &self._fold(range, i * 2 + 2, m..i_range.end),
-        )
+        (self.multiply)(&acc_l, &acc_r)
     }
 }
 
