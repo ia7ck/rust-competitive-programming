@@ -121,21 +121,45 @@
 <a href="#121" id="121">121</a>
 <a href="#122" id="122">122</a>
 <a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt;
-<span class="kw">use </span>std::ops::{Bound, Range, RangeBounds};
+<span class="kw">use </span>std::ops::{Bound, RangeBounds};
 
 <span class="doccomment">/// __注意⚠__ この実装は遅いので time limit の厳しい問題には代わりに ACL のセグメントツリーを使うこと。
 ///
 /// セグメントツリーです。
 </span><span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>SegmentTree&lt;T, F&gt; {
+    original_n: usize,
     n: usize,
     dat: Vec&lt;T&gt;,
     e: T,
     multiply: F,
 }
 
-<span class="kw">impl</span>&lt;T, F&gt; SegmentTree&lt;T, F&gt;
+<span class="comment">// https://hcpc-hokudai.github.io/archive/structure_segtree_001.pdf
+</span><span class="kw">impl</span>&lt;T, F&gt; SegmentTree&lt;T, F&gt;
 <span class="kw">where
     </span>T: Clone,
     F: Fn(<span class="kw-2">&amp;</span>T, <span class="kw-2">&amp;</span>T) -&gt; T,
@@ -144,33 +168,43 @@
     ///
     /// `multiply` は fold に使う二項演算です。
     </span><span class="kw">pub fn </span>new(n: usize, e: T, multiply: F) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>original_n = n;
         <span class="kw">let </span>n = n.next_power_of_two();
         <span class="self">Self </span>{
+            original_n,
             n,
-            dat: <span class="macro">vec!</span>[e.clone(); n * <span class="number">2 </span>- <span class="number">1</span>],
-            e,
+            dat: <span class="macro">vec!</span>[e.clone(); n * <span class="number">2</span>], <span class="comment">// dat[0] is unused
+            </span>e,
             multiply,
         }
     }
 
     <span class="doccomment">/// 列の `i` 番目の要素を取得します。
     </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, i: usize) -&gt; <span class="kw-2">&amp;</span>T {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.dat[i + <span class="self">self</span>.n - <span class="number">1</span>]
+        <span class="macro">assert!</span>(i &lt; <span class="self">self</span>.original_n);
+        <span class="kw-2">&amp;</span><span class="self">self</span>.dat[i + <span class="self">self</span>.n]
     }
 
     <span class="doccomment">/// 列の `i` 番目の要素を `x` で更新します。
-    </span><span class="kw">pub fn </span>update(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: usize, x: T) {
-        <span class="kw">let </span><span class="kw-2">mut </span>k = i + <span class="self">self</span>.n - <span class="number">1</span>;
-        <span class="self">self</span>.dat[k] = x;
-        <span class="kw">while </span>k &gt; <span class="number">0 </span>{
-            k = (k - <span class="number">1</span>) / <span class="number">2</span>;
-            <span class="self">self</span>.dat[k] = (<span class="self">self</span>.multiply)(<span class="kw-2">&amp;</span><span class="self">self</span>.dat[k * <span class="number">2 </span>+ <span class="number">1</span>], <span class="kw-2">&amp;</span><span class="self">self</span>.dat[k * <span class="number">2 </span>+ <span class="number">2</span>]);
+    </span><span class="kw">pub fn </span>set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: usize, x: T) {
+        <span class="self">self</span>.update(i, |<span class="kw">_</span>| x);
+    }
+
+    <span class="doccomment">/// 列の `i` 番目の要素を `f` で更新します。
+    </span><span class="kw">pub fn </span>update&lt;U&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: usize, f: U)
+    <span class="kw">where
+        </span>U: FnOnce(<span class="kw-2">&amp;</span>T) -&gt; T,
+    {
+        <span class="macro">assert!</span>(i &lt; <span class="self">self</span>.original_n);
+        <span class="kw">let </span><span class="kw-2">mut </span>k = i + <span class="self">self</span>.n;
+        <span class="self">self</span>.dat[k] = f(<span class="kw-2">&amp;</span><span class="self">self</span>.dat[k]);
+        <span class="kw">while </span>k &gt; <span class="number">1 </span>{
+            k &gt;&gt;= <span class="number">1</span>;
+            <span class="self">self</span>.dat[k] = (<span class="self">self</span>.multiply)(<span class="kw-2">&amp;</span><span class="self">self</span>.dat[k &lt;&lt; <span class="number">1</span>], <span class="kw-2">&amp;</span><span class="self">self</span>.dat[k &lt;&lt; <span class="number">1 </span>| <span class="number">1</span>]);
         }
     }
 
     <span class="doccomment">/// `range` が `l..r` として、`multiply(l番目の要素, multiply(..., multiply(r-2番目の要素, r-1番目の要素)))` の値を返します。
-    ///
-    /// 実際のアルゴリズムは、結合法則を使って `1 + (2 + (3 + 4))` ではなく `(1 + 2) + (3 + 4)` のように計算しています。
     </span><span class="kw">pub fn </span>fold(<span class="kw-2">&amp;</span><span class="self">self</span>, range: <span class="kw">impl </span>RangeBounds&lt;usize&gt;) -&gt; T {
         <span class="kw">let </span>start = <span class="kw">match </span>range.start_bound() {
             Bound::Included(<span class="kw-2">&amp;</span>start) =&gt; start,
@@ -182,21 +216,31 @@
             Bound::Excluded(<span class="kw-2">&amp;</span>end) =&gt; end,
             Bound::Unbounded =&gt; <span class="self">self</span>.n,
         };
-        <span class="macro">assert!</span>(end &lt;= <span class="self">self</span>.n);
-        <span class="self">self</span>._fold(<span class="kw-2">&amp;</span>(start..end), <span class="number">0</span>, <span class="number">0</span>..<span class="self">self</span>.n)
+        <span class="macro">assert!</span>(start &lt;= end &amp;&amp; end &lt;= <span class="self">self</span>.original_n);
+        <span class="self">self</span>._fold(start, end)
     }
-    <span class="kw">fn </span>_fold(<span class="kw-2">&amp;</span><span class="self">self</span>, range: <span class="kw-2">&amp;</span>Range&lt;usize&gt;, i: usize, i_range: Range&lt;usize&gt;) -&gt; T {
-        <span class="kw">if </span>range.end &lt;= i_range.start || i_range.end &lt;= range.start {
-            <span class="kw">return </span><span class="self">self</span>.e.clone();
+
+    <span class="kw">fn </span>_fold(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>l: usize, <span class="kw-2">mut </span>r: usize) -&gt; T {
+        <span class="kw">let </span><span class="kw-2">mut </span>acc_l = <span class="self">self</span>.e.clone();
+        <span class="kw">let </span><span class="kw-2">mut </span>acc_r = <span class="self">self</span>.e.clone();
+        l += <span class="self">self</span>.n;
+        r += <span class="self">self</span>.n;
+        <span class="kw">while </span>l &lt; r {
+            <span class="kw">if </span>l &amp; <span class="number">1 </span>== <span class="number">1 </span>{
+                <span class="comment">// 右の子だったらいま足しておかないといけない
+                // 左の子だったら祖先のどれかで足されるのでよい
+                </span>acc_l = (<span class="self">self</span>.multiply)(<span class="kw-2">&amp;</span>acc_l, <span class="kw-2">&amp;</span><span class="self">self</span>.dat[l]);
+                l += <span class="number">1</span>;
+            }
+            <span class="kw">if </span>r &amp; <span class="number">1 </span>== <span class="number">1 </span>{
+                <span class="comment">// r が exclusive であることに注意する
+                </span>r -= <span class="number">1</span>;
+                acc_r = (<span class="self">self</span>.multiply)(<span class="kw-2">&amp;</span><span class="self">self</span>.dat[r], <span class="kw-2">&amp;</span>acc_r);
+            }
+            l &gt;&gt;= <span class="number">1</span>;
+            r &gt;&gt;= <span class="number">1</span>;
         }
-        <span class="kw">if </span>range.start &lt;= i_range.start &amp;&amp; i_range.end &lt;= range.end {
-            <span class="kw">return </span><span class="self">self</span>.dat[i].clone();
-        }
-        <span class="kw">let </span>m = (i_range.start + i_range.end) / <span class="number">2</span>;
-        (<span class="self">self</span>.multiply)(
-            <span class="kw-2">&amp;</span><span class="self">self</span>._fold(range, i * <span class="number">2 </span>+ <span class="number">1</span>, i_range.start..m),
-            <span class="kw-2">&amp;</span><span class="self">self</span>._fold(range, i * <span class="number">2 </span>+ <span class="number">2</span>, m..i_range.end),
-        )
+        (<span class="self">self</span>.multiply)(<span class="kw-2">&amp;</span>acc_l, <span class="kw-2">&amp;</span>acc_r)
     }
 }
 
@@ -205,7 +249,7 @@
     </span>T: fmt::Debug,
 {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{:?}&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.dat[(<span class="self">self</span>.n - <span class="number">1</span>)..])
+        <span class="macro">write!</span>(f, <span class="string">&quot;{:?}&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.dat[<span class="self">self</span>.n..])
     }
 }
 
@@ -218,7 +262,7 @@
         <span class="kw">let </span>s = <span class="string">&quot;abcdefgh&quot;</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>seg = SegmentTree::new(s.len(), String::new(), |a, b| <span class="macro">format!</span>(<span class="string">&quot;{a}{b}&quot;</span>));
         <span class="kw">for </span>(i, c) <span class="kw">in </span>s.chars().enumerate() {
-            seg.update(i, c.to_string());
+            seg.set(i, c.to_string());
         }
 
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..s.len() {
@@ -240,7 +284,7 @@
     </span><span class="kw">fn </span>single_element() {
         <span class="kw">let </span><span class="kw-2">mut </span>seg = SegmentTree::new(<span class="number">1</span>, <span class="number">0</span>, |a, b| a + b);
         <span class="macro">assert_eq!</span>(seg.get(<span class="number">0</span>), <span class="kw-2">&amp;</span><span class="number">0</span>);
-        seg.update(<span class="number">0</span>, <span class="number">42</span>);
+        seg.set(<span class="number">0</span>, <span class="number">42</span>);
         <span class="macro">assert_eq!</span>(seg.get(<span class="number">0</span>), <span class="kw-2">&amp;</span><span class="number">42</span>);
     }
 }
