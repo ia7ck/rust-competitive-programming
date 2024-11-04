@@ -6,6 +6,7 @@ use std::ops::{Bound, RangeBounds};
 /// セグメントツリーです。
 #[derive(Clone)]
 pub struct SegmentTree<T, F> {
+    original_n: usize,
     n: usize,
     dat: Vec<T>,
     e: T,
@@ -22,8 +23,10 @@ where
     ///
     /// `multiply` は fold に使う二項演算です。
     pub fn new(n: usize, e: T, multiply: F) -> Self {
+        let original_n = n;
         let n = n.next_power_of_two();
         Self {
+            original_n,
             n,
             dat: vec![e.clone(); n * 2], // dat[0] is unused
             e,
@@ -33,6 +36,7 @@ where
 
     /// 列の `i` 番目の要素を取得します。
     pub fn get(&self, i: usize) -> &T {
+        assert!(i < self.original_n);
         &self.dat[i + self.n]
     }
 
@@ -46,6 +50,7 @@ where
     where
         U: FnOnce(&T) -> T,
     {
+        assert!(i < self.original_n);
         let mut k = i + self.n;
         self.dat[k] = f(&self.dat[k]);
         while k > 1 {
@@ -66,7 +71,7 @@ where
             Bound::Excluded(&end) => end,
             Bound::Unbounded => self.n,
         };
-        assert!(end <= self.n);
+        assert!(start <= end && end <= self.original_n);
         self._fold(start, end)
     }
 
