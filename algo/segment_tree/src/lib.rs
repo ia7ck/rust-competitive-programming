@@ -42,7 +42,7 @@ where
         self.dat[k] = x;
         while k > 1 {
             k >>= 1;
-            self.dat[k] = (self.multiply)(&self.dat[k << 1 | 0], &self.dat[k << 1 | 1]);
+            self.dat[k] = (self.multiply)(&self.dat[k << 1], &self.dat[k << 1 | 1]);
         }
     }
 
