@@ -91,7 +91,7 @@ where
     T: fmt::Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", &self.dat[(self.n - 1)..])
+        write!(f, "{:?}", &self.dat[self.n..])
     }
 }
 
