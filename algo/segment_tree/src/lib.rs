@@ -37,9 +37,17 @@ where
     }
 
     /// 列の `i` 番目の要素を `x` で更新します。
-    pub fn update(&mut self, i: usize, x: T) {
+    pub fn set(&mut self, i: usize, x: T) {
+        self.update(i, |_| x);
+    }
+
+    /// 列の `i` 番目の要素を `f` で更新します。
+    pub fn update<U>(&mut self, i: usize, f: U)
+    where
+        U: FnOnce(&T) -> T,
+    {
         let mut k = i + self.n;
-        self.dat[k] = x;
+        self.dat[k] = f(&self.dat[k]);
         while k > 1 {
             k >>= 1;
             self.dat[k] = (self.multiply)(&self.dat[k << 1], &self.dat[k << 1 | 1]);
@@ -104,7 +112,7 @@ mod tests {
         let s = "abcdefgh";
         let mut seg = SegmentTree::new(s.len(), String::new(), |a, b| format!("{a}{b}"));
         for (i, c) in s.chars().enumerate() {
-            seg.update(i, c.to_string());
+            seg.set(i, c.to_string());
         }
 
         for i in 0..s.len() {
@@ -126,7 +134,7 @@ mod tests {
     fn single_element() {
         let mut seg = SegmentTree::new(1, 0, |a, b| a + b);
         assert_eq!(seg.get(0), &0);
-        seg.update(0, 42);
+        seg.set(0, 42);
         assert_eq!(seg.get(0), &42);
     }
 }
