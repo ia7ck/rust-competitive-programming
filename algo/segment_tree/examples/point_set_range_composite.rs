@@ -16,7 +16,7 @@ fn main() {
         (c * a % mo, (c * b % mo + d) % mo)
     });
     for (i, &(a, b)) in ab.iter().enumerate() {
-        seg.update(i, (a, b));
+        seg.set(i, (a, b));
     }
     for _ in 0..q {
         input! {
@@ -28,7 +28,7 @@ fn main() {
                 c: u64,
                 d: u64,
             }
-            seg.update(p, (c, d));
+            seg.set(p, (c, d));
         } else {
             input! {
                 l: usize,
