@@ -143,8 +143,20 @@
 <a href="#143" id="143">143</a>
 <a href="#144" id="144">144</a>
 <a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt;
-<span class="kw">use </span>std::ops::{Bound, RangeBounds};
+<span class="kw">use </span>std::ops::{Bound, Index, RangeBounds};
 
 <span class="doccomment">/// __注意⚠__ この実装は遅いので time limit の厳しい問題には代わりに ACL のセグメントツリーを使うこと。
 ///
@@ -244,6 +256,18 @@
     }
 }
 
+<span class="kw">impl</span>&lt;T, F&gt; Index&lt;usize&gt; <span class="kw">for </span>SegmentTree&lt;T, F&gt;
+<span class="kw">where
+    </span>T: Clone,
+    F: Fn(<span class="kw-2">&amp;</span>T, <span class="kw-2">&amp;</span>T) -&gt; T,
+{
+    <span class="kw">type </span>Output = T;
+
+    <span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Output {
+        <span class="self">self</span>.get(index)
+    }
+}
+
 <span class="kw">impl</span>&lt;T, F&gt; fmt::Debug <span class="kw">for </span>SegmentTree&lt;T, F&gt;
 <span class="kw">where
     </span>T: fmt::Debug,
@@ -283,9 +307,9 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>single_element() {
         <span class="kw">let </span><span class="kw-2">mut </span>seg = SegmentTree::new(<span class="number">1</span>, <span class="number">0</span>, |a, b| a + b);
-        <span class="macro">assert_eq!</span>(seg.get(<span class="number">0</span>), <span class="kw-2">&amp;</span><span class="number">0</span>);
+        <span class="macro">assert_eq!</span>(seg[<span class="number">0</span>], <span class="number">0</span>);
         seg.set(<span class="number">0</span>, <span class="number">42</span>);
-        <span class="macro">assert_eq!</span>(seg.get(<span class="number">0</span>), <span class="kw-2">&amp;</span><span class="number">42</span>);
+        <span class="macro">assert_eq!</span>(seg[<span class="number">0</span>], <span class="number">42</span>);
     }
 }
 </code></pre></div></section></main></body></html>
