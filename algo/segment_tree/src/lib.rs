@@ -1,5 +1,5 @@
 use std::fmt;
-use std::ops::{Bound, RangeBounds};
+use std::ops::{Bound, Index, RangeBounds};
 
 /// __注意⚠__ この実装は遅いので time limit の厳しい問題には代わりに ACL のセグメントツリーを使うこと。
 ///
@@ -99,6 +99,18 @@ where
     }
 }
 
+impl<T, F> Index<usize> for SegmentTree<T, F>
+where
+    T: Clone,
+    F: Fn(&T, &T) -> T,
+{
+    type Output = T;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        self.get(index)
+    }
+}
+
 impl<T, F> fmt::Debug for SegmentTree<T, F>
 where
     T: fmt::Debug,
@@ -138,8 +150,8 @@ mod tests {
     #[test]
     fn single_element() {
         let mut seg = SegmentTree::new(1, 0, |a, b| a + b);
-        assert_eq!(seg.get(0), &0);
+        assert_eq!(seg[0], 0);
         seg.set(0, 42);
-        assert_eq!(seg.get(0), &42);
+        assert_eq!(seg[0], 42);
     }
 }
