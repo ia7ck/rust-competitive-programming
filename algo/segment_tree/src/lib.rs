@@ -69,7 +69,7 @@ where
         let end = match range.end_bound() {
             Bound::Included(&end) => end + 1,
             Bound::Excluded(&end) => end,
-            Bound::Unbounded => self.n,
+            Bound::Unbounded => self.original_n,
         };
         assert!(start <= end && end <= self.original_n);
         self._fold(start, end)
