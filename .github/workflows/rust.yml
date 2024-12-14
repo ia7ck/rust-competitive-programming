@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Check
-        run: cargo check
+        run: cargo check --examples
 
   clippy:
     runs-on: ubuntu-latest
@@ -67,7 +67,7 @@ jobs:
       with:
           persist-credentials: false
     - name: Doc
-      run: cargo doc --no-deps --lib --workspace --exclude=simple_example --exclude=special_judge_example --verbose
+      run: cargo doc --no-deps --lib --workspace --exclude=oj_test --exclude=simple_example --exclude=special_judge_example
     - name: Deploy 🚀
       uses: JamesIves/github-pages-deploy-action@v4
       with:
