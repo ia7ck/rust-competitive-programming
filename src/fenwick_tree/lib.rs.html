@@ -101,7 +101,16 @@
 <a href="#101" id="101">101</a>
 <a href="#102" id="102">102</a>
 <a href="#103" id="103">103</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::ops::Range;
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::ops::{Bound, RangeBounds};
 
 <span class="doccomment">/// Fenwick Tree (Binary Indexed Tree) [http://hos.ac/slides/20140319_bit.pdf](http://hos.ac/slides/20140319_bit.pdf)
 ///
@@ -134,15 +143,11 @@
     T: std::ops::SubAssign,
 {
     <span class="kw">pub fn </span>new(n: usize, e: T) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>n = n.next_power_of_two();
-        <span class="kw">let </span><span class="kw-2">mut </span>dat = <span class="macro">vec!</span>[e; n + <span class="number">1</span>];
-        <span class="kw">for </span>i <span class="kw">in </span>(<span class="number">2</span>..=n).step_by(<span class="number">2</span>) {
-            <span class="kw">let </span>j = <span class="number">1 </span>&lt;&lt; (i.trailing_zeros() - <span class="number">1</span>);
-            <span class="kw">let </span><span class="kw-2">mut </span>y = dat[j];
-            y += dat[j];
-            dat[i] = y; <span class="comment">// dat[j] * 2
-        </span>}
-        <span class="self">Self </span>{ n, e, dat }
+        <span class="self">Self </span>{
+            n,
+            e,
+            dat: <span class="macro">vec!</span>[e; n + <span class="number">1</span>],
+        }
     }
     <span class="comment">// 0-indexed
     // a[k] += x
@@ -167,12 +172,20 @@
         result
     }
     <span class="comment">// 0-indexed
-    // a[l] + a[l + 1] + ... + a[r - 1]
-    </span><span class="kw">pub fn </span>sum(<span class="kw-2">&amp;</span><span class="self">self</span>, range: Range&lt;usize&gt;) -&gt; T {
-        <span class="kw">let </span>(l, r) = (range.start, range.end);
-        <span class="macro">assert!</span>(r &lt;= <span class="self">self</span>.n);
-        <span class="kw">let </span><span class="kw-2">mut </span>result = <span class="self">self</span>._sum(r);
-        result -= <span class="self">self</span>._sum(l);
+    </span><span class="kw">pub fn </span>sum(<span class="kw-2">&amp;</span><span class="self">self</span>, range: <span class="kw">impl </span>RangeBounds&lt;usize&gt;) -&gt; T {
+        <span class="kw">let </span>start = <span class="kw">match </span>range.start_bound() {
+            Bound::Included(<span class="kw-2">&amp;</span>start) =&gt; start,
+            Bound::Excluded(<span class="kw-2">&amp;</span>start) =&gt; start + <span class="number">1</span>,
+            Bound::Unbounded =&gt; <span class="number">0</span>,
+        };
+        <span class="kw">let </span>end = <span class="kw">match </span>range.end_bound() {
+            Bound::Included(<span class="kw-2">&amp;</span>end) =&gt; end + <span class="number">1</span>,
+            Bound::Excluded(<span class="kw-2">&amp;</span>end) =&gt; end,
+            Bound::Unbounded =&gt; <span class="self">self</span>.n,
+        };
+        <span class="macro">assert!</span>(end &lt;= <span class="self">self</span>.n);
+        <span class="kw">let </span><span class="kw-2">mut </span>result = <span class="self">self</span>._sum(end);
+        result -= <span class="self">self</span>._sum(start);
         result
     }
 }
@@ -185,14 +198,12 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test() {
         <span class="kw">let </span><span class="kw-2">mut </span>rng = thread_rng();
-        <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">100 </span>{
-            <span class="kw">let </span>n: usize = rng.gen_range(<span class="number">1</span>, <span class="number">20</span>);
-            <span class="kw">let </span>e = rng.gen_range(-<span class="number">100</span>, <span class="number">100</span>);
-            <span class="kw">let </span><span class="kw-2">mut </span>a = <span class="macro">vec!</span>[e; n];
-            <span class="kw">let </span><span class="kw-2">mut </span>ft = FenwickTree::new(n, e);
+        <span class="kw">for </span>n <span class="kw">in </span><span class="number">1</span>..=<span class="number">20 </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>a = <span class="macro">vec!</span>[<span class="number">0</span>; n];
+            <span class="kw">let </span><span class="kw-2">mut </span>ft = FenwickTree::new(n, <span class="number">0</span>);
             <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">100 </span>{
-                <span class="kw">let </span>i: usize = rng.gen_range(<span class="number">0</span>, n);
-                <span class="kw">let </span>x: i32 = rng.gen_range(-<span class="number">100</span>, <span class="number">100</span>);
+                <span class="kw">let </span>i = rng.gen_range(<span class="number">0</span>, n);
+                <span class="kw">let </span>x = rng.gen_range(-<span class="number">100</span>, <span class="number">100</span>);
                 a[i] += x;
                 ft.add(i, x);
                 <span class="kw">for </span>(l, r) <span class="kw">in </span>(<span class="number">0</span>..n).zip(<span class="number">1</span>..=n) {
@@ -202,6 +213,13 @@
                 }
             }
         }
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_single() {
+        <span class="kw">let </span><span class="kw-2">mut </span>f = FenwickTree::new(<span class="number">1</span>, <span class="number">0</span>);
+        f.add(<span class="number">0</span>, <span class="number">123</span>);
+        <span class="macro">assert_eq!</span>(f.sum(<span class="number">0</span>..<span class="number">1</span>), <span class="number">123</span>);
     }
 }
 </code></pre></div></section></main></body></html>
