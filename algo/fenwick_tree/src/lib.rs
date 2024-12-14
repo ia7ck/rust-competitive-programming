@@ -1,4 +1,4 @@
-use std::ops::Range;
+use std::ops::{Bound, RangeBounds};
 
 /// Fenwick Tree (Binary Indexed Tree) [http://hos.ac/slides/20140319_bit.pdf](http://hos.ac/slides/20140319_bit.pdf)
 ///
@@ -64,12 +64,20 @@ where
         result
     }
     // 0-indexed
-    // a[l] + a[l + 1] + ... + a[r - 1]
-    pub fn sum(&self, range: Range<usize>) -> T {
-        let (l, r) = (range.start, range.end);
-        assert!(r <= self.n);
-        let mut result = self._sum(r);
-        result -= self._sum(l);
+    pub fn sum(&self, range: impl RangeBounds<usize>) -> T {
+        let start = match range.start_bound() {
+            Bound::Included(&start) => start,
+            Bound::Excluded(&start) => start + 1,
+            Bound::Unbounded => 0,
+        };
+        let end = match range.end_bound() {
+            Bound::Included(&end) => end + 1,
+            Bound::Excluded(&end) => end,
+            Bound::Unbounded => self.n,
+        };
+        assert!(end <= self.n);
+        let mut result = self._sum(end);
+        result -= self._sum(start);
         result
     }
 }
