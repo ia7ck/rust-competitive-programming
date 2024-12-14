@@ -86,14 +86,12 @@ mod tests {
     #[test]
     fn test() {
         let mut rng = thread_rng();
-        for _ in 0..100 {
-            let n: usize = rng.gen_range(1, 20);
-            let e = rng.gen_range(-100, 100);
-            let mut a = vec![e; n];
-            let mut ft = FenwickTree::new(n, e);
+        for n in 1..=20 {
+            let mut a = vec![0; n];
+            let mut ft = FenwickTree::new(n, 0);
             for _ in 0..100 {
-                let i: usize = rng.gen_range(0, n);
-                let x: i32 = rng.gen_range(-100, 100);
+                let i = rng.gen_range(0, n);
+                let x = rng.gen_range(-100, 100);
                 a[i] += x;
                 ft.add(i, x);
                 for (l, r) in (0..n).zip(1..=n) {
@@ -103,5 +101,12 @@ mod tests {
                 }
             }
         }
+    }
+
+    #[test]
+    fn test_single() {
+        let mut f = FenwickTree::new(1, 0);
+        f.add(0, 123);
+        assert_eq!(f.sum(0..1), 123);
     }
 }
