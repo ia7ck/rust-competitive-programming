@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::fmt::{self, Debug};
 
 /// 座標圧縮です。
 ///
@@ -40,12 +40,11 @@ use std::fmt::Debug;
 /// seq.at(5);
 /// ```
 ///
-#[derive(Debug)]
 pub struct SortedSeq<T>(Vec<T>);
 
 impl<T> FromIterator<T> for SortedSeq<T>
 where
-    T: Ord + Debug,
+    T: Ord,
 {
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
         Self::new(iter)
@@ -54,7 +53,7 @@ where
 
 impl<T> SortedSeq<T>
 where
-    T: Ord + Debug,
+    T: Ord,
 {
     pub fn new(values: impl IntoIterator<Item = T>) -> Self {
         let mut values = values.into_iter().collect::<Vec<_>>();
@@ -67,7 +66,7 @@ where
     pub fn ord(&self, value: &T) -> usize {
         self.0
             .binary_search(value)
-            .unwrap_or_else(|_| panic!("not found {:?}", value))
+            .unwrap_or_else(|_| panic!("not found"))
     }
 
     /// index 番目の値を返します
@@ -81,6 +80,15 @@ impl<T> SortedSeq<T> {
     /// 集合のサイズを返します
     pub fn size(&self) -> usize {
         self.0.len()
+    }
+}
+
+impl<T> Debug for SortedSeq<T>
+where
+    T: Debug,
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self.0)
     }
 }
 
