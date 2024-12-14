@@ -17,7 +17,6 @@ var sourcesIndex = JSON.parse('{\
 "lowest_common_ancestor":["",[],["lib.rs"]],\
 "mod_int":["",[],["lib.rs"]],\
 "next_permutation":["",[],["lib.rs"]],\
-"oj_test":["",[],["lib.rs"]],\
 "pascal_triangle":["",[],["lib.rs"]],\
 "prime_factorization":["",[],["lib.rs"]],\
 "rolling_hash":["",[],["lib.rs"]],\
