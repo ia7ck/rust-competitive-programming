@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Check
-        run: cargo check
+        run: cargo check --examples
 
   clippy:
     runs-on: ubuntu-latest
