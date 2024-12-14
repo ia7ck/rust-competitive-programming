@@ -1,4 +1,7 @@
-use std::fmt::{self, Debug};
+use std::{
+    fmt::{self, Debug},
+    ops::Index,
+};
 
 /// 座標圧縮です。
 ///
@@ -71,13 +74,20 @@ where
 
     /// index 番目の値を返します
     pub fn at(&self, index: usize) -> &T {
-        assert!(index < self.0.len());
-        &self.0[index]
+        &self[index]
     }
 
     /// 集合のサイズを返します
     pub fn size(&self) -> usize {
         self.0.len()
+    }
+}
+
+impl<T> Index<usize> for SortedSeq<T> {
+    type Output = T;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.0[index]
     }
 }
 
