@@ -74,9 +74,7 @@ where
         assert!(index < self.0.len());
         &self.0[index]
     }
-}
 
-impl<T> SortedSeq<T> {
     /// 集合のサイズを返します
     pub fn size(&self) -> usize {
         self.0.len()
