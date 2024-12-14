@@ -123,6 +123,7 @@ impl TestProperty {
 fn cargo_target_examples_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("..")
+        .join("..")
         .join("target")
         .join("release")
         .join("examples")
