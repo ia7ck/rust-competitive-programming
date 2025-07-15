@@ -12,7 +12,6 @@ var sourcesIndex = JSON.parse('{\
 "floor_sqrt":["",[],["lib.rs"]],\
 "graph":["",[],["lib.rs"]],\
 "grid_search":["",[],["lib.rs"]],\
-"join":["",[],["lib.rs"]],\
 "least_prime_factors":["",[],["lib.rs"]],\
 "lowest_common_ancestor":["",[],["lib.rs"]],\
 "mod_int":["",[],["lib.rs"]],\
