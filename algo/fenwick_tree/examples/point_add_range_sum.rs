@@ -1,6 +1,5 @@
 // problem:https://judge.yosupo.jp/problem/point_add_range_sum
 use fenwick_tree::FenwickTree;
-use join::Join;
 use proconio::{fastout, input};
 
 #[fastout]
@@ -38,5 +37,7 @@ fn main() {
             _ => unreachable!(),
         }
     }
-    println!("{}", ans.iter().join("\n"));
+    for ans in ans {
+        println!("{}", ans);
+    }
 }

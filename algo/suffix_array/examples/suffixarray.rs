@@ -1,5 +1,4 @@
 // problem: https://judge.yosupo.jp/problem/suffixarray
-use join::Join;
 use proconio::marker::Chars;
 use proconio::{fastout, input};
 use suffix_array::suffix_array;
@@ -11,5 +10,11 @@ fn main() {
     }
 
     let sa = suffix_array(&s);
-    println!("{}", sa.iter().join(" "));
+    println!(
+        "{}",
+        sa.iter()
+            .map(|sa| sa.to_string())
+            .collect::<Vec<_>>()
+            .join(" ")
+    );
 }

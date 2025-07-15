@@ -1,5 +1,4 @@
 // problem: https://judge.yosupo.jp/problem/unionfind
-use join::Join;
 use proconio::{fastout, input};
 use union_find::UnionFind;
 
@@ -42,5 +41,7 @@ fn main() {
         return;
     }
 
-    println!("{}", ans.iter().join("\n"));
+    for ans in ans {
+        println!("{}", ans);
+    }
 }

@@ -2,7 +2,6 @@
 
 use proconio::input;
 
-use join::Join;
 use sliding_window::sliding_window_minimum;
 
 fn main() {
@@ -12,5 +11,12 @@ fn main() {
         a: [u32; n],
     }
     let minimums = sliding_window_minimum(&a, l);
-    println!("{}", minimums.iter().join(" "));
+    println!(
+        "{}",
+        minimums
+            .iter()
+            .map(|m| m.to_string())
+            .collect::<Vec<_>>()
+            .join(" ")
+    );
 }
