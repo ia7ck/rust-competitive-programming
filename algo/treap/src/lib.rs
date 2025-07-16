@@ -463,6 +463,7 @@ mod tests {
         treap.insert(42);
         assert_eq!(treap.remove(&41), false);
         assert_eq!(treap.remove(&42), true);
+        assert_eq!(treap.remove(&42), false);
     }
 
     #[test]
