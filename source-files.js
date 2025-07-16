@@ -25,6 +25,7 @@ var sourcesIndex = JSON.parse('{\
 "strongly_connected_components":["",[],["lib.rs"]],\
 "suffix_array":["",[],["lib.rs"]],\
 "topological_sort":["",[],["lib.rs"]],\
+"treap":["",[],["lib.rs"]],\
 "tree_diameter":["",[],["lib.rs"]],\
 "union_find":["",[],["lib.rs"]],\
 "z_algorithm":["",[],["lib.rs"]],\

@@ -9,6 +9,7 @@
 "rolling_hash":[["impl Freeze for <a class=\"struct\" href=\"rolling_hash/struct.RollingHash.html\" title=\"struct rolling_hash::RollingHash\">RollingHash</a>",1,["rolling_hash::RollingHash"]]],
 "run_length":[["impl&lt;'a, T&gt; Freeze for <a class=\"struct\" href=\"run_length/struct.RunLength.html\" title=\"struct run_length::RunLength\">RunLength</a>&lt;'a, T&gt;",1,["run_length::RunLength"]]],
 "segment_tree":[["impl&lt;T, F&gt; Freeze for <a class=\"struct\" href=\"segment_tree/struct.SegmentTree.html\" title=\"struct segment_tree::SegmentTree\">SegmentTree</a>&lt;T, F&gt;<span class=\"where fmt-newline\">where\n    F: Freeze,\n    T: Freeze,</span>",1,["segment_tree::SegmentTree"]]],
+"treap":[["impl&lt;T, R&gt; Freeze for <a class=\"struct\" href=\"treap/struct.Treap.html\" title=\"struct treap::Treap\">Treap</a>&lt;T, R&gt;<span class=\"where fmt-newline\">where\n    R: Freeze,</span>",1,["treap::Treap"]],["impl&lt;'a, T&gt; Freeze for <a class=\"struct\" href=\"treap/struct.Iter.html\" title=\"struct treap::Iter\">Iter</a>&lt;'a, T&gt;",1,["treap::Iter"]]],
 "union_find":[["impl Freeze for <a class=\"struct\" href=\"union_find/struct.UnionFind.html\" title=\"struct union_find::UnionFind\">UnionFind</a>",1,["union_find::UnionFind"]]],
 "zarts":[["impl&lt;T&gt; Freeze for <a class=\"struct\" href=\"zarts/struct.SortedSeq.html\" title=\"struct zarts::SortedSeq\">SortedSeq</a>&lt;T&gt;",1,["zarts::SortedSeq"]]]
 };if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
