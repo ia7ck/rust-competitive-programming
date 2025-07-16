@@ -1,5 +1,9 @@
 use std::{
-    alloc, cmp::{self, Ordering}, fmt, marker::PhantomData, ptr
+    alloc,
+    cmp::{self, Ordering},
+    fmt,
+    marker::PhantomData,
+    ptr,
 };
 
 use rand::{rngs::SmallRng, RngCore, SeedableRng};
@@ -144,6 +148,29 @@ impl<T, R> Treap<T, R> {
         } else {
             unsafe { (*u).size }
         }
+    }
+
+    pub fn into_sorted_vec(mut self) -> Vec<T> {
+        fn collect<T>(u: *mut Node<T>, acc: &mut Vec<T>) {
+            if u.is_null() {
+                return;
+            }
+
+            collect(unsafe { (*u).left }, acc);
+            acc.push(unsafe { ptr::read(&(*u).x) });
+            collect(unsafe { (*u).right }, acc);
+
+            unsafe { ptr::drop_in_place(u) };
+            unsafe { alloc::dealloc(u as *mut u8, alloc::Layout::new::<Node<T>>()) };
+        }
+
+        let mut result = Vec::with_capacity(self.n);
+        collect(self.root, &mut result);
+
+        self.root = ptr::null_mut();
+        self.n = 0;
+
+        result
     }
 }
 
@@ -596,5 +623,18 @@ mod tests {
         assert!(values.contains(&&5));
         assert!(values.contains(&&9));
         assert!(values.contains(&&2));
+    }
+
+    #[test]
+    fn test_treap_into_sorted_vec() {
+        let mut treap = Treap::default();
+        treap.insert(3);
+        treap.insert(1);
+        treap.insert(4);
+        treap.insert(5);
+        treap.insert(9);
+        treap.insert(2);
+
+        assert_eq!(treap.into_sorted_vec(), vec![1, 2, 3, 4, 5, 9]);
     }
 }
