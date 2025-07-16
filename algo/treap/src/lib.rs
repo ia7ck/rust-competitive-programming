@@ -4,7 +4,7 @@ use std::{
     fmt, ptr,
 };
 
-use rand::RngCore;
+use rand::{rngs::SmallRng, RngCore, SeedableRng};
 
 struct Node<T> {
     x: T,
@@ -35,7 +35,31 @@ impl<T, R> Treap<T, R> {
     }
 
     pub fn is_empty(&self) -> bool {
-        self.root.is_null()
+        self.n == 0
+    }
+
+    fn alloc_node(x: T, priority: u64, parent: *mut Node<T>) -> *mut Node<T> {
+        let layout = alloc::Layout::new::<Node<T>>();
+        let ptr = unsafe { alloc::alloc(layout) as *mut Node<T> };
+        if ptr.is_null() {
+            alloc::handle_alloc_error(layout);
+        }
+
+        unsafe {
+            ptr::write(
+                ptr,
+                Node {
+                    x,
+                    priority,
+                    parent,
+                    left: ptr::null_mut(),
+                    right: ptr::null_mut(),
+                    size: 1,
+                },
+            );
+        }
+
+        ptr
     }
 
     fn rotate_right(&mut self, u: *mut Node<T>) {
@@ -48,7 +72,7 @@ impl<T, R> Treap<T, R> {
         // +---+---+                      +---+---+
         // |       |                      |       |
         // a       b                      b       c
-        let w = unsafe { &*u }.left;
+        let w = unsafe { (*u).left };
         debug_assert_ne!(w, ptr::null_mut());
         let p = unsafe { (*u).parent };
         if p.is_null() {
@@ -87,7 +111,7 @@ impl<T, R> Treap<T, R> {
         //      +---+---+         +---+---+
         //      |       |         |       |
         //      b       c         a       b
-        let w = unsafe { &*u }.right;
+        let w = unsafe { (*u).right };
         debug_assert_ne!(w, ptr::null_mut());
         let p = unsafe { (*u).parent };
         if p.is_null() {
@@ -120,7 +144,7 @@ impl<T, R> Treap<T, R> {
         if u.is_null() {
             0
         } else {
-            unsafe { &*u }.size
+            unsafe { (*u).size }
         }
     }
 }
@@ -143,12 +167,12 @@ where
         let mut prev = ptr::null_mut();
         while !w.is_null() {
             prev = w;
-            match x.cmp(&unsafe { &*w }.x) {
+            match unsafe { x.cmp(&(*w).x) } {
                 Ordering::Less => {
-                    w = unsafe { &*w }.left;
+                    w = unsafe { (*w).left };
                 }
                 Ordering::Greater => {
-                    w = unsafe { &*w }.right;
+                    w = unsafe { (*w).right };
                 }
                 Ordering::Equal => {
                     return w;
@@ -158,34 +182,38 @@ where
         prev
     }
 
+    /// 集合にxが含まれるかを返す。
     pub fn contains(&self, x: &T) -> bool {
         let u = self.find_last(x);
-        !u.is_null() && unsafe { &*u }.x.eq(x)
+        !u.is_null() && x.eq(unsafe { &(*u).x })
     }
 
+    /// xを削除する。集合にxが含まれていた場合trueを返す。
     pub fn remove(&mut self, x: &T) -> bool {
-        let u = self.find_last(x);
-        if u.is_null() {
-            // 空の状態から削除しようとしたとき
+        if self.is_empty() {
             return false;
         }
-        if !unsafe { &*u }.x.eq(x) {
+
+        let u = self.find_last(x);
+        debug_assert_ne!(u, ptr::null_mut());
+
+        if !unsafe { (*u).x.eq(x) } {
             return false;
         }
 
         // trickle down
         loop {
-            let left = unsafe { &*u }.left;
-            let right = unsafe { &*u }.right;
+            let left = unsafe { (*u).left };
+            let right = unsafe { (*u).right };
             if left.is_null() && right.is_null() {
                 if self.root == u {
                     self.root = ptr::null_mut();
                 } else {
-                    let p = unsafe { &*u }.parent;
+                    let p = unsafe { (*u).parent };
                     debug_assert_ne!(p, ptr::null_mut());
-                    if unsafe { &*p }.left == u {
+                    if unsafe { (*p).left } == u {
                         unsafe { (*p).left = ptr::null_mut() };
-                    } else if unsafe { &*p }.right == u {
+                    } else if unsafe { (*p).right } == u {
                         unsafe { (*p).right = ptr::null_mut() };
                     } else {
                         unreachable!();
@@ -193,32 +221,33 @@ where
 
                     // update size
                     let mut v = p;
-                    while v != self.root {
+                    loop {
                         unsafe {
                             (*v).size = 1 + Self::node_size((*v).left) + Self::node_size((*v).right)
                         };
-                        v = unsafe { &*v }.parent;
+                        if v == self.root {
+                            break;
+                        }
+                        v = unsafe { (*v).parent };
                     }
-                    unsafe {
-                        (*v).size = 1 + Self::node_size((*v).left) + Self::node_size((*v).right)
-                    };
                 }
                 unsafe { ptr::drop_in_place(u) };
                 unsafe { alloc::dealloc(u as *mut u8, alloc::Layout::new::<Node<T>>()) };
                 break;
             }
-            #[allow(clippy::if_same_then_else)]
             if left.is_null() {
                 self.rotate_left(u);
             } else if right.is_null() {
                 self.rotate_right(u);
-            } else if unsafe { &*left }.priority < unsafe { &*right }.priority {
-                self.rotate_right(u);
-            } else {
+            } else if unsafe { (*left).priority } > unsafe { (*right).priority } {
                 self.rotate_left(u);
+            } else {
+                self.rotate_right(u);
             }
         }
+
         self.n -= 1;
+
         true
     }
 
@@ -329,39 +358,68 @@ where
     T: cmp::Ord,
     R: RngCore,
 {
+    /// xを追加する。集合にxが含まれていなかった場合trueを返す。
+    pub fn insert(&mut self, x: T) -> bool {
+        let p = self.find_last(&x);
+        if !p.is_null() && unsafe { (*p).x.eq(&x) } {
+            return false;
+        }
+
+        let u = self.add_child(p, x);
+        // bubble up
+        loop {
+            let p = unsafe { (*u).parent };
+            if p.is_null() {
+                break;
+            }
+            if unsafe { (*p).priority } < unsafe { (*u).priority } {
+                break;
+            }
+            if unsafe { (*p).right } == u {
+                self.rotate_left(p);
+            } else if unsafe { (*p).left } == u {
+                self.rotate_right(p);
+            } else {
+                unreachable!();
+            }
+        }
+        if unsafe { (*u).parent.is_null() } {
+            self.root = u;
+        }
+
+        // update size
+        let mut u = u;
+        loop {
+            unsafe { (*u).size = 1 + Self::node_size((*u).left) + Self::node_size((*u).right) };
+            if u == self.root {
+                break;
+            }
+            u = unsafe { (*u).parent };
+        }
+
+        self.n += 1;
+
+        true
+    }
+
     fn add_child(&mut self, p: *mut Node<T>, x: T) -> *mut Node<T> {
-        let u = if p.is_null() {
+        if p.is_null() {
             debug_assert_eq!(self.root, ptr::null_mut());
-            self.root = Box::into_raw(Box::new(Node {
-                x,
-                priority: self.gen_priority(),
-                parent: ptr::null_mut(),
-                left: ptr::null_mut(),
-                right: ptr::null_mut(),
-                size: 1,
-            }));
+            self.root = Self::alloc_node(x, self.gen_priority(), ptr::null_mut());
             self.root
         } else {
-            let y = &unsafe { &*p }.x;
-            let ord = x.cmp(y);
+            let ord = x.cmp(unsafe { &(*p).x });
 
-            let u = Box::into_raw(Box::new(Node {
-                x,
-                priority: self.gen_priority(),
-                parent: p,
-                left: ptr::null_mut(),
-                right: ptr::null_mut(),
-                size: 1,
-            }));
+            let u = Self::alloc_node(x, self.gen_priority(), p);
 
             match ord {
                 Ordering::Less => {
-                    debug_assert_eq!(unsafe { &*p }.left, ptr::null_mut());
+                    debug_assert_eq!(unsafe { (*p).left }, ptr::null_mut());
                     unsafe { (*p).left = u };
                     u
                 }
                 Ordering::Greater => {
-                    debug_assert_eq!(unsafe { &*p }.right, ptr::null_mut());
+                    debug_assert_eq!(unsafe { (*p).right }, ptr::null_mut());
                     unsafe { (*p).right = u };
                     u
                 }
@@ -369,49 +427,13 @@ where
                     unreachable!();
                 }
             }
-        };
-
-        self.n += 1;
-        u
+        }
     }
+}
 
-    pub fn insert(&mut self, x: T) -> bool {
-        let p = self.find_last(&x);
-        if !p.is_null() && unsafe { &*p }.x.eq(&x) {
-            return false;
-        }
-
-        let u = self.add_child(p, x);
-        // bubble up
-        loop {
-            let p = unsafe { &*u }.parent;
-            if p.is_null() {
-                break;
-            }
-            if unsafe { &*p }.priority < unsafe { &*u }.priority {
-                break;
-            }
-            if unsafe { &*p }.right == u {
-                self.rotate_left(p);
-            } else if unsafe { &*p }.left == u {
-                self.rotate_right(p);
-            } else {
-                unreachable!();
-            }
-        }
-        if unsafe { &*u }.parent.is_null() {
-            self.root = u;
-        }
-
-        // update size
-        let mut u = u;
-        while u != self.root {
-            unsafe { (*u).size = 1 + Self::node_size((*u).left) + Self::node_size((*u).right) };
-            u = unsafe { &*u }.parent;
-        }
-        unsafe { (*u).size = 1 + Self::node_size((*u).left) + Self::node_size((*u).right) };
-
-        true
+impl<T> Default for Treap<T, SmallRng> {
+    fn default() -> Self {
+        Self::new(SmallRng::seed_from_u64(12233344455555))
     }
 }
 
@@ -426,17 +448,26 @@ where
 
 #[cfg(test)]
 mod tests {
-    use rand::{rngs::ThreadRng, thread_rng};
-
     use crate::Treap;
 
-    fn rng() -> ThreadRng {
-        thread_rng()
+    #[test]
+    fn test_treap_insert() {
+        let mut treap = Treap::default();
+        assert_eq!(treap.insert(42), true);
+        assert_eq!(treap.insert(42), false);
+    }
+
+    #[test]
+    fn test_treap_remove() {
+        let mut treap = Treap::default();
+        treap.insert(42);
+        assert_eq!(treap.remove(&41), false);
+        assert_eq!(treap.remove(&42), true);
     }
 
     #[test]
     fn test_treap_contains() {
-        let mut treap = Treap::new(rng());
+        let mut treap = Treap::default();
         treap.insert(42);
         assert_eq!(treap.contains(&42), true);
         assert_eq!(treap.contains(&24), false);
@@ -444,7 +475,7 @@ mod tests {
 
     #[test]
     fn test_treap_le() {
-        let mut treap = Treap::new(rng());
+        let mut treap = Treap::default();
         treap.insert(42);
         assert_eq!(treap.le(&41), None);
         assert_eq!(treap.le(&42), Some(&42));
@@ -453,7 +484,7 @@ mod tests {
 
     #[test]
     fn test_treap_ge() {
-        let mut treap = Treap::new(rng());
+        let mut treap = Treap::default();
         treap.insert(42);
         assert_eq!(treap.ge(&41), Some(&42));
         assert_eq!(treap.ge(&42), Some(&42));
@@ -462,7 +493,7 @@ mod tests {
 
     #[test]
     fn test_treap_nth() {
-        let mut treap = Treap::new(rng());
+        let mut treap = Treap::default();
         treap.insert(1);
         treap.insert(2);
         treap.insert(4);
@@ -476,7 +507,7 @@ mod tests {
 
     #[test]
     fn test_treap_position() {
-        let mut treap = Treap::new(rng());
+        let mut treap = Treap::default();
         treap.insert(1);
         treap.insert(2);
         treap.insert(4);
