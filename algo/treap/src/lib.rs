@@ -1,7 +1,5 @@
 use std::{
-    alloc,
-    cmp::{self, Ordering},
-    fmt, ptr,
+    alloc, cmp::{self, Ordering}, fmt, marker::PhantomData, ptr
 };
 
 use rand::{rngs::SmallRng, RngCore, SeedableRng};
@@ -442,7 +440,62 @@ where
     T: fmt::Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "TODO")
+        f.debug_list().entries(self.iter()).finish()
+    }
+}
+
+pub struct Iter<'a, T> {
+    current: *mut Node<T>,
+    _phantom: PhantomData<&'a T>,
+}
+
+impl<'a, T> Iter<'a, T> {
+    fn new(root: *mut Node<T>) -> Self {
+        Self {
+            current: root,
+            _phantom: PhantomData,
+        }
+    }
+}
+
+impl<'a, T> Iterator for Iter<'a, T> {
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.current.is_null() {
+            None
+        } else {
+            let result = unsafe { &(*self.current).x };
+
+            if !unsafe { (*self.current).left }.is_null() {
+                self.current = unsafe { (*self.current).left };
+            } else if !unsafe { (*self.current).right }.is_null() {
+                self.current = unsafe { (*self.current).right };
+            } else {
+                let mut child = self.current;
+                self.current = unsafe { (*self.current).parent };
+                while !self.current.is_null() {
+                    // 左の子から戻ってきた場合、右の子があれば移動
+                    if unsafe { (*self.current).left } == child
+                        && !unsafe { (*self.current).right }.is_null()
+                    {
+                        self.current = unsafe { (*self.current).right };
+                        break;
+                    }
+                    // 右の子から戻ってきた場合、さらに親へ
+                    child = self.current;
+                    self.current = unsafe { (*self.current).parent };
+                }
+            }
+
+            Some(result)
+        }
+    }
+}
+
+impl<T, R> Treap<T, R> {
+    pub fn iter(&self) -> Iter<T> {
+        Iter::new(self.root)
     }
 }
 
@@ -523,5 +576,25 @@ mod tests {
         assert_eq!(treap.position(&7), Err(3));
         assert_eq!(treap.position(&8), Ok(3));
         assert_eq!(treap.position(&9), Err(4));
+    }
+
+    #[test]
+    fn test_treap_iter() {
+        let mut treap = Treap::default();
+        treap.insert(3);
+        treap.insert(1);
+        treap.insert(4);
+        treap.insert(5);
+        treap.insert(9);
+        treap.insert(2);
+
+        let values: Vec<_> = treap.iter().collect();
+        assert_eq!(values.len(), 6);
+        assert!(values.contains(&&3));
+        assert!(values.contains(&&1));
+        assert!(values.contains(&&4));
+        assert!(values.contains(&&5));
+        assert!(values.contains(&&9));
+        assert!(values.contains(&&2));
     }
 }
