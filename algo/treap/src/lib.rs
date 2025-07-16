@@ -6,7 +6,7 @@ use std::{
     ptr,
 };
 
-use rand::{rngs::SmallRng, RngCore, SeedableRng};
+use rand::{rngs::StdRng, RngCore, SeedableRng};
 
 struct Node<T> {
     x: T,
@@ -456,9 +456,9 @@ where
     }
 }
 
-impl<T> Default for Treap<T, SmallRng> {
+impl<T> Default for Treap<T, StdRng> {
     fn default() -> Self {
-        Self::new(SmallRng::seed_from_u64(12233344455555))
+        Self::new(StdRng::seed_from_u64(12233344455555))
     }
 }
 
