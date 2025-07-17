@@ -72,27 +72,28 @@ impl ProblemSolver {
 
 pub fn download_online_judge_testcase(problem_url: &str, dir_suffix: &Path) -> Result<PathBuf> {
     // Use project root's testcases directory instead of /tmp
-    let project_root = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("..")
-        .join("..");
+    let project_root = Path::new(env!("CARGO_MANIFEST_DIR")).join("..").join("..");
     let dir = project_root.join("testcases").join(dir_suffix);
-    
+
     // Check if testcases already exist (caching logic)
     if dir.exists() && dir.read_dir()?.next().is_some() {
-        info!("Testcases already exist for {}, skipping download", problem_url);
+        info!(
+            "Testcases already exist for {}, skipping download",
+            problem_url
+        );
         return Ok(dir);
     }
-    
+
     // Create parent directories if they don't exist
     if let Some(parent) = dir.parent() {
         fs::create_dir_all(parent)?;
     }
-    
+
     // Remove existing directory if it exists but is empty
     if dir.exists() {
         fs::remove_dir_all(&dir).unwrap_or_else(|err| panic!("{}", err));
     }
-    
+
     let mut oj_command = Command::new("oj");
     oj_command
         .arg("download")
