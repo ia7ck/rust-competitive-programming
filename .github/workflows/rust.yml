@@ -53,6 +53,19 @@ jobs:
         python-version: '3.x'
     - name: Install oj
       run: pip3 install --upgrade setuptools wheel pip && pip3 install online-judge-tools && oj --version
+    - name: Generate testcases cache key
+      id: cache-key
+      run: |
+        # Create a hash based on all problem URLs in the repository
+        find . -name "*.rs" -path "*/examples/*" -exec grep -l "// problem:" {} \; | xargs grep "// problem:" | sort | sha256sum | cut -d' ' -f1 > /tmp/cache-key
+        echo "key=$(cat /tmp/cache-key)" >> $GITHUB_OUTPUT
+    - name: Cache testcases
+      uses: actions/cache@v4
+      with:
+        path: testcases
+        key: testcases-${{ steps.cache-key.outputs.key }}
+        restore-keys: |
+          testcases-
     - name: Release build
       run: cargo build --release --examples
     - name: oj test
