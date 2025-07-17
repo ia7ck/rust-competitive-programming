@@ -1,9 +1,7 @@
 use std::{
-    alloc,
     cmp::{self, Ordering},
     fmt,
     marker::PhantomData,
-    ptr,
 };
 
 use rand::{rngs::StdRng, RngCore, SeedableRng};
@@ -11,14 +9,14 @@ use rand::{rngs::StdRng, RngCore, SeedableRng};
 struct Node<T> {
     x: T,
     priority: u64,
-    left: *mut Node<T>,
-    right: *mut Node<T>,
+    left: Option<Box<Node<T>>>,
+    right: Option<Box<Node<T>>>,
     size: usize,
 }
 
 pub struct Treap<T, R> {
     n: usize,
-    root: *mut Node<T>,
+    root: Option<Box<Node<T>>>,
     rng: R,
 }
 
@@ -26,7 +24,7 @@ impl<T, R> Treap<T, R> {
     pub fn new(rng: R) -> Self {
         Self {
             n: 0,
-            root: ptr::null_mut(),
+            root: None,
             rng,
         }
     }
@@ -39,30 +37,17 @@ impl<T, R> Treap<T, R> {
         self.n == 0
     }
 
-    fn alloc_node(x: T, priority: u64) -> *mut Node<T> {
-        let layout = alloc::Layout::new::<Node<T>>();
-        let ptr = unsafe { alloc::alloc(layout) as *mut Node<T> };
-        if ptr.is_null() {
-            alloc::handle_alloc_error(layout);
-        }
-
-        unsafe {
-            ptr::write(
-                ptr,
-                Node {
-                    x,
-                    priority,
-                    left: ptr::null_mut(),
-                    right: ptr::null_mut(),
-                    size: 1,
-                },
-            );
-        }
-
-        ptr
+    fn new_node(x: T, priority: u64) -> Box<Node<T>> {
+        Box::new(Node {
+            x,
+            priority,
+            left: None,
+            right: None,
+            size: 1,
+        })
     }
 
-    fn rotate_right(root: *mut Node<T>) -> *mut Node<T> {
+    fn rotate_right(mut root: Box<Node<T>>) -> Box<Node<T>> {
         //         root                    left
         //         |                       |
         //     +---+---+               +---+---+
@@ -72,24 +57,18 @@ impl<T, R> Treap<T, R> {
         // +---+---+                      +---+---+
         // |       |                      |       |
         // a       b                      b       c
-        let left = unsafe { (*root).left };
-        debug_assert!(!left.is_null());
+        let mut left = root.left.take().unwrap();
+        let b = left.right.take();
+        root.left = b;
 
-        let b = unsafe { (*left).right };
-        unsafe { (*root).left = b };
-        unsafe { (*left).right = root };
+        root.size = 1 + Self::node_size(&root.left) + Self::node_size(&root.right);
+        left.size = 1 + Self::node_size(&left.left) + root.size;
 
-        unsafe {
-            (*root).size = 1 + Self::node_size((*root).left) + Self::node_size((*root).right)
-        };
-        unsafe {
-            (*left).size = 1 + Self::node_size((*left).left) + Self::node_size((*left).right)
-        };
-
+        left.right = Some(root);
         left
     }
 
-    fn rotate_left(root: *mut Node<T>) -> *mut Node<T> {
+    fn rotate_left(mut root: Box<Node<T>>) -> Box<Node<T>> {
         //      root                        right
         //      |                           |
         //  +---+---+                   +---+---+
@@ -99,51 +78,33 @@ impl<T, R> Treap<T, R> {
         //      +---+---+           +---+---+
         //      |       |           |       |
         //      b       c           a       b
-        let right = unsafe { (*root).right };
-        debug_assert!(!right.is_null());
+        let mut right = root.right.take().unwrap();
+        let b = right.left.take();
+        root.right = b;
 
-        let b = unsafe { (*right).left };
-        unsafe { (*root).right = b };
-        unsafe { (*right).left = root };
+        root.size = 1 + Self::node_size(&root.left) + Self::node_size(&root.right);
+        right.size = 1 + root.size + Self::node_size(&right.right);
 
-        unsafe {
-            (*root).size = 1 + Self::node_size((*root).left) + Self::node_size((*root).right)
-        };
-        unsafe {
-            (*right).size = 1 + Self::node_size((*right).left) + Self::node_size((*right).right)
-        };
-
+        right.left = Some(root);
         right
     }
 
-    fn node_size(u: *mut Node<T>) -> usize {
-        if u.is_null() {
-            0
-        } else {
-            unsafe { (*u).size }
-        }
+    fn node_size(node: &Option<Box<Node<T>>>) -> usize {
+        node.as_ref().map_or(0, |n| n.size)
     }
 
     pub fn into_sorted_vec(mut self) -> Vec<T> {
-        fn collect<T>(u: *mut Node<T>, acc: &mut Vec<T>) {
-            if u.is_null() {
-                return;
+        fn collect<T>(node: Option<Box<Node<T>>>, acc: &mut Vec<T>) {
+            if let Some(node) = node {
+                collect(node.left, acc);
+                acc.push(node.x);
+                collect(node.right, acc);
             }
-
-            collect(unsafe { (*u).left }, acc);
-            acc.push(unsafe { ptr::read(&(*u).x) });
-            collect(unsafe { (*u).right }, acc);
-
-            unsafe { ptr::drop_in_place(u) };
-            unsafe { alloc::dealloc(u as *mut u8, alloc::Layout::new::<Node<T>>()) };
         }
 
         let mut result = Vec::with_capacity(self.n);
-        collect(self.root, &mut result);
-
-        self.root = ptr::null_mut();
+        collect(self.root.take(), &mut result);
         self.n = 0;
-
         result
     }
 }
@@ -161,162 +122,128 @@ impl<T, R> Treap<T, R>
 where
     T: cmp::Ord,
 {
-    fn find_last(&self, x: &T) -> *mut Node<T> {
-        let mut w = self.root;
-        let mut prev = ptr::null_mut();
-        while !w.is_null() {
-            prev = w;
-            match unsafe { x.cmp(&(*w).x) } {
-                Ordering::Less => {
-                    w = unsafe { (*w).left };
-                }
-                Ordering::Greater => {
-                    w = unsafe { (*w).right };
-                }
-                Ordering::Equal => {
-                    return w;
-                }
+    fn find_last(&self, x: &T) -> Option<&Node<T>> {
+        let mut current = &self.root;
+        let mut last = Option::<&Node<T>>::None;
+
+        while let Some(node) = current {
+            last = Some(node);
+            match x.cmp(&node.x) {
+                Ordering::Less => current = &node.left,
+                Ordering::Greater => current = &node.right,
+                Ordering::Equal => return Some(node),
             }
         }
-        prev
+
+        last
     }
 
     /// 集合にxが含まれるかを返す。
     pub fn contains(&self, x: &T) -> bool {
-        let u = self.find_last(x);
-        !u.is_null() && x.eq(unsafe { &(*u).x })
+        self.find_last(x).map_or(false, |node| x.eq(&node.x))
     }
 
     /// xを削除する。集合にxが含まれていた場合trueを返す。
     pub fn remove(&mut self, x: &T) -> bool {
+        let root = self.root.take();
         let mut removed = false;
-        self.root = self.remove_recursive(self.root, x, &mut removed);
+        self.root = Self::remove_recursive(root, x, &mut removed);
         if removed {
             self.n -= 1;
         }
         removed
     }
 
-    fn remove_recursive(&mut self, root: *mut Node<T>, x: &T, removed: &mut bool) -> *mut Node<T> {
-        if root.is_null() {
-            return root;
-        }
+    fn remove_recursive(
+        root: Option<Box<Node<T>>>,
+        x: &T,
+        removed: &mut bool,
+    ) -> Option<Box<Node<T>>> {
+        let mut root = root?;
 
-        let ord = unsafe { x.cmp(&(*root).x) };
-
-        match ord {
+        match x.cmp(&root.x) {
             Ordering::Less => {
-                let new_left = self.remove_recursive(unsafe { (*root).left }, x, removed);
-                unsafe { (*root).left = new_left };
+                root.left = Self::remove_recursive(root.left.take(), x, removed);
                 if *removed {
-                    unsafe {
-                        (*root).size =
-                            1 + Self::node_size((*root).left) + Self::node_size((*root).right)
-                    };
+                    root.size = 1 + Self::node_size(&root.left) + Self::node_size(&root.right);
                 }
-                root
+                Some(root)
             }
             Ordering::Greater => {
-                let new_right = self.remove_recursive(unsafe { (*root).right }, x, removed);
-                unsafe { (*root).right = new_right };
+                root.right = Self::remove_recursive(root.right.take(), x, removed);
                 if *removed {
-                    unsafe {
-                        (*root).size =
-                            1 + Self::node_size((*root).left) + Self::node_size((*root).right)
-                    };
+                    root.size = 1 + Self::node_size(&root.left) + Self::node_size(&root.right);
                 }
-                root
+                Some(root)
             }
             Ordering::Equal => {
                 *removed = true;
-                self.remove_node(root)
+                Self::remove_node(root)
             }
         }
     }
 
-    fn remove_node(&mut self, node: *mut Node<T>) -> *mut Node<T> {
-        let left = unsafe { (*node).left };
-        let right = unsafe { (*node).right };
-
-        if left.is_null() && right.is_null() {
-            unsafe { ptr::drop_in_place(node) };
-            unsafe { alloc::dealloc(node as *mut u8, alloc::Layout::new::<Node<T>>()) };
-            ptr::null_mut()
-        } else if left.is_null() {
-            unsafe { ptr::drop_in_place(node) };
-            unsafe { alloc::dealloc(node as *mut u8, alloc::Layout::new::<Node<T>>()) };
-            right
-        } else if right.is_null() {
-            unsafe { ptr::drop_in_place(node) };
-            unsafe { alloc::dealloc(node as *mut u8, alloc::Layout::new::<Node<T>>()) };
-            left
-        } else {
-            if unsafe { (*left).priority } > unsafe { (*right).priority } {
-                let new_root = Self::rotate_right(node);
-                let new_right = self.remove_node(unsafe { (*new_root).right });
-                unsafe { (*new_root).right = new_right };
-                unsafe {
-                    (*new_root).size =
-                        1 + Self::node_size((*new_root).left) + Self::node_size((*new_root).right)
-                };
-                new_root
-            } else {
-                let new_root = Self::rotate_left(node);
-                let new_left = self.remove_node(unsafe { (*new_root).left });
-                unsafe { (*new_root).left = new_left };
-                unsafe {
-                    (*new_root).size =
-                        1 + Self::node_size((*new_root).left) + Self::node_size((*new_root).right)
-                };
-                new_root
+    fn remove_node(mut node: Box<Node<T>>) -> Option<Box<Node<T>>> {
+        match (&node.left, &node.right) {
+            (None, None) => None,
+            (None, Some(_)) => node.right.take(),
+            (Some(_), None) => node.left.take(),
+            (Some(left), Some(right)) => {
+                if left.priority > right.priority {
+                    let new_root = Self::rotate_right(node);
+                    let mut new_root = new_root;
+                    new_root.right = Self::remove_node(new_root.right.take().unwrap());
+                    new_root.size =
+                        1 + Self::node_size(&new_root.left) + Self::node_size(&new_root.right);
+                    Some(new_root)
+                } else {
+                    let new_root = Self::rotate_left(node);
+                    let mut new_root = new_root;
+                    new_root.left = Self::remove_node(new_root.left.take().unwrap());
+                    new_root.size =
+                        1 + Self::node_size(&new_root.left) + Self::node_size(&new_root.right);
+                    Some(new_root)
+                }
             }
         }
     }
 
     /// x以下の最大の要素を返す
     pub fn le(&self, x: &T) -> Option<&T> {
-        let mut w = self.root;
-        let mut z = None; // z.x <= x
-        while !w.is_null() {
-            let y = &unsafe { &*w }.x;
-            match x.cmp(y) {
-                Ordering::Less => {
-                    w = unsafe { &*w }.left;
-                }
+        let mut current = &self.root;
+        let mut result = None;
+
+        while let Some(node) = current {
+            match x.cmp(&node.x) {
+                Ordering::Less => current = &node.left,
                 Ordering::Greater => {
-                    z = Some(w);
-                    w = unsafe { &*w }.right;
+                    result = Some(&node.x);
+                    current = &node.right;
                 }
-                Ordering::Equal => {
-                    return Some(y);
-                }
+                Ordering::Equal => return Some(&node.x),
             }
         }
 
-        z.map(|z| &unsafe { &*z }.x)
+        result
     }
 
-    /// x以上の最大の要素を返す
+    /// x以上の最小の要素を返す
     pub fn ge(&self, x: &T) -> Option<&T> {
-        let mut w = self.root;
-        let mut z = None; // z.x >= x
-        while !w.is_null() {
-            let y = &unsafe { &*w }.x;
-            match x.cmp(y) {
+        let mut current = &self.root;
+        let mut result = None;
+
+        while let Some(node) = current {
+            match x.cmp(&node.x) {
                 Ordering::Less => {
-                    z = Some(w);
-                    w = unsafe { &*w }.left;
+                    result = Some(&node.x);
+                    current = &node.left;
                 }
-                Ordering::Greater => {
-                    w = unsafe { &*w }.right;
-                }
-                Ordering::Equal => {
-                    return Some(y);
-                }
+                Ordering::Greater => current = &node.right,
+                Ordering::Equal => return Some(&node.x),
             }
         }
 
-        z.map(|z| &unsafe { &*z }.x)
+        result
     }
 
     /// 0-indexedでn番目の要素を返す
@@ -324,45 +251,42 @@ where
         if n >= self.len() {
             return None;
         }
-        let mut w = self.root;
+
+        let mut current = &self.root;
         let mut n = n;
-        while !w.is_null() {
-            let left_size = Self::node_size(unsafe { &*w }.left);
+
+        while let Some(node) = current {
+            let left_size = Self::node_size(&node.left);
             match n.cmp(&left_size) {
-                Ordering::Less => {
-                    w = unsafe { &*w }.left;
-                }
-                Ordering::Equal => {
-                    return Some(&unsafe { &*w }.x);
-                }
+                Ordering::Less => current = &node.left,
+                Ordering::Equal => return Some(&node.x),
                 Ordering::Greater => {
                     n -= 1 + left_size;
-                    w = unsafe { &*w }.right;
+                    current = &node.right;
                 }
             }
         }
+
         unreachable!()
     }
 
     /// xより小さい要素の個数を返す
     /// 集合がxを含む場合Ok, xを含まない場合Err
     pub fn position(&self, x: &T) -> Result<usize, usize> {
-        let mut w = self.root;
+        let mut current = &self.root;
         let mut count = 0;
         let mut hit = false;
-        while !w.is_null() {
-            let y = &unsafe { &*w }.x;
-            match x.cmp(y) {
-                Ordering::Less => {
-                    w = unsafe { &*w }.left;
-                }
+
+        while let Some(node) = current {
+            match x.cmp(&node.x) {
+                Ordering::Less => current = &node.left,
                 Ordering::Equal => {
                     hit = true;
-                    w = unsafe { &*w }.left;
+                    current = &node.left;
                 }
                 Ordering::Greater => {
-                    count += 1 + Self::node_size(unsafe { &*w }.left);
-                    w = unsafe { &*w }.right;
+                    count += 1 + Self::node_size(&node.left);
+                    current = &node.right;
                 }
             }
         }
@@ -382,58 +306,57 @@ where
 {
     /// xを追加する。集合にxが含まれていなかった場合trueを返す。
     pub fn insert(&mut self, x: T) -> bool {
+        let root = self.root.take();
         let mut inserted = false;
-        self.root = self.insert_recursive(self.root, x, &mut inserted);
+        self.root = self.insert_recursive(root, x, &mut inserted);
         if inserted {
             self.n += 1;
         }
         inserted
     }
 
-    fn insert_recursive(&mut self, root: *mut Node<T>, x: T, inserted: &mut bool) -> *mut Node<T> {
-        if root.is_null() {
-            *inserted = true;
-            return Self::alloc_node(x, self.gen_priority());
-        }
+    fn insert_recursive(
+        &mut self,
+        root: Option<Box<Node<T>>>,
+        x: T,
+        inserted: &mut bool,
+    ) -> Option<Box<Node<T>>> {
+        let mut root = match root {
+            Some(root) => root,
+            None => {
+                *inserted = true;
+                return Some(Self::new_node(x, self.gen_priority()));
+            }
+        };
 
-        let ord = unsafe { x.cmp(&(*root).x) };
-
-        match ord {
+        match x.cmp(&root.x) {
             Ordering::Less => {
-                let new_left = self.insert_recursive(unsafe { (*root).left }, x, inserted);
-                unsafe { (*root).left = new_left };
-
+                root.left = self.insert_recursive(root.left.take(), x, inserted);
                 if *inserted {
-                    unsafe {
-                        (*root).size =
-                            1 + Self::node_size((*root).left) + Self::node_size((*root).right)
-                    };
+                    root.size = 1 + Self::node_size(&root.left) + Self::node_size(&root.right);
 
-                    if unsafe { (*new_left).priority } > unsafe { (*root).priority } {
-                        return Self::rotate_right(root);
+                    if let Some(left) = &root.left {
+                        if left.priority > root.priority {
+                            return Some(Self::rotate_right(root));
+                        }
                     }
                 }
-                root
+                Some(root)
             }
             Ordering::Greater => {
-                let new_right = self.insert_recursive(unsafe { (*root).right }, x, inserted);
-                unsafe { (*root).right = new_right };
-
+                root.right = self.insert_recursive(root.right.take(), x, inserted);
                 if *inserted {
-                    unsafe {
-                        (*root).size =
-                            1 + Self::node_size((*root).left) + Self::node_size((*root).right)
-                    };
+                    root.size = 1 + Self::node_size(&root.left) + Self::node_size(&root.right);
 
-                    if unsafe { (*new_right).priority } > unsafe { (*root).priority } {
-                        return Self::rotate_left(root);
+                    if let Some(right) = &root.right {
+                        if right.priority > root.priority {
+                            return Some(Self::rotate_left(root));
+                        }
                     }
                 }
-                root
+                Some(root)
             }
-            Ordering::Equal => {
-                root
-            }
+            Ordering::Equal => Some(root),
         }
     }
 }
@@ -454,12 +377,12 @@ where
 }
 
 pub struct Iter<'a, T> {
-    stack: Vec<*mut Node<T>>,
+    stack: Vec<&'a Node<T>>,
     _phantom: PhantomData<&'a T>,
 }
 
 impl<'a, T> Iter<'a, T> {
-    fn new(root: *mut Node<T>) -> Self {
+    fn new(root: &'a Option<Box<Node<T>>>) -> Self {
         let mut iter = Self {
             stack: Vec::new(),
             _phantom: PhantomData,
@@ -468,10 +391,10 @@ impl<'a, T> Iter<'a, T> {
         iter
     }
 
-    fn push_left_path(&mut self, mut node: *mut Node<T>) {
-        while !node.is_null() {
-            self.stack.push(node);
-            node = unsafe { (*node).left };
+    fn push_left_path(&mut self, mut node: &'a Option<Box<Node<T>>>) {
+        while let Some(n) = node {
+            self.stack.push(n);
+            node = &n.left;
         }
     }
 }
@@ -481,15 +404,15 @@ impl<'a, T> Iterator for Iter<'a, T> {
 
     fn next(&mut self) -> Option<Self::Item> {
         let node = self.stack.pop()?;
-        let result = unsafe { &(*node).x };
-        self.push_left_path(unsafe { (*node).right });
+        let result = &node.x;
+        self.push_left_path(&node.right);
         Some(result)
     }
 }
 
 impl<T, R> Treap<T, R> {
     pub fn iter(&self) -> Iter<T> {
-        Iter::new(self.root)
+        Iter::new(&self.root)
     }
 }
 
