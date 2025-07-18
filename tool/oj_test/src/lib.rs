@@ -6,7 +6,75 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use anyhow::{ensure, Result};
+use glob::glob;
 use log::info;
+
+pub struct OjTestArgs {
+    pub pattern: String,
+    pub dry_run: bool,
+}
+
+pub struct OjTestRunner {
+    testcase_dir: PathBuf,
+}
+
+impl OjTestRunner {
+    pub fn new() -> Result<Self> {
+        let testcase_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("testcases");
+
+        if !testcase_dir.exists() {
+            fs::create_dir_all(&testcase_dir)?;
+        }
+
+        Ok(Self { testcase_dir })
+    }
+
+    pub fn run(&self, args: OjTestArgs) -> Result<()> {
+        let mut solvers = Vec::new();
+        for entry in glob(&args.pattern)? {
+            let path = entry?;
+            solvers.push(ProblemSolver::new(path.as_path()));
+        }
+        solvers.sort_by(|s1, s2| s1.solver_path().cmp(s2.solver_path()));
+
+        info!("Found {} solvers", solvers.len());
+
+        for solver in solvers {
+            if let Some(problem_url) = solver.problem_url() {
+                if args.dry_run {
+                    println!(
+                        "Would test: {} -> {}",
+                        solver.solver_path().display(),
+                        problem_url
+                    );
+                    continue;
+                }
+
+                let testcase_dir = self.get_or_download_testcase(problem_url)?;
+                solver.run(testcase_dir.as_path())?;
+            } else {
+                info!("skip {} (no problem URL)", solver);
+            }
+        }
+
+        Ok(())
+    }
+
+    fn get_or_download_testcase(&self, problem_url: &str) -> Result<PathBuf> {
+        let dir_name = problem_url.replace(['/', ':', '.', '?', '&'], "_");
+        let testcase_dir = self.testcase_dir.join(dir_name);
+
+        if testcase_dir.exists() && testcase_dir.read_dir()?.count() > 0 {
+            info!("Using existing testcase for {}", problem_url);
+            return Ok(testcase_dir);
+        }
+
+        info!("Downloading testcase for {}", problem_url);
+        download_testcase(problem_url, &testcase_dir)?;
+
+        Ok(testcase_dir)
+    }
+}
 
 pub struct ProblemSolver {
     solver_path: PathBuf,
@@ -31,36 +99,49 @@ impl ProblemSolver {
         self.solver_path.as_path()
     }
 
+    pub fn problem_url(&self) -> Option<&str> {
+        self.test_property.get("problem")
+    }
+
     pub fn run(&self, testcase_dir: &Path) -> Result<()> {
+        let solver = example_binary_path(self.solver_path.as_path());
+
+        if !solver.exists() {
+            build_example(self.solver_path.as_path())?;
+        }
+
         let mut oj_command = Command::new("oj");
         oj_command
             .arg("test")
             .arg("--directory")
             .arg(testcase_dir.as_os_str())
             .arg("--command")
-            .arg(example_binary_path(self.solver_path.as_path()));
+            .arg(solver);
 
         if env::consts::OS != "windows" {
             oj_command.arg("--jobs").arg("2");
         }
 
         // special judge
-        // for problem which has multiple answers
         if let Some(judge_program_path) = self.judge_program_path() {
-            oj_command
-                .arg("--judge-command")
-                .arg(example_binary_path(judge_program_path.as_path()));
+            let judge = example_binary_path(judge_program_path.as_path());
+
+            if !judge.exists() {
+                build_example(judge_program_path.as_path())?;
+            }
+
+            oj_command.arg("--judge-command").arg(judge);
         }
 
         info!("execute {:?}", oj_command);
         let status = oj_command.status()?;
-        ensure!(status.success(), "failed: oj test");
+        ensure!(
+            status.success(),
+            "failed: oj test for {}",
+            self.solver_path.display()
+        );
 
         Ok(())
-    }
-
-    pub fn problem_url(&self) -> Option<&str> {
-        self.test_property.get("problem")
     }
 
     fn judge_program_path(&self) -> Option<PathBuf> {
@@ -68,25 +149,6 @@ impl ProblemSolver {
             .get("judge_program_rs")
             .map(|judge_program_rs| self.solver_path.parent().unwrap().join(judge_program_rs))
     }
-}
-
-pub fn download_online_judge_testcase(problem_url: &str, dir_suffix: &Path) -> Result<PathBuf> {
-    let dir = env::temp_dir().join(dir_suffix);
-    if dir.exists() {
-        fs::remove_dir_all(&dir).unwrap_or_else(|err| panic!("{}", err));
-    }
-    let mut oj_command = Command::new("oj");
-    oj_command
-        .arg("download")
-        .arg(problem_url)
-        .arg("--directory")
-        .arg(dir.as_os_str())
-        .arg("--system")
-        .arg("--silent");
-    info!("execute {:?}", oj_command);
-    let status = oj_command.status()?;
-    ensure!(status.success(), "failed: oj download");
-    Ok(dir)
 }
 
 struct TestProperty {
@@ -118,6 +180,55 @@ impl TestProperty {
     fn get(&self, key: &str) -> Option<&str> {
         self.properties.get(key).map(|s| s.as_str())
     }
+}
+
+fn download_testcase(problem_url: &str, testcase_dir: &Path) -> Result<()> {
+    if testcase_dir.exists() {
+        fs::remove_dir_all(testcase_dir)?;
+    }
+
+    let mut oj_command = Command::new("oj");
+    oj_command
+        .arg("download")
+        .arg(problem_url)
+        .arg("--directory")
+        .arg(testcase_dir.as_os_str())
+        .arg("--system")
+        .arg("--silent");
+
+    info!("execute {:?}", oj_command);
+    let status = oj_command.status()?;
+    ensure!(status.success(), "failed: oj download for {}", problem_url);
+
+    Ok(())
+}
+
+fn build_example(example_path: &Path) -> Result<()> {
+    let example_name = example_path
+        .file_stem()
+        .and_then(|name| name.to_str())
+        .ok_or_else(|| {
+            anyhow::anyhow!("Invalid example file name: {}", example_path.display())
+        })?;
+
+    info!("Building example: {}", example_name);
+
+    let mut cargo_command = Command::new("cargo");
+    cargo_command
+        .arg("build")
+        .arg("--release")
+        .arg("--example")
+        .arg(example_name);
+
+    info!("execute {:?}", cargo_command);
+    let status = cargo_command.status()?;
+    ensure!(
+        status.success(),
+        "failed: cargo build --release --example {}",
+        example_name
+    );
+
+    Ok(())
 }
 
 fn cargo_target_examples_dir() -> PathBuf {
