@@ -6,12 +6,15 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use anyhow::{ensure, Result};
+use chrono::TimeZone;
+use chrono_tz::Asia::Tokyo;
 use glob::glob;
-use log::info;
+use log::{info, warn};
 
 pub struct OjTestArgs {
     pub pattern: String,
     pub dry_run: bool,
+    pub force_build: bool,
 }
 
 pub struct OjTestRunner {
@@ -56,7 +59,7 @@ impl OjTestRunner {
                 }
 
                 let testcase_dir = self.get_or_download_testcase(problem_url)?;
-                solver.run(testcase_dir.as_path())?;
+                solver.run(testcase_dir.as_path(), args.force_build)?;
             } else {
                 info!("skip {} (no problem URL)", solver);
             }
@@ -108,11 +111,13 @@ impl ProblemSolver {
         self.test_property.get("problem")
     }
 
-    pub fn run(&self, testcase_dir: &Path) -> Result<()> {
+    pub fn run(&self, testcase_dir: &Path, force_build: bool) -> Result<()> {
         let solver = example_binary_path(self.solver_path.as_path());
 
-        if !solver.exists() {
+        if force_build || !solver.exists() {
             build_example(self.solver_path.as_path())?;
+        } else {
+            log_existing_binary(&solver, "solver");
         }
 
         let mut oj_command = Command::new("oj");
@@ -127,8 +132,10 @@ impl ProblemSolver {
         if let Some(judge_program_path) = self.judge_program_path() {
             let judge = example_binary_path(judge_program_path.as_path());
 
-            if !judge.exists() {
+            if force_build || !judge.exists() {
                 build_example(judge_program_path.as_path())?;
+            } else {
+                log_existing_binary(&judge, "judge");
             }
 
             oj_command.arg("--judge-command").arg(judge);
@@ -246,6 +253,21 @@ fn example_binary_path(source_path: &Path) -> PathBuf {
         path.with_extension("exe")
     } else {
         path.with_extension("")
+    }
+}
+
+fn log_existing_binary(binary_path: &Path, binary_type: &str) {
+    if let Ok(metadata) = fs::metadata(binary_path) {
+        if let Ok(modified) = metadata.modified() {
+            let duration = modified.duration_since(std::time::UNIX_EPOCH).unwrap();
+            let datetime = Tokyo.timestamp(duration.as_secs() as i64, 0);
+            info!(
+                "Using existing {} binary: {} (modified: {})",
+                binary_type,
+                binary_path.display(),
+                datetime.format("%Y-%m-%d %H:%M:%S %z")
+            );
+        }
     }
 }
 

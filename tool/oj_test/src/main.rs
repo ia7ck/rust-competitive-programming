@@ -14,6 +14,10 @@ struct Cli {
     /// Dry run - show what would be tested without actually running
     #[clap(long)]
     dry_run: bool,
+
+    /// Force rebuild all examples even if binaries exist
+    #[clap(long)]
+    force_build: bool,
 }
 
 fn main() -> Result<()> {
@@ -24,6 +28,7 @@ fn main() -> Result<()> {
     let args = OjTestArgs {
         pattern: cli.pattern,
         dry_run: cli.dry_run,
+        force_build: cli.force_build,
     };
 
     let runner = OjTestRunner::new()?;
