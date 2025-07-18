@@ -43,7 +43,7 @@ impl OjTestRunner {
             }
             solvers.push(ProblemSolver::new(path.as_path()));
         }
-        solvers.sort_by(|s1, s2| s1.solver_path().cmp(s2.solver_path()));
+        solvers.sort_by(|s1, s2| s1.solver_path.cmp(&s2.solver_path));
 
         info!("Found {} solvers", solvers.len());
 
@@ -52,7 +52,7 @@ impl OjTestRunner {
                 if args.dry_run {
                     println!(
                         "Would test: {} -> {}",
-                        solver.solver_path().display(),
+                        solver.solver_path.display(),
                         problem_url
                     );
                     continue;
@@ -103,10 +103,6 @@ impl ProblemSolver {
         }
     }
 
-    pub fn solver_path(&self) -> &Path {
-        self.solver_path.as_path()
-    }
-
     pub fn problem_url(&self) -> Option<&str> {
         self.test_property.get("problem")
     }
@@ -118,10 +114,10 @@ impl ProblemSolver {
             testcase_dir.display()
         );
 
-        let solver = example_binary_path(self.solver_path.as_path());
+        let solver = example_binary_path(&self.solver_path);
 
         if force_build || !solver.exists() {
-            build_example(self.solver_path.as_path())?;
+            build_example(&solver)?;
         } else {
             log_existing_binary(&solver, "solver");
         }
