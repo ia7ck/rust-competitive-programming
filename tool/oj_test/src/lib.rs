@@ -121,6 +121,8 @@ impl ProblemSolver {
         } else {
             log_existing_binary(&solver, "solver");
         }
+        
+        assert!(solver.exists());
 
         let mut oj_command = Command::new("oj");
         oj_command
