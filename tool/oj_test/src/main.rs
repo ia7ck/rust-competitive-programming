@@ -10,10 +10,6 @@ fn main() -> Result<()> {
     let mut solvers = Vec::new();
     for entry in glob("**/examples/*.rs")? {
         let path = entry?;
-        // oj download に失敗するのでスキップ
-        if path.ends_with("scc.rs") || path.ends_with("cycle_detection.rs") {
-            continue;
-        }
         solvers.push(ProblemSolver::new(path.as_path()));
     }
     solvers.sort_by(|s1, s2| s1.solver_path().cmp(s2.solver_path()));
