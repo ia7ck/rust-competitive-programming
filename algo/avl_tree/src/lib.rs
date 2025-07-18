@@ -92,7 +92,7 @@ impl<T> AvlTree<T> {
         //      b       c           a       b
         let mut right = root.right.take().unwrap();
         let b = right.left.take();
-        
+
         root.right = b;
         Self::update_height_and_size(&mut root);
 
