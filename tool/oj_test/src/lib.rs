@@ -6,7 +6,83 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use anyhow::{ensure, Result};
-use log::info;
+use chrono::TimeZone;
+use chrono_tz::Asia::Tokyo;
+use glob::glob;
+use log::{info, warn};
+
+pub struct OjTestArgs {
+    pub pattern: String,
+    pub dry_run: bool,
+    pub force_build: bool,
+}
+
+pub struct OjTestRunner {
+    testcase_dir: PathBuf,
+}
+
+impl OjTestRunner {
+    pub fn new() -> Result<Self> {
+        let testcase_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("testcases");
+
+        if !testcase_dir.exists() {
+            fs::create_dir_all(&testcase_dir)?;
+        }
+
+        Ok(Self { testcase_dir })
+    }
+
+    pub fn run(&self, args: OjTestArgs) -> Result<()> {
+        let mut solvers = Vec::new();
+        for entry in glob(&args.pattern)? {
+            let path = entry?;
+            // oj download に失敗するのでスキップ
+            if path.ends_with("cycle_detection.rs") || path.ends_with("scc.rs") {
+                warn!("skip {} (excluded file)", path.display());
+                continue;
+            }
+            solvers.push(ProblemSolver::new(path));
+        }
+        solvers.sort_by(|s1, s2| s1.solver_path.cmp(&s2.solver_path));
+
+        info!("Found {} solvers", solvers.len());
+
+        for solver in solvers {
+            if let Some(problem_url) = solver.problem_url() {
+                if args.dry_run {
+                    println!(
+                        "Would test: {} -> {}",
+                        solver.solver_path.display(),
+                        problem_url
+                    );
+                    continue;
+                }
+
+                let testcase_dir = self.get_or_download_testcase(problem_url)?;
+                solver.run(&testcase_dir, args.force_build)?;
+            } else {
+                info!("skip {} (no problem URL)", solver);
+            }
+        }
+
+        Ok(())
+    }
+
+    fn get_or_download_testcase(&self, problem_url: &str) -> Result<PathBuf> {
+        let dir_name = problem_url.replace(['/', ':', '.', '?', '&'], "_");
+        let testcase_dir = self.testcase_dir.join(dir_name);
+
+        if testcase_dir.exists() && testcase_dir.read_dir()?.count() > 0 {
+            info!("Using existing testcase for {}", problem_url);
+            return Ok(testcase_dir);
+        }
+
+        info!("Downloading testcase for {}", problem_url);
+        download_testcase(problem_url, &testcase_dir)?;
+
+        Ok(testcase_dir)
+    }
+}
 
 pub struct ProblemSolver {
     solver_path: PathBuf,
@@ -20,47 +96,62 @@ impl Display for ProblemSolver {
 }
 
 impl ProblemSolver {
-    pub fn new(path: &Path) -> Self {
+    pub fn new(path: PathBuf) -> Self {
         Self {
-            solver_path: path.to_path_buf(),
-            test_property: TestProperty::from(path),
+            test_property: TestProperty::from(&path),
+            solver_path: path,
         }
-    }
-
-    pub fn solver_path(&self) -> &Path {
-        self.solver_path.as_path()
-    }
-
-    pub fn run(&self, testcase_dir: &Path) -> Result<()> {
-        let mut oj_command = Command::new("oj");
-        oj_command
-            .arg("test")
-            .arg("--directory")
-            .arg(testcase_dir.as_os_str())
-            .arg("--command")
-            .arg(example_binary_path(self.solver_path.as_path()));
-
-        if env::consts::OS != "windows" {
-            oj_command.arg("--jobs").arg("2");
-        }
-
-        // special judge
-        // for problem which has multiple answers
-        if let Some(judge_program_path) = self.judge_program_path() {
-            oj_command
-                .arg("--judge-command")
-                .arg(example_binary_path(judge_program_path.as_path()));
-        }
-
-        info!("execute {:?}", oj_command);
-        let status = oj_command.status()?;
-        ensure!(status.success(), "failed: oj test");
-
-        Ok(())
     }
 
     pub fn problem_url(&self) -> Option<&str> {
         self.test_property.get("problem")
+    }
+
+    pub fn run(&self, testcase_dir: &Path, force_build: bool) -> Result<()> {
+        ensure!(
+            testcase_dir.exists(),
+            "Testcase directory does not exist: {}",
+            testcase_dir.display()
+        );
+
+        let solver = example_binary_path(&self.solver_path);
+
+        if force_build || !solver.exists() {
+            build_example(&solver)?;
+        } else {
+            log_existing_binary(&solver, "solver");
+        }
+
+        let mut oj_command = Command::new("oj");
+        oj_command
+            .arg("test")
+            .arg("--directory")
+            .arg(testcase_dir)
+            .arg("--command")
+            .arg(solver);
+
+        // special judge
+        if let Some(judge_program_path) = self.judge_program_path() {
+            let judge = example_binary_path(&judge_program_path);
+
+            if force_build || !judge.exists() {
+                build_example(&judge_program_path)?;
+            } else {
+                log_existing_binary(&judge, "judge");
+            }
+
+            oj_command.arg("--judge-command").arg(judge);
+        }
+
+        info!("execute {:?}", oj_command);
+        let status = oj_command.status()?;
+        ensure!(
+            status.success(),
+            "failed: oj test for {}",
+            self.solver_path.display()
+        );
+
+        Ok(())
     }
 
     fn judge_program_path(&self) -> Option<PathBuf> {
@@ -68,25 +159,6 @@ impl ProblemSolver {
             .get("judge_program_rs")
             .map(|judge_program_rs| self.solver_path.parent().unwrap().join(judge_program_rs))
     }
-}
-
-pub fn download_online_judge_testcase(problem_url: &str, dir_suffix: &Path) -> Result<PathBuf> {
-    let dir = env::temp_dir().join(dir_suffix);
-    if dir.exists() {
-        fs::remove_dir_all(&dir).unwrap_or_else(|err| panic!("{}", err));
-    }
-    let mut oj_command = Command::new("oj");
-    oj_command
-        .arg("download")
-        .arg(problem_url)
-        .arg("--directory")
-        .arg(dir.as_os_str())
-        .arg("--system")
-        .arg("--silent");
-    info!("execute {:?}", oj_command);
-    let status = oj_command.status()?;
-    ensure!(status.success(), "failed: oj download");
-    Ok(dir)
 }
 
 struct TestProperty {
@@ -120,6 +192,53 @@ impl TestProperty {
     }
 }
 
+fn download_testcase(problem_url: &str, testcase_dir: &Path) -> Result<()> {
+    if testcase_dir.exists() {
+        fs::remove_dir_all(testcase_dir)?;
+    }
+
+    let mut oj_command = Command::new("oj");
+    oj_command
+        .arg("download")
+        .arg(problem_url)
+        .arg("--directory")
+        .arg(testcase_dir)
+        .arg("--system")
+        .arg("--silent");
+
+    info!("execute {:?}", oj_command);
+    let status = oj_command.status()?;
+    ensure!(status.success(), "failed: oj download for {}", problem_url);
+
+    Ok(())
+}
+
+fn build_example(example_path: &Path) -> Result<()> {
+    let example_name = example_path
+        .file_stem()
+        .and_then(|name| name.to_str())
+        .ok_or_else(|| anyhow::anyhow!("Invalid example file name: {}", example_path.display()))?;
+
+    info!("Building example: {}", example_name);
+
+    let mut cargo_command = Command::new("cargo");
+    cargo_command
+        .arg("build")
+        .arg("--release")
+        .arg("--example")
+        .arg(example_name);
+
+    info!("execute {:?}", cargo_command);
+    let status = cargo_command.status()?;
+    ensure!(
+        status.success(),
+        "failed: cargo build --release --example {}",
+        example_name
+    );
+
+    Ok(())
+}
+
 fn cargo_target_examples_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("..")
@@ -136,6 +255,21 @@ fn example_binary_path(source_path: &Path) -> PathBuf {
         path.with_extension("exe")
     } else {
         path.with_extension("")
+    }
+}
+
+fn log_existing_binary(binary_path: &Path, binary_type: &str) {
+    if let Ok(metadata) = fs::metadata(binary_path) {
+        if let Ok(modified) = metadata.modified() {
+            let duration = modified.duration_since(std::time::UNIX_EPOCH).unwrap();
+            let datetime = Tokyo.timestamp(duration.as_secs() as i64, 0);
+            info!(
+                "Using existing {} binary: {} (modified: {})",
+                binary_type,
+                binary_path.display(),
+                datetime.format("%Y-%m-%d %H:%M:%S %z")
+            );
+        }
     }
 }
 
