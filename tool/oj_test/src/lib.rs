@@ -130,7 +130,7 @@ impl ProblemSolver {
         oj_command
             .arg("test")
             .arg("--directory")
-            .arg(testcase_dir.as_os_str())
+            .arg(testcase_dir)
             .arg("--command")
             .arg(solver);
 
@@ -206,7 +206,7 @@ fn download_testcase(problem_url: &str, testcase_dir: &Path) -> Result<()> {
         .arg("download")
         .arg(problem_url)
         .arg("--directory")
-        .arg(testcase_dir.as_os_str())
+        .arg(testcase_dir)
         .arg("--system")
         .arg("--silent");
 
