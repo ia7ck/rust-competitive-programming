@@ -112,6 +112,12 @@ impl ProblemSolver {
     }
 
     pub fn run(&self, testcase_dir: &Path, force_build: bool) -> Result<()> {
+        ensure!(
+            testcase_dir.exists(),
+            "Testcase directory does not exist: {}",
+            testcase_dir.display()
+        );
+
         let solver = example_binary_path(self.solver_path.as_path());
 
         if force_build || !solver.exists() {
