@@ -37,6 +37,8 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    env:
+      RUST_LOG: oj_test=info
     steps:
       - uses: actions/checkout@v4
       - name: Test
