@@ -3,7 +3,6 @@ use std::path::Path;
 use oj_test::ProblemSolver;
 
 #[test]
-#[ignore]
 fn local_testcase() {
     env_logger::init();
 
