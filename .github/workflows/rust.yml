@@ -41,6 +41,11 @@ jobs:
       RUST_LOG: oj_test=info
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Install oj
+        run: pip3 install --upgrade setuptools wheel && pip3 install online-judge-tools && oj --version
       - name: Test
         run: cargo test -- --nocapture
 
