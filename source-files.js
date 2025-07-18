@@ -1,6 +1,7 @@
 var sourcesIndex = JSON.parse('{\
 "arithmetic_series":["",[],["lib.rs"]],\
 "auxiliary_tree":["",[],["lib.rs"]],\
+"avl_tree":["",[],["lib.rs"]],\
 "binary_search_range":["",[],["lib.rs"]],\
 "cumulative_sum_2d":["",[],["lib.rs"]],\
 "detect_cycle":["",[],["lib.rs"]],\
