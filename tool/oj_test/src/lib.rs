@@ -118,10 +118,6 @@ impl ProblemSolver {
             .arg("--command")
             .arg(solver);
 
-        if env::consts::OS != "windows" {
-            oj_command.arg("--jobs").arg("2");
-        }
-
         // special judge
         if let Some(judge_program_path) = self.judge_program_path() {
             let judge = example_binary_path(judge_program_path.as_path());
