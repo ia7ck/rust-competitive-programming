@@ -9,8 +9,7 @@ fn local_testcase() {
     let solver = ProblemSolver::new(
         Path::new(std::env!("CARGO_MANIFEST_DIR"))
             .join("examples")
-            .join("double.rs")
-            .as_path(),
+            .join("double.rs"),
     );
     let testcase_dir = Path::new(std::env!("CARGO_MANIFEST_DIR"))
         .join("tests")

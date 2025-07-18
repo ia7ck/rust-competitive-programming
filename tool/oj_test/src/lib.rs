@@ -41,7 +41,7 @@ impl OjTestRunner {
                 warn!("skip {} (excluded file)", path.display());
                 continue;
             }
-            solvers.push(ProblemSolver::new(path.as_path()));
+            solvers.push(ProblemSolver::new(path));
         }
         solvers.sort_by(|s1, s2| s1.solver_path.cmp(&s2.solver_path));
 
@@ -59,7 +59,7 @@ impl OjTestRunner {
                 }
 
                 let testcase_dir = self.get_or_download_testcase(problem_url)?;
-                solver.run(testcase_dir.as_path(), args.force_build)?;
+                solver.run(&testcase_dir, args.force_build)?;
             } else {
                 info!("skip {} (no problem URL)", solver);
             }
@@ -96,10 +96,10 @@ impl Display for ProblemSolver {
 }
 
 impl ProblemSolver {
-    pub fn new(path: &Path) -> Self {
+    pub fn new(path: PathBuf) -> Self {
         Self {
-            solver_path: path.to_path_buf(),
-            test_property: TestProperty::from(path),
+            test_property: TestProperty::from(&path),
+            solver_path: path,
         }
     }
 
@@ -115,7 +115,6 @@ impl ProblemSolver {
         );
 
         let solver = example_binary_path(&self.solver_path);
-        info!("solver: {:?}", solver);
 
         if force_build || !solver.exists() {
             build_example(&solver)?;
@@ -133,10 +132,10 @@ impl ProblemSolver {
 
         // special judge
         if let Some(judge_program_path) = self.judge_program_path() {
-            let judge = example_binary_path(judge_program_path.as_path());
+            let judge = example_binary_path(&judge_program_path);
 
             if force_build || !judge.exists() {
-                build_example(judge_program_path.as_path())?;
+                build_example(&judge_program_path)?;
             } else {
                 log_existing_binary(&judge, "judge");
             }
