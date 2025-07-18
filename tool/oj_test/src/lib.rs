@@ -115,6 +115,7 @@ impl ProblemSolver {
         );
 
         let solver = example_binary_path(&self.solver_path);
+        info!("solver: {:?}", solver);
 
         if force_build || !solver.exists() {
             build_example(&solver)?;
