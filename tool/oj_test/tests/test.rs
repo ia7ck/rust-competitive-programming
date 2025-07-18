@@ -15,9 +15,5 @@ fn local_testcase() {
         .join("tests")
         .join("hand-made");
 
-    solver
-        .run(testcase_dir.as_path(), true)
-        .unwrap_or_else(|e| {
-            dbg!(e);
-        });
+    solver.run(testcase_dir.as_path(), true).unwrap()
 }
