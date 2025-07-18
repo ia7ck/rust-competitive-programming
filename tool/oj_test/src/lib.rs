@@ -203,9 +203,7 @@ fn build_example(example_path: &Path) -> Result<()> {
     let example_name = example_path
         .file_stem()
         .and_then(|name| name.to_str())
-        .ok_or_else(|| {
-            anyhow::anyhow!("Invalid example file name: {}", example_path.display())
-        })?;
+        .ok_or_else(|| anyhow::anyhow!("Invalid example file name: {}", example_path.display()))?;
 
     info!("Building example: {}", example_name);
 
