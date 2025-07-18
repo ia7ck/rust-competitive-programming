@@ -6,6 +6,7 @@ use std::{
 
 use rand::{rngs::StdRng, RngCore, SeedableRng};
 
+#[derive(Clone)]
 struct Node<T> {
     x: T,
     priority: u64,
@@ -14,6 +15,7 @@ struct Node<T> {
     size: usize,
 }
 
+#[derive(Clone)]
 pub struct Treap<T, R> {
     n: usize,
     root: Option<Box<Node<T>>>,
@@ -520,5 +522,91 @@ mod tests {
         treap.insert(2);
 
         assert_eq!(treap.into_sorted_vec(), vec![1, 2, 3, 4, 5, 9]);
+    }
+
+    #[test]
+    fn test_treap_clone() {
+        let mut treap = Treap::default();
+        treap.insert(3);
+        treap.insert(1);
+        treap.insert(4);
+        treap.insert(5);
+
+        // Clone the treap
+        let cloned_treap = treap.clone();
+
+        // Verify that both treaps have the same content
+        assert_eq!(treap.len(), cloned_treap.len());
+        assert_eq!(treap.contains(&1), cloned_treap.contains(&1));
+        assert_eq!(treap.contains(&3), cloned_treap.contains(&3));
+        assert_eq!(treap.contains(&4), cloned_treap.contains(&4));
+        assert_eq!(treap.contains(&5), cloned_treap.contains(&5));
+        assert_eq!(treap.contains(&2), cloned_treap.contains(&2));
+
+        // Verify that iteration produces the same results
+        let original_values: Vec<_> = treap.iter().collect();
+        let cloned_values: Vec<_> = cloned_treap.iter().collect();
+        assert_eq!(original_values, cloned_values);
+    }
+
+    #[test]
+    fn test_treap_clone_independence() {
+        let mut treap = Treap::default();
+        treap.insert(1);
+        treap.insert(2);
+        treap.insert(3);
+
+        // Clone the treap
+        let mut cloned_treap = treap.clone();
+
+        // Modify the original treap
+        treap.insert(4);
+        treap.remove(&1);
+
+        // Verify that the cloned treap is unaffected
+        assert_eq!(treap.len(), 3); // original: 2, 3, 4
+        assert_eq!(cloned_treap.len(), 3); // cloned: 1, 2, 3
+
+        assert_eq!(treap.contains(&1), false);
+        assert_eq!(cloned_treap.contains(&1), true);
+
+        assert_eq!(treap.contains(&4), true);
+        assert_eq!(cloned_treap.contains(&4), false);
+
+        // Modify the cloned treap
+        cloned_treap.insert(5);
+        cloned_treap.remove(&2);
+
+        // Verify that the original treap is unaffected
+        assert_eq!(treap.len(), 3); // original: 2, 3, 4
+        assert_eq!(cloned_treap.len(), 3); // cloned: 1, 3, 5
+
+        assert_eq!(treap.contains(&2), true);
+        assert_eq!(cloned_treap.contains(&2), false);
+
+        assert_eq!(treap.contains(&5), false);
+        assert_eq!(cloned_treap.contains(&5), true);
+    }
+
+    #[test]
+    fn test_treap_clone_with_custom_rng() {
+        use rand::rngs::StdRng;
+        use rand::SeedableRng;
+
+        // Create treap with a specific seeded RNG
+        let rng = StdRng::seed_from_u64(42);
+        let mut treap = Treap::new(rng);
+        treap.insert(10);
+        treap.insert(20);
+        treap.insert(30);
+
+        // Clone the treap (this should clone both the structure and the RNG)
+        let cloned_treap = treap.clone();
+
+        // Verify that both treaps have the same content
+        assert_eq!(treap.len(), cloned_treap.len());
+        let original_values: Vec<_> = treap.iter().collect();
+        let cloned_values: Vec<_> = cloned_treap.iter().collect();
+        assert_eq!(original_values, cloned_values);
     }
 }
