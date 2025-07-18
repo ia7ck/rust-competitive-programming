@@ -43,6 +43,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Test
         run: cargo test
+      - run: ls target/release/examples/
 
   oj-test:
     runs-on: ubuntu-latest
