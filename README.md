@@ -1,4 +1,3 @@
-# Docs example
+# Docs
 
-- https://ia7ck.github.io/rust-competitive-programming/dijkstra
-- https://ia7ck.github.io/rust-competitive-programming/divisors
+https://ia7ck.github.io/rust-competitive-programming/index.html
