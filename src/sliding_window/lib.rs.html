@@ -147,11 +147,7 @@
 <a href="#147" id="147">147</a>
 <a href="#148" id="148">148</a>
 <a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::cmp::Ordering::{Greater, Less};
-<span class="kw">use </span>std::collections::VecDeque;
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::VecDeque;
 
 <span class="doccomment">/// 幅 `window_width` の区間すべてに対し最小値を求めます。
 ///
@@ -179,55 +175,53 @@
 /// assert_eq!(
 ///     minimums,
 ///     vec![
-///         4, // 4 7 7 8 5 7
-///         5, //   7 7 8 5 7 6
-///         5, //     7 8 5 7 6 9
-///         5, //       8 5 7 6 9 9
-///         2, //         5 7 6 9 9 2
-///         2, //           7 6 9 9 2 8
-///         2, //             6 9 9 2 8 3
+///         &amp;4, // 4 7 7 8 5 7
+///         &amp;5, //   7 7 8 5 7 6
+///         &amp;5, //     7 8 5 7 6 9
+///         &amp;5, //       8 5 7 6 9 9
+///         &amp;2, //         5 7 6 9 9 2
+///         &amp;2, //           7 6 9 9 2 8
+///         &amp;2, //             6 9 9 2 8 3
 ///     ]
 /// );
 /// ```
-</span><span class="kw">pub fn </span>sliding_window_minimum&lt;T&gt;(a: <span class="kw-2">&amp;</span>[T], window_width: usize) -&gt; Vec&lt;T&gt;
+</span><span class="kw">pub fn </span>sliding_window_minimum&lt;T&gt;(a: <span class="kw-2">&amp;</span>[T], window_width: usize) -&gt; Vec&lt;<span class="kw-2">&amp;</span>T&gt;
 <span class="kw">where
-    </span>T: Ord + Clone,
+    </span>T: Ord,
 {
-    sliding_window(a, window_width, <span class="bool-val">true</span>)
+    sliding_window(a, window_width, |last, new| last &gt;= new)
 }
 
 <span class="doccomment">/// [`sliding_window_minimum`](fn.sliding_window_minimum.html) の最大値バージョンです。
-</span><span class="kw">pub fn </span>sliding_window_maximum&lt;T&gt;(a: <span class="kw-2">&amp;</span>[T], window_width: usize) -&gt; Vec&lt;T&gt;
+</span><span class="kw">pub fn </span>sliding_window_maximum&lt;T&gt;(a: <span class="kw-2">&amp;</span>[T], window_width: usize) -&gt; Vec&lt;<span class="kw-2">&amp;</span>T&gt;
 <span class="kw">where
-    </span>T: Ord + Clone,
+    </span>T: Ord,
 {
-    sliding_window(a, window_width, <span class="bool-val">false</span>)
+    sliding_window(a, window_width, |last, new| last &lt;= new)
 }
 
-<span class="kw">fn </span>sliding_window&lt;T&gt;(a: <span class="kw-2">&amp;</span>[T], window_width: usize, choose_minimum: bool) -&gt; Vec&lt;T&gt;
+<span class="kw">fn </span>sliding_window&lt;T, F&gt;(a: <span class="kw-2">&amp;</span>[T], window_width: usize, pop_back_cond: F) -&gt; Vec&lt;<span class="kw-2">&amp;</span>T&gt;
 <span class="kw">where
-    </span>T: Ord + Clone,
-{
+    </span>T: Ord,
+    F: Fn(<span class="kw-2">&amp;</span>T, <span class="kw-2">&amp;</span>T) -&gt; bool, <span class="comment">// (last, new)
+</span>{
     <span class="macro">assert!</span>(<span class="number">0 </span>&lt; window_width &amp;&amp; window_width &lt;= a.len());
     <span class="kw">let </span><span class="kw-2">mut </span>result = Vec::new();
-    <span class="kw">let </span><span class="kw-2">mut </span>arg_min_max_candidates: VecDeque&lt;usize&gt; = VecDeque::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>positions: VecDeque&lt;usize&gt; = VecDeque::new();
     <span class="kw">for </span>(i, v) <span class="kw">in </span>a.iter().enumerate() {
-        <span class="kw">while </span>!arg_min_max_candidates.is_empty() {
-            <span class="kw">let </span>back = arg_min_max_candidates.back().unwrap();
-            <span class="kw">if </span>choose_minimum &amp;&amp; a[<span class="kw-2">*</span>back].cmp(v) == Less {
+        <span class="kw">while let </span><span class="prelude-val">Some</span>(last) = positions.back().copied() {
+            <span class="kw">if </span>pop_back_cond(<span class="kw-2">&amp;</span>a[last], v) {
+                positions.pop_back();
+            } <span class="kw">else </span>{
                 <span class="kw">break</span>;
             }
-            <span class="kw">if </span>!choose_minimum &amp;&amp; a[<span class="kw-2">*</span>back].cmp(v) == Greater {
-                <span class="kw">break</span>;
-            }
-            arg_min_max_candidates.pop_back();
         }
-        arg_min_max_candidates.push_back(i);
+        positions.push_back(i);
         <span class="kw">if </span>i &gt;= window_width - <span class="number">1 </span>{
-            <span class="kw">let </span>arg_min_max = arg_min_max_candidates.front().unwrap();
-            result.push(Clone::clone(<span class="kw-2">&amp;</span>a[<span class="kw-2">*</span>arg_min_max]));
-            <span class="kw">if </span><span class="kw-2">*</span>arg_min_max == i - (window_width - <span class="number">1</span>) {
-                arg_min_max_candidates.pop_front();
+            <span class="kw">let </span>p = positions.front().copied().unwrap();
+            result.push(<span class="kw-2">&amp;</span>a[p]);
+            <span class="kw">if </span>p == i - (window_width - <span class="number">1</span>) {
+                positions.pop_front();
             }
         }
     }
@@ -244,23 +238,23 @@
         <span class="macro">assert_eq!</span>(
             sliding_window_minimum(<span class="kw-2">&amp;</span>a, <span class="number">4</span>),
             <span class="macro">vec!</span>[
-                <span class="number">2</span>, <span class="comment">// 2 2 3 6
-                </span><span class="number">0</span>, <span class="comment">//   2 3 6 0
-                </span><span class="number">0</span>, <span class="comment">//     3 6 0 6
-                </span><span class="number">0</span>, <span class="comment">//       6 0 6 7
-                </span><span class="number">0</span>, <span class="comment">//         0 6 7 9
-                </span><span class="number">6</span>, <span class="comment">//           6 7 9 7
-                </span><span class="number">7</span>, <span class="comment">//             7 9 7 7
-                </span><span class="number">4</span>, <span class="comment">//               9 7 7 4
-                </span><span class="number">4  </span><span class="comment">//                  7 7 4 9
+                <span class="kw-2">&amp;</span><span class="number">2</span>, <span class="comment">// 2 2 3 6
+                </span><span class="kw-2">&amp;</span><span class="number">0</span>, <span class="comment">//   2 3 6 0
+                </span><span class="kw-2">&amp;</span><span class="number">0</span>, <span class="comment">//     3 6 0 6
+                </span><span class="kw-2">&amp;</span><span class="number">0</span>, <span class="comment">//       6 0 6 7
+                </span><span class="kw-2">&amp;</span><span class="number">0</span>, <span class="comment">//         0 6 7 9
+                </span><span class="kw-2">&amp;</span><span class="number">6</span>, <span class="comment">//           6 7 9 7
+                </span><span class="kw-2">&amp;</span><span class="number">7</span>, <span class="comment">//             7 9 7 7
+                </span><span class="kw-2">&amp;</span><span class="number">4</span>, <span class="comment">//               9 7 7 4
+                </span><span class="kw-2">&amp;</span><span class="number">4</span>, <span class="comment">//                 7 7 4 9
             </span>]
         );
 
-        <span class="macro">assert_eq!</span>(sliding_window_minimum(<span class="kw-2">&amp;</span>a, <span class="number">1</span>), a);
+        <span class="macro">assert_eq!</span>(sliding_window_minimum(<span class="kw-2">&amp;</span>a, <span class="number">1</span>), a.iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;());
 
         <span class="macro">assert_eq!</span>(
             sliding_window_minimum(<span class="kw-2">&amp;</span>a, a.len()),
-            <span class="macro">vec!</span>[a.iter().copied().min().unwrap()],
+            <span class="macro">vec!</span>[a.iter().min().unwrap()],
         );
     }
 
@@ -270,36 +264,36 @@
         <span class="macro">assert_eq!</span>(
             sliding_window_maximum(<span class="kw-2">&amp;</span>a, <span class="number">4</span>),
             <span class="macro">vec!</span>[
-                <span class="number">6</span>, <span class="comment">// 2 2 3 6
-                </span><span class="number">6</span>, <span class="comment">//   2 3 6 0
-                </span><span class="number">6</span>, <span class="comment">//     3 6 0 6
-                </span><span class="number">7</span>, <span class="comment">//       6 0 6 7
-                </span><span class="number">9</span>, <span class="comment">//         0 6 7 9
-                </span><span class="number">9</span>, <span class="comment">//           6 7 9 7
-                </span><span class="number">9</span>, <span class="comment">//             7 9 7 7
-                </span><span class="number">9</span>, <span class="comment">//               9 7 7 4
-                </span><span class="number">9  </span><span class="comment">//                  7 7 4 9
+                <span class="kw-2">&amp;</span><span class="number">6</span>, <span class="comment">// 2 2 3 6
+                </span><span class="kw-2">&amp;</span><span class="number">6</span>, <span class="comment">//   2 3 6 0
+                </span><span class="kw-2">&amp;</span><span class="number">6</span>, <span class="comment">//     3 6 0 6
+                </span><span class="kw-2">&amp;</span><span class="number">7</span>, <span class="comment">//       6 0 6 7
+                </span><span class="kw-2">&amp;</span><span class="number">9</span>, <span class="comment">//         0 6 7 9
+                </span><span class="kw-2">&amp;</span><span class="number">9</span>, <span class="comment">//           6 7 9 7
+                </span><span class="kw-2">&amp;</span><span class="number">9</span>, <span class="comment">//             7 9 7 7
+                </span><span class="kw-2">&amp;</span><span class="number">9</span>, <span class="comment">//               9 7 7 4
+                </span><span class="kw-2">&amp;</span><span class="number">9</span>, <span class="comment">//                 7 7 4 9
             </span>]
         );
 
-        <span class="macro">assert_eq!</span>(sliding_window_maximum(<span class="kw-2">&amp;</span>a, <span class="number">1</span>), a);
+        <span class="macro">assert_eq!</span>(sliding_window_maximum(<span class="kw-2">&amp;</span>a, <span class="number">1</span>), a.iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;());
 
         <span class="macro">assert_eq!</span>(
             sliding_window_maximum(<span class="kw-2">&amp;</span>a, a.len()),
-            <span class="macro">vec!</span>[a.iter().copied().max().unwrap()],
+            <span class="macro">vec!</span>[a.iter().max().unwrap()],
         );
     }
 
     <span class="attr">#[test]
     #[should_panic]
     </span><span class="kw">fn </span>test_empty_0() {
-        <span class="macro">assert_eq!</span>(sliding_window_minimum::&lt;u32&gt;(<span class="kw-2">&amp;</span>[], <span class="number">0</span>), <span class="macro">vec!</span>[]);
+        <span class="macro">assert!</span>(sliding_window_minimum::&lt;u32&gt;(<span class="kw-2">&amp;</span>[], <span class="number">0</span>).is_empty());
     }
 
     <span class="attr">#[test]
     #[should_panic]
     </span><span class="kw">fn </span>test_empty_1() {
-        <span class="macro">assert_eq!</span>(sliding_window_minimum::&lt;u32&gt;(<span class="kw-2">&amp;</span>[], <span class="number">1</span>), <span class="macro">vec!</span>[]);
+        <span class="macro">assert!</span>(sliding_window_minimum::&lt;u32&gt;(<span class="kw-2">&amp;</span>[], <span class="number">1</span>).is_empty());
     }
 }
 </code></pre></div></section></main></body></html>
