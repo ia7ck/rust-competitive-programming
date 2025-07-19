@@ -86,7 +86,7 @@ jobs:
       with:
           persist-credentials: false
     - name: Doc
-      run: cargo +nightly doc --no-deps --lib --workspace --exclude=oj_test --exclude=simple_example --exclude=special_judge_example
+      run: cargo +nightly doc --no-deps --lib --workspace --exclude=oj_test --exclude=simple_example --exclude=special_judge_example --exclude=bundle
     - name: Deploy 🚀
       uses: JamesIves/github-pages-deploy-action@v4
       with:
