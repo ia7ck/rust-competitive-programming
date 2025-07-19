@@ -75,6 +75,103 @@ where
         self._fold(start, end)
     }
 
+    /// `f(fold(l..r)) = true` となる最大の `r` を返します。
+    ///
+    /// # Panics
+    ///
+    /// if `f(e) = false`
+    pub fn max_right<P>(&self, l: usize, f: P) -> usize
+    where
+        P: Fn(&T) -> bool,
+    {
+        assert!(l <= self.original_n);
+        assert!(f(&self.e), "f(e) must be true");
+
+        if l == self.original_n {
+            return self.original_n;
+        }
+
+        let mut l = l + self.n;
+        let mut sum = self.e.clone();
+
+        loop {
+            // l を含む区間の右端まで進む
+            while l % 2 == 0 {
+                l >>= 1;
+            }
+
+            let new_sum = (self.multiply)(&sum, &self.dat[l]);
+            if !f(&new_sum) {
+                while l < self.n {
+                    l <<= 1;
+                    let new_sum = (self.multiply)(&sum, &self.dat[l]);
+                    if f(&new_sum) {
+                        sum = new_sum;
+                        l += 1;
+                    }
+                }
+                return l - self.n;
+            }
+
+            sum = new_sum;
+            l += 1;
+
+            if (l & (l.wrapping_neg())) == l {
+                break;
+            }
+        }
+
+        self.original_n
+    }
+
+    /// `f(fold(l..r)) = true` となる最小の `l` を返します。
+    ///
+    /// # Panics
+    ///
+    /// if `f(e) = false`
+    pub fn min_left<P>(&self, r: usize, f: P) -> usize
+    where
+        P: Fn(&T) -> bool,
+    {
+        assert!(r <= self.original_n);
+        assert!(f(&self.e), "f(e) must be true");
+
+        if r == 0 {
+            return 0;
+        }
+
+        let mut r = r + self.n;
+        let mut sum = self.e.clone();
+
+        loop {
+            r -= 1;
+            while r > 1 && r % 2 == 1 {
+                r >>= 1;
+            }
+
+            let new_sum = (self.multiply)(&self.dat[r], &sum);
+            if !f(&new_sum) {
+                while r < self.n {
+                    r = r * 2 + 1;
+                    let new_sum = (self.multiply)(&self.dat[r], &sum);
+                    if f(&new_sum) {
+                        sum = new_sum;
+                        r -= 1;
+                    }
+                }
+                return r + 1 - self.n;
+            }
+
+            sum = new_sum;
+
+            if (r & (r.wrapping_neg())) == r {
+                break;
+            }
+        }
+
+        0
+    }
+
     fn _fold(&self, mut l: usize, mut r: usize) -> T {
         let mut acc_l = self.e.clone();
         let mut acc_r = self.e.clone();
@@ -153,5 +250,50 @@ mod tests {
         assert_eq!(seg[0], 0);
         seg.set(0, 42);
         assert_eq!(seg[0], 42);
+    }
+
+    #[test]
+    fn test_max_right() {
+        let n = 9;
+        let mut seg = SegmentTree::new(n, 0, |a, b| a + b);
+        let values = vec![3, 1, 4, 1, 5, 9, 2, 6, 5];
+        for (i, &v) in values.iter().enumerate() {
+            seg.set(i, v);
+        }
+
+        // 区間和
+        assert_eq!(seg.max_right(0, |&sum| sum < 9), 3); // 3 + 1 + 4 = 8
+        assert_eq!(seg.max_right(0, |&sum| sum <= 9), 4); // 3 + 1 + 4 + 1 = 9
+
+        assert_eq!(seg.max_right(1, |&sum| sum < 11), 4); // 1 + 4 + 1 = 6
+        assert_eq!(seg.max_right(1, |&sum| sum <= 11), 5); // 1 + 4 + 1 + 5 = 11
+
+        assert_eq!(seg.max_right(2, |&sum| sum < 4), 2);
+        assert_eq!(seg.max_right(2, |&sum| sum <= 4), 3);
+        assert_eq!(seg.max_right(2, |&sum| sum <= 100), n);
+
+        assert_eq!(seg.max_right(n, |&sum| sum <= 0), n);
+        assert_eq!(seg.max_right(n, |&sum| sum <= 100), n);
+    }
+
+    #[test]
+    fn test_min_left() {
+        let n = 9;
+        let mut seg = SegmentTree::new(n, 0, |a, b| a + b);
+        let values = vec![3, 1, 4, 1, 5, 9, 2, 6, 5];
+        for (i, &v) in values.iter().enumerate() {
+            seg.set(i, v);
+        }
+
+        // 区間和
+        assert_eq!(seg.min_left(n, |&sum| sum <= 22), 5); // 9 + 2 + 6 + 5 = 22
+        assert_eq!(seg.min_left(n, |&sum| sum < 22), 6); // 2 + 6 + 5 = 13
+
+        assert_eq!(seg.min_left(n - 1, |&sum| sum <= 27), 2); // 4 + 1 + 5 + 9 + 2 + 6 = 27
+        assert_eq!(seg.min_left(n - 1, |&sum| sum < 27), 3); // 1 + 5 + 9 + 2 + 6 = 23
+        assert_eq!(seg.min_left(n - 1, |&sum| sum < 100), 0);
+
+        assert_eq!(seg.min_left(0, |&sum| sum <= 0), 0);
+        assert_eq!(seg.min_left(0, |&sum| sum <= 100), 0);
     }
 }
