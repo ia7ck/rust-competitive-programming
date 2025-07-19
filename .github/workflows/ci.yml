@@ -1,4 +1,4 @@
-name: Rust
+name: CI
 
 on:
   push:
@@ -76,6 +76,9 @@ jobs:
 
   publish-doc:
     runs-on: ubuntu-latest
+    env:
+      # https://doc.rust-lang.org/nightly/rustdoc/unstable-features.html#--enable-index-page-generate-a-default-index-page-for-docs
+      RUSTDOCFLAGS: '-Z unstable-options --enable-index-page'
     # https://docs.github.com/ja/actions/reference/context-and-expression-syntax-for-github-actions#contexts
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     steps:
@@ -83,7 +86,7 @@ jobs:
       with:
           persist-credentials: false
     - name: Doc
-      run: cargo doc --no-deps --lib --workspace --exclude=oj_test --exclude=simple_example --exclude=special_judge_example
+      run: cargo +nightly doc --no-deps --lib --workspace --exclude=oj_test --exclude=simple_example --exclude=special_judge_example
     - name: Deploy 🚀
       uses: JamesIves/github-pages-deploy-action@v4
       with:
