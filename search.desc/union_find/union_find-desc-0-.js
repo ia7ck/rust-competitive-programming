@@ -1,0 +1,1 @@
+searchState.loadedDescShard("union_find", 0, "Union Find はグラフの連結成分を管理します。\n頂点 <code>i</code> …\nReturns the argument unchanged.\n頂点 <code>i</code> の属する連結成分のサイズ (頂点数) …\nCalls <code>U::from(self)</code>.\nグラフの頂点数 <code>n</code> を渡します。\n頂点 <code>i</code> と頂点 <code>j</code> …\n頂点 <code>i</code> の属する連結成分と頂点 <code>j</code> …")

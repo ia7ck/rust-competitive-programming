@@ -1,0 +1,1 @@
+searchState.loadedDescShard("grid_search", 0, "This <code>struct</code> is created by the <code>around</code> methods. See its …\n<code>(y, x)</code> を基点とした周辺座標を yield …\n…\nReturns the argument unchanged.\nCalls <code>U::from(self)</code>.\n…\n…")

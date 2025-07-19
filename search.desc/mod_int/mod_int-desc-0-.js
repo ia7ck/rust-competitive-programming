@@ -1,0 +1,1 @@
+searchState.loadedDescShard("mod_int", 0, "<code>ModInt</code> は整数の四則演算を mod <code>p</code> …\nReturns the argument unchanged.\nCalls <code>U::from(self)</code>.\n<code>x * y % p = 1</code> となる <code>y</code> を返します。\n法を返します。\n整数を <code>0 &lt;= x &lt; modulo</code> …\n二分累乗法で <code>x^exp % p</code> を計算します。\n<code>ModInt</code> に格納されている値を返します。")

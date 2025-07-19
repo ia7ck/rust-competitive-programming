@@ -1,0 +1,1 @@
+searchState.loadedDescShard("zarts", 0, "座標圧縮です。\nindex 番目の値を返します\nReturns the argument unchanged.\nCalls <code>U::from(self)</code>.\n集合内で小さいほうから何番目か (0-indexed) …\n集合のサイズを返します")

@@ -1,0 +1,1 @@
+searchState.loadedDescShard("pascal_triangle", 0, "0 以上 <code>n</code> 未満の全ての <code>i</code>, <code>j</code> …")

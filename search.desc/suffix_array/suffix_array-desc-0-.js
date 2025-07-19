@@ -1,0 +1,1 @@
+searchState.loadedDescShard("suffix_array", 0, "LCP 配列を O(|s|) で求めます。\n文字列 <code>s</code> の suffix array を O(|s|log|s|) …")

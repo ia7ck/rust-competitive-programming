@@ -1,0 +1,1 @@
+searchState.loadedDescShard("strongly_connected_components", 0, "強連結成分分解です。参考")

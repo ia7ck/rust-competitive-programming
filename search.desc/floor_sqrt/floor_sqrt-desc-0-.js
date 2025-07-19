@@ -1,0 +1,1 @@
+searchState.loadedDescShard("floor_sqrt", 0, "<code>floor(sqrt(n))</code> を返す。")

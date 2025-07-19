@@ -1,0 +1,1 @@
+searchState.loadedDescShard("z_algorithm", 0, "<code>z[i]</code>: <code>a[i..]</code> と <code>a</code> …")

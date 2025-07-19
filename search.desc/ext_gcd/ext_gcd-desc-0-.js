@@ -1,0 +1,1 @@
+searchState.loadedDescShard("ext_gcd", 0, "g = gcd(a, b), ax + by = g を満たす (x, y, g) …")

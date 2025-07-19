@@ -1,0 +1,1 @@
+searchState.loadedDescShard("rolling_hash", 0, "Rolling Hash です。O(文字列長) …\nReturns the argument unchanged.\n部分文字列のハッシュ値を返します。\nCalls <code>U::from(self)</code>.\nself が other …")

@@ -1,0 +1,1 @@
+searchState.loadedDescShard("sliding_window", 0, "<code>sliding_window_minimum</code> の最大値バージョンです。\n幅 <code>window_width</code> …")

@@ -1,4 +1,0 @@
-(function() {var implementors = {
-"dijkstra":[["impl&lt;T: <a class=\"trait\" href=\"https://doc.rust-lang.org/1.70.0/core/marker/trait.Copy.html\" title=\"trait core::marker::Copy\">Copy</a>&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/1.70.0/core/marker/trait.Copy.html\" title=\"trait core::marker::Copy\">Copy</a> for <a class=\"struct\" href=\"dijkstra/struct.ConstEdge.html\" title=\"struct dijkstra::ConstEdge\">ConstEdge</a>&lt;T&gt;"]],
-"mod_int":[["impl&lt;const M: <a class=\"primitive\" href=\"https://doc.rust-lang.org/1.70.0/std/primitive.i64.html\">i64</a>&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/1.70.0/core/marker/trait.Copy.html\" title=\"trait core::marker::Copy\">Copy</a> for <a class=\"struct\" href=\"mod_int/struct.ModInt.html\" title=\"struct mod_int::ModInt\">ModInt</a>&lt;M&gt;"]]
-};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

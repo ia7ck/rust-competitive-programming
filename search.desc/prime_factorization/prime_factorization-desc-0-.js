@@ -1,0 +1,1 @@
+searchState.loadedDescShard("prime_factorization", 0, "非負整数を素因数分解です。\n(素因数, べき) のベクタを返します。")
