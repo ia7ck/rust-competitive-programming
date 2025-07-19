@@ -1,4 +1,3 @@
-use std::cmp::Ordering::{Greater, Less};
 use std::collections::VecDeque;
 
 /// 幅 `window_width` の区間すべてに対し最小値を求めます。
@@ -27,55 +26,53 @@ use std::collections::VecDeque;
 /// assert_eq!(
 ///     minimums,
 ///     vec![
-///         4, // 4 7 7 8 5 7
-///         5, //   7 7 8 5 7 6
-///         5, //     7 8 5 7 6 9
-///         5, //       8 5 7 6 9 9
-///         2, //         5 7 6 9 9 2
-///         2, //           7 6 9 9 2 8
-///         2, //             6 9 9 2 8 3
+///         &4, // 4 7 7 8 5 7
+///         &5, //   7 7 8 5 7 6
+///         &5, //     7 8 5 7 6 9
+///         &5, //       8 5 7 6 9 9
+///         &2, //         5 7 6 9 9 2
+///         &2, //           7 6 9 9 2 8
+///         &2, //             6 9 9 2 8 3
 ///     ]
 /// );
 /// ```
-pub fn sliding_window_minimum<T>(a: &[T], window_width: usize) -> Vec<T>
+pub fn sliding_window_minimum<T>(a: &[T], window_width: usize) -> Vec<&T>
 where
-    T: Ord + Clone,
+    T: Ord,
 {
-    sliding_window(a, window_width, true)
+    sliding_window(a, window_width, |last, new| last >= new)
 }
 
 /// [`sliding_window_minimum`](fn.sliding_window_minimum.html) の最大値バージョンです。
-pub fn sliding_window_maximum<T>(a: &[T], window_width: usize) -> Vec<T>
+pub fn sliding_window_maximum<T>(a: &[T], window_width: usize) -> Vec<&T>
 where
-    T: Ord + Clone,
+    T: Ord,
 {
-    sliding_window(a, window_width, false)
+    sliding_window(a, window_width, |last, new| last <= new)
 }
 
-fn sliding_window<T>(a: &[T], window_width: usize, choose_minimum: bool) -> Vec<T>
+fn sliding_window<T, F>(a: &[T], window_width: usize, pop_back_cond: F) -> Vec<&T>
 where
-    T: Ord + Clone,
+    T: Ord,
+    F: Fn(&T, &T) -> bool, // (last, new)
 {
     assert!(0 < window_width && window_width <= a.len());
     let mut result = Vec::new();
-    let mut arg_min_max_candidates: VecDeque<usize> = VecDeque::new();
+    let mut positions: VecDeque<usize> = VecDeque::new();
     for (i, v) in a.iter().enumerate() {
-        while !arg_min_max_candidates.is_empty() {
-            let back = arg_min_max_candidates.back().unwrap();
-            if choose_minimum && a[*back].cmp(v) == Less {
+        while let Some(last) = positions.back().copied() {
+            if pop_back_cond(&a[last], v) {
+                positions.pop_back();
+            } else {
                 break;
             }
-            if !choose_minimum && a[*back].cmp(v) == Greater {
-                break;
-            }
-            arg_min_max_candidates.pop_back();
         }
-        arg_min_max_candidates.push_back(i);
+        positions.push_back(i);
         if i >= window_width - 1 {
-            let arg_min_max = arg_min_max_candidates.front().unwrap();
-            result.push(Clone::clone(&a[*arg_min_max]));
-            if *arg_min_max == i - (window_width - 1) {
-                arg_min_max_candidates.pop_front();
+            let p = positions.front().copied().unwrap();
+            result.push(&a[p]);
+            if p == i - (window_width - 1) {
+                positions.pop_front();
             }
         }
     }
@@ -92,23 +89,23 @@ mod tests {
         assert_eq!(
             sliding_window_minimum(&a, 4),
             vec![
-                2, // 2 2 3 6
-                0, //   2 3 6 0
-                0, //     3 6 0 6
-                0, //       6 0 6 7
-                0, //         0 6 7 9
-                6, //           6 7 9 7
-                7, //             7 9 7 7
-                4, //               9 7 7 4
-                4  //                  7 7 4 9
+                &2, // 2 2 3 6
+                &0, //   2 3 6 0
+                &0, //     3 6 0 6
+                &0, //       6 0 6 7
+                &0, //         0 6 7 9
+                &6, //           6 7 9 7
+                &7, //             7 9 7 7
+                &4, //               9 7 7 4
+                &4, //                 7 7 4 9
             ]
         );
 
-        assert_eq!(sliding_window_minimum(&a, 1), a);
+        assert_eq!(sliding_window_minimum(&a, 1), a.iter().collect::<Vec<_>>());
 
         assert_eq!(
             sliding_window_minimum(&a, a.len()),
-            vec![a.iter().copied().min().unwrap()],
+            vec![a.iter().min().unwrap()],
         );
     }
 
@@ -118,35 +115,35 @@ mod tests {
         assert_eq!(
             sliding_window_maximum(&a, 4),
             vec![
-                6, // 2 2 3 6
-                6, //   2 3 6 0
-                6, //     3 6 0 6
-                7, //       6 0 6 7
-                9, //         0 6 7 9
-                9, //           6 7 9 7
-                9, //             7 9 7 7
-                9, //               9 7 7 4
-                9  //                  7 7 4 9
+                &6, // 2 2 3 6
+                &6, //   2 3 6 0
+                &6, //     3 6 0 6
+                &7, //       6 0 6 7
+                &9, //         0 6 7 9
+                &9, //           6 7 9 7
+                &9, //             7 9 7 7
+                &9, //               9 7 7 4
+                &9, //                 7 7 4 9
             ]
         );
 
-        assert_eq!(sliding_window_maximum(&a, 1), a);
+        assert_eq!(sliding_window_maximum(&a, 1), a.iter().collect::<Vec<_>>());
 
         assert_eq!(
             sliding_window_maximum(&a, a.len()),
-            vec![a.iter().copied().max().unwrap()],
+            vec![a.iter().max().unwrap()],
         );
     }
 
     #[test]
     #[should_panic]
     fn test_empty_0() {
-        assert_eq!(sliding_window_minimum::<u32>(&[], 0), vec![]);
+        assert!(sliding_window_minimum::<u32>(&[], 0).is_empty());
     }
 
     #[test]
     #[should_panic]
     fn test_empty_1() {
-        assert_eq!(sliding_window_minimum::<u32>(&[], 1), vec![]);
+        assert!(sliding_window_minimum::<u32>(&[], 1).is_empty());
     }
 }
