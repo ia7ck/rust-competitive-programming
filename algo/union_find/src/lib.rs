@@ -44,17 +44,17 @@ impl UnionFind {
     pub fn find(&mut self, i: usize) -> usize {
         assert!(i < self.nodes.len());
 
-        loop {
-            match self.nodes[i] {
-                NodeKind::Root { .. } => break i,
-                NodeKind::Child { parent } => {
-                    let root = self.find(parent);
-                    if root == parent {
-                        break root;
-                    }
+        match self.nodes[i] {
+            NodeKind::Root { .. } => i,
+            NodeKind::Child { parent } => {
+                let root = self.find(parent);
+                if root == parent {
+                    // noop
+                } else {
                     // 経路圧縮
                     self.nodes[i] = NodeKind::Child { parent: root };
                 }
+                root
             }
         }
     }
