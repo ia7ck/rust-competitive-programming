@@ -10,7 +10,13 @@ use serde::Deserialize;
 fn main() -> Result<()> {
     let args = Args::parse();
 
-    let bundled_code = bundle_crate(&args.crate_name, Path::new(&args.workspace))
+    let workspace_path = if args.remote {
+        download_remote_repository()?
+    } else {
+        args.workspace.into()
+    };
+
+    let bundled_code = bundle_crate(&args.crate_name, &workspace_path)
         .with_context(|| format!("Failed to bundle crate '{}'", args.crate_name))?;
 
     if args.skip_compile {
@@ -58,12 +64,49 @@ struct Args {
     crate_name: String,
 
     /// Path to the workspace root
-    #[clap(short, long, default_value = ".")]
+    #[clap(short, long, default_value = ".", conflicts_with = "remote")]
     workspace: String,
+
+    /// Use remote repository (https://github.com/ia7ck/rust-competitive-programming)
+    #[clap(long, conflicts_with = "workspace")]
+    remote: bool,
 
     /// Skip compilation check
     #[clap(long)]
     skip_compile: bool,
+}
+
+fn download_remote_repository() -> Result<std::path::PathBuf> {
+    eprintln!("📥 Cloning remote repository...");
+
+    let temp_dir = std::env::temp_dir().join(format!(
+        "rust-competitive-programming-{}",
+        std::process::id()
+    ));
+
+    if temp_dir.exists() {
+        fs::remove_dir_all(&temp_dir).context("Failed to remove existing temp directory")?;
+    }
+
+    let output = Command::new("git")
+        .args([
+            "clone",
+            "--depth",
+            "1",
+            "https://github.com/ia7ck/rust-competitive-programming.git",
+        ])
+        .arg(&temp_dir)
+        .output()
+        .context("Failed to run git clone. Make sure git is installed and available in PATH.")?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        anyhow::bail!("Git clone failed:\n{}", stderr);
+    }
+
+    eprintln!("✅ Repository cloned to temporary directory");
+
+    Ok(temp_dir)
 }
 
 struct CrateInfo {
