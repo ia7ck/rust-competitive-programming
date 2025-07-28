@@ -1,11 +1,78 @@
+//! グラフの閉路検出アルゴリズムのライブラリです。
+//!
+//! 無向グラフと有向グラフの両方でサイクル（閉路）を効率的に検出します。
+//! 検出されたサイクルは辺のインデックスのリストとして返されます。
+//!
+//! # 計算量
+//!
+//! - 時間計算量: O(V + E)
+//! - 空間計算量: O(V + E)
+//!
+//! ここで V は頂点数、E は辺数です。
+//!
+//! # アルゴリズム
+//!
+//! - **無向グラフ**: DFS による後退辺の検出
+//! - **有向グラフ**: DFS による閉路検出（グレイ頂点への辺）
+//!
+//! # 用途
+//!
+//! - グラフの閉路検出
+//! - DAG（有向非循環グラフ）の判定
+//! - 競技プログラミングでのグラフ問題
+//! - トポロジカルソートの前処理
+//!
+//! # Examples
+//!
+//! ## 無向グラフでの閉路検出
+//!
+//! ```
+//! use detect_cycle::detect_cycle_undirected;
+//!
+//! // 三角形グラフ: 0-1-2-0
+//! let cycle = detect_cycle_undirected(3, &[(0, 1), (1, 2), (2, 0)]);
+//! assert!(cycle.is_some());
+//! assert_eq!(cycle.unwrap().len(), 3); // 3本の辺からなる閉路
+//!
+//! // 木構造（閉路なし）
+//! let no_cycle = detect_cycle_undirected(3, &[(0, 1), (1, 2)]);
+//! assert!(no_cycle.is_none());
+//! ```
+//!
+//! ## 有向グラフでの閉路検出
+//!
+//! ```
+//! use detect_cycle::detect_cycle_directed;
+//!
+//! // 有向三角形: 0→1→2→0
+//! let cycle = detect_cycle_directed(3, &[(0, 1), (1, 2), (2, 0)]);
+//! assert!(cycle.is_some());
+//! assert_eq!(cycle.unwrap().len(), 3);
+//!
+//! // DAG（閉路なし）
+//! let no_cycle = detect_cycle_directed(3, &[(0, 1), (0, 2), (1, 2)]);
+//! assert!(no_cycle.is_none());
+//! ```
+
 /// 無向グラフの閉路を求めます。
+/// 無向グラフの閉路を検出します。
 ///
-/// - `n`: 頂点数
-/// - `edges`: 辺
+/// DFS を使用して無向グラフ内の閉路を検出し、閉路を構成する辺のインデックスを返します。
+/// 閉路が複数存在する場合、そのうちの1つを返します。
 ///
-/// 返り値は、閉路をなす辺の index のベクタです。
+/// # 引数
 ///
-/// # Example
+/// - `n`: 頂点数（頂点は 0, 1, ..., n-1 で番号付けされます）
+/// - `edges`: 無向辺のリスト。各要素 `(u, v)` は頂点 u と頂点 v を結ぶ辺を表します
+///
+/// # 戻り値
+///
+/// - `Some(Vec<usize>)`: 閉路が存在する場合、閉路を構成する辺のインデックスのリスト
+/// - `None`: 閉路が存在しない場合（つまり、グラフが森である場合）
+///
+/// 返される辺のインデックスは、`edges` スライス内での位置を示します。
+///
+/// # Examples
 /// ```
 /// use detect_cycle::detect_cycle_undirected;
 /// //      0       1       3
@@ -28,6 +95,23 @@
 ///     vec![2, 1, 5, 4],
 /// ];
 /// assert!(candidates.contains(&cycle));
+/// ```
+///
+/// ## 競技プログラミングでの応用例
+///
+/// ```
+/// use detect_cycle::detect_cycle_undirected;
+///
+/// // グラフが木かどうかの判定
+/// fn is_tree(n: usize, edges: &[(usize, usize)]) -> bool {
+///     // 木の条件: 連結 かつ 辺数 = 頂点数 - 1 かつ 閉路なし
+///     edges.len() == n - 1 && detect_cycle_undirected(n, edges).is_none()
+/// }
+///
+/// // テストケース
+/// assert!(is_tree(4, &[(0, 1), (1, 2), (1, 3)])); // 木
+/// assert!(!is_tree(4, &[(0, 1), (1, 2), (2, 3), (3, 0)])); // 閉路あり
+/// assert!(!is_tree(4, &[(0, 1), (2, 3)])); // 非連結
 /// ```
 pub fn detect_cycle_undirected(n: usize, edges: &[(usize, usize)]) -> Option<Vec<usize>> {
     fn dfs(
@@ -89,13 +173,25 @@ pub fn detect_cycle_undirected(n: usize, edges: &[(usize, usize)]) -> Option<Vec
 }
 
 /// 有向グラフの閉路を求めます。
+/// 有向グラフの閉路を検出します。
 ///
-/// - `n`: 頂点数
-/// - `edges`: 辺
+/// DFS を使用して有向グラフ内の閉路を検出し、閉路を構成する辺のインデックスを返します。
+/// 閉路が複数存在する場合、そのうちの1つを返します。
 ///
-/// 返り値は、閉路をなす辺の index のベクタです。
+/// # 引数
 ///
-/// # Example
+/// - `n`: 頂点数（頂点は 0, 1, ..., n-1 で番号付けされます）
+/// - `edges`: 有向辺のリスト。各要素 `(u, v)` は頂点 u から頂点 v への辺を表します
+///
+/// # 戻り値
+///
+/// - `Some(Vec<usize>)`: 閉路が存在する場合、閉路を構成する辺のインデックスのリスト
+/// - `None`: 閉路が存在しない場合（つまり、グラフが DAG である場合）
+///
+/// 返される辺のインデックスは、`edges` スライス内での位置を示します。
+/// 辺のリストは閉路の順序で並んでいます。
+///
+/// # Examples
 /// ```
 /// use detect_cycle::detect_cycle_directed;
 ///
@@ -110,6 +206,39 @@ pub fn detect_cycle_undirected(n: usize, edges: &[(usize, usize)]) -> Option<Vec
 /// let cycle = detect_cycle_directed(6, &[(0, 1), (1, 2), (2, 3), (2, 5), (3, 4), (4, 1)]);
 /// assert_eq!(cycle, Some(vec![1, 2, 4, 5]));
 /// ```
+///
+/// ## 競技プログラミングでの応用例
+///
+/// ```
+/// use detect_cycle::detect_cycle_directed;
+///
+/// // DAG判定とトポロジカルソートの前処理
+/// fn is_dag(n: usize, edges: &[(usize, usize)]) -> bool {
+///     detect_cycle_directed(n, edges).is_none()
+/// }
+///
+/// // 依存関係グラフでの循環依存検出
+/// fn has_circular_dependency(
+///     tasks: usize,
+///     dependencies: &[(usize, usize)]
+/// ) -> Option<Vec<usize>> {
+///     // (a, b) = タスク a がタスク b に依存
+///     detect_cycle_directed(tasks, dependencies)
+/// }
+///
+/// // テストケース
+/// assert!(is_dag(3, &[(0, 1), (1, 2)])); // DAG
+/// assert!(!is_dag(3, &[(0, 1), (1, 2), (2, 0)])); // 閉路あり
+///
+/// // 循環依存のあるタスク
+/// let deps = vec![(0, 1), (1, 2), (2, 0)]; // 0→1→2→0
+/// assert!(has_circular_dependency(3, &deps).is_some());
+/// ```
+///
+/// # アルゴリズムの詳細
+///
+/// このアルゴリズムは DFS を使用して「グレイ」状態の頂点（現在の DFS パス上にある頂点）
+/// への辺を検出することで閉路を見つけます。これは有向グラフでの標準的な閉路検出手法です。
 pub fn detect_cycle_directed(n: usize, edges: &[(usize, usize)]) -> Option<Vec<usize>> {
     fn dfs(
         curr: usize,
