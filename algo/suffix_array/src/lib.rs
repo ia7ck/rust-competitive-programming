@@ -1,3 +1,44 @@
+//! 接尾辞配列（Suffix Array）とLCP配列を計算するライブラリです。
+//!
+//! 接尾辞配列は文字列の全ての接尾辞を辞書順でソートした際のインデックス配列です。
+//! 文字列検索、最長共通部分文字列の検出、文字列マッチングなど様々な文字列処理
+//! アルゴリズムの基盤として使用されます。
+//!
+//! # 主な機能
+//!
+//! - **接尾辞配列構築**: O(n log n) で文字列の接尾辞配列を構築
+//! - **LCP配列計算**: O(n) で隣接する接尾辞間の最長共通接頭辞長を計算
+//!
+//! # 使用例
+//!
+//! ```
+//! use suffix_array::{suffix_array, lcp_array};
+//!
+//! let s: Vec<char> = "banana".chars().collect();
+//! let sa = suffix_array(&s);
+//! let lcp = lcp_array(&s, &sa);
+//!
+//! // 接尾辞配列: [5, 3, 1, 0, 4, 2]
+//! // 対応する接尾辞: ["a", "ana", "anana", "banana", "na", "nana"]
+//! 
+//! // 文字列検索の例
+//! let pattern: Vec<char> = "ana".chars().collect();
+//! // sa を使って pattern の出現位置を効率的に検索可能
+//! ```
+//!
+//! # 競技プログラミングでの応用
+//!
+//! - **文字列検索**: パターンマッチング
+//! - **最長共通部分文字列**: 複数文字列間の共通部分検出
+//! - **回文検索**: 回文の効率的な検出
+//! - **辞書順k番目の部分文字列**: 部分文字列の辞書順列挙
+//!
+//! # 計算量
+//!
+//! - 接尾辞配列構築: O(n log n)
+//! - LCP配列計算: O(n)
+//! - 空間計算量: O(n)
+
 fn sort_cyclic_shifts(s: &[char]) -> Vec<usize> {
     let n = s.len();
     const ALPHABET: usize = 256;
@@ -67,12 +108,25 @@ fn sort_cyclic_shifts(s: &[char]) -> Vec<usize> {
 ///
 /// original: [CP-Algorithms](https://cp-algorithms.com/string/suffix-array.html)
 ///
+/// # 引数
+///
+/// - `s`: 接尾辞配列を構築する対象の文字列（文字の配列として表現）
+///
+/// # 戻り値
+///
+/// 接尾辞配列。`sa[i]` は辞書順で i 番目の接尾辞の開始位置を表す
+///
+/// # 計算量
+///
+/// O(n log n) (n = `s.len()`)
+///
 /// # Examples
 /// ```
 /// use suffix_array::suffix_array;
 /// let s: Vec<char> = "mississippi".chars().collect();
 /// let sa = suffix_array(&s);
 /// assert_eq!(sa, vec![10, 7, 4, 1, 0, 9, 8, 6, 3, 5, 2]);
+/// // 対応する接尾辞（辞書順）:
 /// // i
 /// // ippi
 /// // issippi
@@ -85,6 +139,20 @@ fn sort_cyclic_shifts(s: &[char]) -> Vec<usize> {
 /// // ssippi
 /// // ssissippi
 /// ```
+///
+/// # 実用例: 文字列検索
+/// ```
+/// use suffix_array::suffix_array;
+/// 
+/// let text: Vec<char> = "abracadabra".chars().collect();
+/// let sa = suffix_array(&text);
+/// 
+/// // パターン "abr" を検索する例
+/// let pattern: Vec<char> = "abr".chars().collect();
+/// 
+/// // 二分探索で pattern を持つ接尾辞の範囲を見つけられる
+/// // （実際の実装は省略）
+/// ```
 pub fn suffix_array(s: &[char]) -> Vec<usize> {
     let mut s = s.to_vec();
     s.push('$');
@@ -94,7 +162,22 @@ pub fn suffix_array(s: &[char]) -> Vec<usize> {
 
 /// LCP 配列を O(|s|) で求めます。
 ///
-/// 返り値は長さ `s.len() - 1` のベクタ `lcp` であり `lcp[i]` := `s[sa[i]..]` と `s[sa[i+1]..]` との最長共通接頭辞の長さ、です。
+/// LCP 配列は隣接する接尾辞間の最長共通接頭辞（Longest Common Prefix）の長さを
+/// 格納する配列です。返り値は長さ `s.len() - 1` のベクタ `lcp` であり 
+/// `lcp[i]` := `s[sa[i]..]` と `s[sa[i+1]..]` との最長共通接頭辞の長さ、です。
+///
+/// # 引数
+///
+/// - `s`: 対象の文字列（文字の配列として表現）
+/// - `sa`: `s` の接尾辞配列（`suffix_array` 関数で得られるもの）
+///
+/// # 戻り値
+///
+/// LCP配列。`lcp[i]` は接尾辞配列の隣接する要素間の最長共通接頭辞長
+///
+/// # 計算量
+///
+/// O(n) (n = `s.len()`)
 ///
 /// # Examples
 /// ```
@@ -103,6 +186,20 @@ pub fn suffix_array(s: &[char]) -> Vec<usize> {
 /// let sa = suffix_array(&s);
 /// let lcp = lcp_array(&s, &sa);
 /// assert_eq!(lcp, vec![1, 1, 4, 0, 0, 1, 0, 2, 1, 3]);
+/// ```
+///
+/// # 実用例: 最長重複部分文字列
+/// ```
+/// use suffix_array::{suffix_array, lcp_array};
+/// 
+/// let s: Vec<char> = "banana".chars().collect();
+/// let sa = suffix_array(&s);
+/// let lcp = lcp_array(&s, &sa);
+/// 
+/// // LCP配列の最大値が最長重複部分文字列の長さ
+/// let max_lcp = lcp.iter().max().unwrap_or(&0);
+/// assert_eq!(*max_lcp, 3); // "ana" が最長重複部分文字列
+/// ```
 pub fn lcp_array(s: &[char], sa: &[usize]) -> Vec<usize> {
     let n = sa.len();
     if n == 1 {
