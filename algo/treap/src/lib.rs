@@ -1,3 +1,55 @@
+//! Treapは木構造とヒープ性質を組み合わせたランダム化データ構造です。
+//!
+//! 各ノードに値と優先度（priority）を持ち、値について二分探索木の性質を、
+//! 優先度についてヒープの性質を満たします。優先度をランダムに決めることで
+//! 期待時間計算量O(log n)での操作を実現します。
+//!
+//! ## 特徴
+//!
+//! - **期待時間計算量**: 挿入、削除、検索、範囲クエリ全てO(log n)
+//! - **空間計算量**: O(n)
+//! - **順序統計**: k番目の要素の取得、要素の順位の取得が可能
+//! - **範囲クエリ**: 指定した値以下/以上の要素の検索が可能
+//! - **ランダム化**: 優先度をランダムに設定することで平衡を保つ
+//!
+//! ## 主な用途
+//!
+//! - AVL木やRed-Black木より実装が簡単で同等の性能が欲しい場合
+//! - 動的な集合の管理で順序統計が必要な場合
+//! - lower_bound/upper_boundが頻繁に必要な場合
+//! - 実装の簡潔さを重視する競技プログラミング
+//!
+//! ## 基本的な使用例
+//!
+//! ```
+//! use treap::Treap;
+//!
+//! let mut treap = Treap::default(); // デフォルトの乱数ジェネレータを使用
+//! treap.insert(3);
+//! treap.insert(1);
+//! treap.insert(4);
+//! treap.insert(1); // 重複は無視される
+//! treap.insert(5);
+//!
+//! // 要素の存在確認
+//! assert!(treap.contains(&3));
+//! assert!(!treap.contains(&2));
+//!
+//! // 順序統計: 0-indexedでk番目の要素を取得
+//! assert_eq!(treap.nth(0), Some(&1)); // 最小値
+//! assert_eq!(treap.nth(1), Some(&3));
+//! assert_eq!(treap.nth(2), Some(&4));
+//! assert_eq!(treap.nth(3), Some(&5)); // 最大値
+//!
+//! // 範囲クエリ
+//! assert_eq!(treap.le(&3), Some(&3)); // 3以下の最大値
+//! assert_eq!(treap.ge(&2), Some(&3)); // 2以上の最小値
+//!
+//! // イテレータで昇順に取得
+//! let values: Vec<_> = treap.iter().collect();
+//! assert_eq!(values, vec![&1, &3, &4, &5]);
+//! ```
+
 use std::{
     cmp::{self, Ordering},
     fmt,
@@ -14,6 +66,11 @@ struct Node<T> {
     size: usize,
 }
 
+/// Treapの実装です。
+///
+/// ランダム化二分探索木の一種で、値については二分探索木の性質を、
+/// 優先度についてはヒープの性質を満たします。
+/// ランダムな優先度により期待時間計算量O(log n)を実現します。
 pub struct Treap<T, R> {
     n: usize,
     root: Option<Box<Node<T>>>,
@@ -21,6 +78,18 @@ pub struct Treap<T, R> {
 }
 
 impl<T, R> Treap<T, R> {
+    /// 指定した乱数ジェネレータで新しいTreapを作成します。
+    ///
+    /// # Examples
+    /// ```
+    /// use treap::Treap;
+    /// use rand::rngs::StdRng;
+    /// use rand::SeedableRng;
+    /// 
+    /// let rng = StdRng::seed_from_u64(42);
+    /// let treap: Treap<i32, _> = Treap::new(rng);
+    /// assert!(treap.is_empty());
+    /// ```
     pub fn new(rng: R) -> Self {
         Self {
             n: 0,
@@ -29,10 +98,34 @@ impl<T, R> Treap<T, R> {
         }
     }
 
+    /// Treapに含まれる要素数を返します。
+    ///
+    /// 時間計算量: O(1)
+    ///
+    /// # Examples
+    /// ```
+    /// use treap::Treap;
+    /// let mut treap = Treap::default();
+    /// assert_eq!(treap.len(), 0);
+    /// treap.insert(42);
+    /// assert_eq!(treap.len(), 1);
+    /// ```
     pub fn len(&self) -> usize {
         self.n
     }
 
+    /// Treapが空かどうかを返します。
+    ///
+    /// 時間計算量: O(1)
+    ///
+    /// # Examples
+    /// ```
+    /// use treap::Treap;
+    /// let mut treap = Treap::default();
+    /// assert!(treap.is_empty());
+    /// treap.insert(1);
+    /// assert!(!treap.is_empty());
+    /// ```
     pub fn is_empty(&self) -> bool {
         self.n == 0
     }
@@ -93,6 +186,24 @@ impl<T, R> Treap<T, R> {
         node.as_ref().map_or(0, |n| n.size)
     }
 
+    /// Treapを昇順にソートされたVecに変換します。
+    ///
+    /// この操作によってTreapは空になります。
+    ///
+    /// 時間計算量: O(n)
+    /// 空間計算量: O(n)
+    ///
+    /// # Examples
+    /// ```
+    /// use treap::Treap;
+    /// let mut treap = Treap::default();
+    /// treap.insert(3);
+    /// treap.insert(1);
+    /// treap.insert(4);
+    /// 
+    /// let vec = treap.into_sorted_vec();
+    /// assert_eq!(vec, vec![1, 3, 4]);
+    /// ```
     pub fn into_sorted_vec(mut self) -> Vec<T> {
         fn collect<T>(node: Option<Box<Node<T>>>, acc: &mut Vec<T>) {
             if let Some(node) = node {
@@ -138,12 +249,36 @@ where
         last
     }
 
-    /// 集合にxが含まれるかを返す。
+    /// 集合にxが含まれるかを返します。
+    ///
+    /// 期待時間計算量: O(log n)
+    ///
+    /// # Examples
+    /// ```
+    /// use treap::Treap;
+    /// let mut treap = Treap::default();
+    /// treap.insert(42);
+    /// assert!(treap.contains(&42));
+    /// assert!(!treap.contains(&24));
+    /// ```
     pub fn contains(&self, x: &T) -> bool {
         self.find_last(x).map_or(false, |node| x.eq(&node.x))
     }
 
-    /// xを削除する。集合にxが含まれていた場合trueを返す。
+    /// xを削除します。集合にxが含まれていた場合trueを返します。
+    ///
+    /// 要素が存在しない場合は何も行わずfalseを返します。
+    ///
+    /// 期待時間計算量: O(log n)
+    ///
+    /// # Examples
+    /// ```
+    /// use treap::Treap;
+    /// let mut treap = Treap::default();
+    /// treap.insert(42);
+    /// assert_eq!(treap.remove(&42), true);  // 存在する要素
+    /// assert_eq!(treap.remove(&42), false); // 存在しない要素
+    /// ```
     pub fn remove(&mut self, x: &T) -> bool {
         let root = self.root.take();
         let mut removed = false;
@@ -208,7 +343,25 @@ where
         }
     }
 
-    /// x以下の最大の要素を返す
+    /// x以下の最大の要素を返します。
+    ///
+    /// x以下の要素が存在しない場合はNoneを返します。
+    /// これはC++のstd::setのlower_boundに相当します。
+    ///
+    /// 期待時間計算量: O(log n)
+    ///
+    /// # Examples
+    /// ```
+    /// use treap::Treap;
+    /// let mut treap = Treap::default();
+    /// treap.insert(1);
+    /// treap.insert(3);
+    /// treap.insert(5);
+    /// 
+    /// assert_eq!(treap.le(&3), Some(&3)); // ちょうど存在する
+    /// assert_eq!(treap.le(&4), Some(&3)); // 存在しないが、それ以下がある
+    /// assert_eq!(treap.le(&0), None);     // それ以下が存在しない
+    /// ```
     pub fn le(&self, x: &T) -> Option<&T> {
         let mut current = &self.root;
         let mut result = None;
@@ -227,7 +380,25 @@ where
         result
     }
 
-    /// x以上の最小の要素を返す
+    /// x以上の最小の要素を返します。
+    ///
+    /// x以上の要素が存在しない場合はNoneを返します。
+    /// これはC++のstd::setのupper_boundに相当します。
+    ///
+    /// 期待時間計算量: O(log n)
+    ///
+    /// # Examples
+    /// ```
+    /// use treap::Treap;
+    /// let mut treap = Treap::default();
+    /// treap.insert(1);
+    /// treap.insert(3);
+    /// treap.insert(5);
+    /// 
+    /// assert_eq!(treap.ge(&3), Some(&3)); // ちょうど存在する
+    /// assert_eq!(treap.ge(&2), Some(&3)); // 存在しないが、それ以上がある
+    /// assert_eq!(treap.ge(&6), None);     // それ以上が存在しない
+    /// ```
     pub fn ge(&self, x: &T) -> Option<&T> {
         let mut current = &self.root;
         let mut result = None;
@@ -246,7 +417,28 @@ where
         result
     }
 
-    /// 0-indexedでn番目の要素を返す
+    /// 0-indexedでn番目の要素を返します。
+    ///
+    /// 昇順でソートしたときのn番目の要素を取得します。
+    /// インデックスが範囲外の場合はNoneを返します。
+    ///
+    /// 期待時間計算量: O(log n)
+    ///
+    /// # Examples
+    /// ```
+    /// use treap::Treap;
+    /// let mut treap = Treap::default();
+    /// treap.insert(10);
+    /// treap.insert(5);
+    /// treap.insert(15);
+    /// treap.insert(1);
+    /// 
+    /// assert_eq!(treap.nth(0), Some(&1));  // 最小値
+    /// assert_eq!(treap.nth(1), Some(&5));
+    /// assert_eq!(treap.nth(2), Some(&10));
+    /// assert_eq!(treap.nth(3), Some(&15)); // 最大値
+    /// assert_eq!(treap.nth(4), None);      // 範囲外
+    /// ```
     pub fn nth(&self, n: usize) -> Option<&T> {
         if n >= self.len() {
             return None;
@@ -270,8 +462,26 @@ where
         unreachable!()
     }
 
-    /// xより小さい要素の個数を返す
-    /// 集合がxを含む場合Ok, xを含まない場合Err
+    /// xより小さい要素の個数を返します。
+    ///
+    /// 集合がxを含む場合Ok(順位)、xを含まない場合Err(挿入位置)を返します。
+    /// 順位は0-indexedです。
+    ///
+    /// 期待時間計算量: O(log n)
+    ///
+    /// # Examples
+    /// ```
+    /// use treap::Treap;
+    /// let mut treap = Treap::default();
+    /// treap.insert(1);
+    /// treap.insert(3);
+    /// treap.insert(5);
+    /// 
+    /// assert_eq!(treap.position(&1), Ok(0));  // 1は0番目
+    /// assert_eq!(treap.position(&3), Ok(1));  // 3は1番目
+    /// assert_eq!(treap.position(&2), Err(1)); // 2は存在しないが1番目に挿入される
+    /// assert_eq!(treap.position(&6), Err(3)); // 6は存在しないが3番目に挿入される
+    /// ```
     pub fn position(&self, x: &T) -> Result<usize, usize> {
         let mut current = &self.root;
         let mut count = 0;
@@ -304,7 +514,19 @@ where
     T: cmp::Ord,
     R: RngCore,
 {
-    /// xを追加する。集合にxが含まれていなかった場合trueを返す。
+    /// xを追加します。集合にxが含まれていなかった場合trueを返します。
+    ///
+    /// 既に同じ値が存在する場合は何も行わずfalseを返します。
+    ///
+    /// 期待時間計算量: O(log n)
+    ///
+    /// # Examples
+    /// ```
+    /// use treap::Treap;
+    /// let mut treap = Treap::default();
+    /// assert_eq!(treap.insert(42), true);  // 新しい要素
+    /// assert_eq!(treap.insert(42), false); // 既存の要素
+    /// ```
     pub fn insert(&mut self, x: T) -> bool {
         let root = self.root.take();
         let mut inserted = false;
@@ -376,6 +598,7 @@ where
     }
 }
 
+/// Treapの要素を昇順で走査するイテレータです。
 pub struct Iter<'a, T> {
     stack: Vec<&'a Node<T>>,
     _phantom: PhantomData<&'a T>,
@@ -411,6 +634,21 @@ impl<'a, T> Iterator for Iter<'a, T> {
 }
 
 impl<T, R> Treap<T, R> {
+    /// Treapの要素を昇順で走査するイテレータを返します。
+    ///
+    /// 期待時間計算量: O(1)で開始、全体でO(n)
+    ///
+    /// # Examples
+    /// ```
+    /// use treap::Treap;
+    /// let mut treap = Treap::default();
+    /// treap.insert(3);
+    /// treap.insert(1);
+    /// treap.insert(4);
+    /// 
+    /// let values: Vec<_> = treap.iter().collect();
+    /// assert_eq!(values, vec![&1, &3, &4]);
+    /// ```
     pub fn iter(&self) -> Iter<T> {
         Iter::new(&self.root)
     }
