@@ -1,3 +1,53 @@
+//! AVL木は高さバランスが保たれた自己平衡二分探索木です。
+//!
+//! 各ノードにおいて左の子の高さと右の子の高さの差が1以下に保たれるため、
+//! 最悪計算量でもO(log n)での操作が保証されます。
+//!
+//! ## 特徴
+//!
+//! - **時間計算量**: 挿入、削除、検索、範囲クエリ全てO(log n)
+//! - **空間計算量**: O(n)
+//! - **順序統計**: k番目の要素の取得、要素の順位の取得が可能
+//! - **範囲クエリ**: 指定した値以下/以上の要素の検索が可能
+//!
+//! ## 主な用途
+//!
+//! - 動的な集合の管理で順序統計が必要な場合
+//! - lower_bound/upper_boundが頻繁に必要な場合  
+//! - 要素の挿入・削除と同時に順位を管理したい場合
+//! - C++のstd::setのような機能が必要な場合
+//!
+//! ## 基本的な使用例
+//!
+//! ```
+//! use avl_tree::AvlTree;
+//!
+//! let mut tree = AvlTree::new();
+//! tree.insert(3);
+//! tree.insert(1);
+//! tree.insert(4);
+//! tree.insert(1); // 重複は無視される
+//! tree.insert(5);
+//!
+//! // 要素の存在確認
+//! assert!(tree.contains(&3));
+//! assert!(!tree.contains(&2));
+//!
+//! // 順序統計: 0-indexedでk番目の要素を取得
+//! assert_eq!(tree.nth(0), Some(&1)); // 最小値
+//! assert_eq!(tree.nth(1), Some(&3));
+//! assert_eq!(tree.nth(2), Some(&4));
+//! assert_eq!(tree.nth(3), Some(&5)); // 最大値
+//!
+//! // 範囲クエリ
+//! assert_eq!(tree.le(&3), Some(&3)); // 3以下の最大値
+//! assert_eq!(tree.ge(&2), Some(&3)); // 2以上の最小値
+//!
+//! // イテレータで昇順に取得
+//! let values: Vec<_> = tree.iter().collect();
+//! assert_eq!(values, vec![&1, &3, &4, &5]);
+//! ```
+
 use std::{
     cmp::{self, Ordering},
     fmt,
@@ -12,6 +62,10 @@ struct Node<T> {
     size: usize,
 }
 
+/// AVL木の実装です。
+/// 
+/// 自己平衡二分探索木の一種で、各ノードの左の子と右の子の高さの差を1以下に保つことで
+/// 最悪時間計算量O(log n)を保証します。
 #[derive(Clone)]
 pub struct AvlTree<T> {
     n: usize,
@@ -19,14 +73,46 @@ pub struct AvlTree<T> {
 }
 
 impl<T> AvlTree<T> {
+    /// 新しい空のAVL木を作成します。
+    ///
+    /// # Examples
+    /// ```
+    /// use avl_tree::AvlTree;
+    /// let tree: AvlTree<i32> = AvlTree::new();
+    /// assert!(tree.is_empty());
+    /// ```
     pub fn new() -> Self {
         Self { n: 0, root: None }
     }
 
+    /// AVL木に含まれる要素数を返します。
+    ///
+    /// 時間計算量: O(1)
+    ///
+    /// # Examples
+    /// ```
+    /// use avl_tree::AvlTree;
+    /// let mut tree = AvlTree::new();
+    /// assert_eq!(tree.len(), 0);
+    /// tree.insert(42);
+    /// assert_eq!(tree.len(), 1);
+    /// ```
     pub fn len(&self) -> usize {
         self.n
     }
 
+    /// AVL木が空かどうかを返します。
+    ///
+    /// 時間計算量: O(1)
+    ///
+    /// # Examples
+    /// ```
+    /// use avl_tree::AvlTree;
+    /// let mut tree = AvlTree::new();
+    /// assert!(tree.is_empty());
+    /// tree.insert(1);
+    /// assert!(!tree.is_empty());
+    /// ```
     pub fn is_empty(&self) -> bool {
         self.n == 0
     }
@@ -140,6 +226,24 @@ impl<T> AvlTree<T> {
         node
     }
 
+    /// AVL木を昇順にソートされたVecに変換します。
+    ///
+    /// この操作によってAVL木は空になります。
+    ///
+    /// 時間計算量: O(n)
+    /// 空間計算量: O(n)
+    ///
+    /// # Examples
+    /// ```
+    /// use avl_tree::AvlTree;
+    /// let mut tree = AvlTree::new();
+    /// tree.insert(3);
+    /// tree.insert(1);
+    /// tree.insert(4);
+    /// 
+    /// let vec = tree.into_sorted_vec();
+    /// assert_eq!(vec, vec![1, 3, 4]);
+    /// ```
     pub fn into_sorted_vec(mut self) -> Vec<T> {
         fn collect<T>(node: Option<Box<Node<T>>>, acc: &mut Vec<T>) {
             if let Some(node) = node {
@@ -176,12 +280,35 @@ where
         last
     }
 
-    /// 集合にxが含まれるかを返す。
+    /// 集合にxが含まれるかを返します。
+    ///
+    /// 時間計算量: O(log n)
+    ///
+    /// # Examples
+    /// ```
+    /// use avl_tree::AvlTree;
+    /// let mut tree = AvlTree::new();
+    /// tree.insert(42);
+    /// assert!(tree.contains(&42));
+    /// assert!(!tree.contains(&24));
+    /// ```
     pub fn contains(&self, x: &T) -> bool {
         self.find_last(x).map_or(false, |node| x.eq(&node.x))
     }
 
-    /// xを追加する。集合にxが含まれていなかった場合trueを返す。
+    /// xを追加します。集合にxが含まれていなかった場合trueを返します。
+    ///
+    /// 既に同じ値が存在する場合は何も行わずfalseを返します。
+    ///
+    /// 時間計算量: O(log n)
+    ///
+    /// # Examples
+    /// ```
+    /// use avl_tree::AvlTree;
+    /// let mut tree = AvlTree::new();
+    /// assert_eq!(tree.insert(42), true);  // 新しい要素
+    /// assert_eq!(tree.insert(42), false); // 既存の要素
+    /// ```
     pub fn insert(&mut self, x: T) -> bool {
         let root = self.root.take();
         let mut inserted = false;
@@ -222,7 +349,20 @@ where
         }
     }
 
-    /// xを削除する。集合にxが含まれていた場合trueを返す。
+    /// xを削除します。集合にxが含まれていた場合trueを返します。
+    ///
+    /// 要素が存在しない場合は何も行わずfalseを返します。
+    ///
+    /// 時間計算量: O(log n)
+    ///
+    /// # Examples
+    /// ```
+    /// use avl_tree::AvlTree;
+    /// let mut tree = AvlTree::new();
+    /// tree.insert(42);
+    /// assert_eq!(tree.remove(&42), true);  // 存在する要素
+    /// assert_eq!(tree.remove(&42), false); // 存在しない要素
+    /// ```
     pub fn remove(&mut self, x: &T) -> bool {
         let root = self.root.take();
         let mut removed = false;
@@ -287,7 +427,25 @@ where
         }
     }
 
-    /// x以下の最大の要素を返す
+    /// x以下の最大の要素を返します。
+    ///
+    /// x以下の要素が存在しない場合はNoneを返します。
+    /// これはC++のstd::setのlower_boundに相当します。
+    ///
+    /// 時間計算量: O(log n)
+    ///
+    /// # Examples
+    /// ```
+    /// use avl_tree::AvlTree;
+    /// let mut tree = AvlTree::new();
+    /// tree.insert(1);
+    /// tree.insert(3);
+    /// tree.insert(5);
+    /// 
+    /// assert_eq!(tree.le(&3), Some(&3)); // ちょうど存在する
+    /// assert_eq!(tree.le(&4), Some(&3)); // 存在しないが、それ以下がある
+    /// assert_eq!(tree.le(&0), None);     // それ以下が存在しない
+    /// ```
     pub fn le(&self, x: &T) -> Option<&T> {
         let mut current = &self.root;
         let mut result = None;
@@ -306,7 +464,25 @@ where
         result
     }
 
-    /// x以上の最小の要素を返す
+    /// x以上の最小の要素を返します。
+    ///
+    /// x以上の要素が存在しない場合はNoneを返します。
+    /// これはC++のstd::setのupper_boundに相当します。
+    ///
+    /// 時間計算量: O(log n)
+    ///
+    /// # Examples
+    /// ```
+    /// use avl_tree::AvlTree;
+    /// let mut tree = AvlTree::new();
+    /// tree.insert(1);
+    /// tree.insert(3);
+    /// tree.insert(5);
+    /// 
+    /// assert_eq!(tree.ge(&3), Some(&3)); // ちょうど存在する
+    /// assert_eq!(tree.ge(&2), Some(&3)); // 存在しないが、それ以上がある
+    /// assert_eq!(tree.ge(&6), None);     // それ以上が存在しない
+    /// ```
     pub fn ge(&self, x: &T) -> Option<&T> {
         let mut current = &self.root;
         let mut result = None;
@@ -325,7 +501,28 @@ where
         result
     }
 
-    /// 0-indexedでn番目の要素を返す
+    /// 0-indexedでn番目の要素を返します。
+    ///
+    /// 昇順でソートしたときのn番目の要素を取得します。
+    /// インデックスが範囲外の場合はNoneを返します。
+    ///
+    /// 時間計算量: O(log n)
+    ///
+    /// # Examples
+    /// ```
+    /// use avl_tree::AvlTree;
+    /// let mut tree = AvlTree::new();
+    /// tree.insert(10);
+    /// tree.insert(5);
+    /// tree.insert(15);
+    /// tree.insert(1);
+    /// 
+    /// assert_eq!(tree.nth(0), Some(&1));  // 最小値
+    /// assert_eq!(tree.nth(1), Some(&5));
+    /// assert_eq!(tree.nth(2), Some(&10));
+    /// assert_eq!(tree.nth(3), Some(&15)); // 最大値
+    /// assert_eq!(tree.nth(4), None);      // 範囲外
+    /// ```
     pub fn nth(&self, n: usize) -> Option<&T> {
         if n >= self.len() {
             return None;
@@ -349,8 +546,26 @@ where
         unreachable!()
     }
 
-    /// xより小さい要素の個数を返す
-    /// 集合がxを含む場合Ok, xを含まない場合Err
+    /// xより小さい要素の個数を返します。
+    ///
+    /// 集合がxを含む場合Ok(順位)、xを含まない場合Err(挿入位置)を返します。
+    /// 順位は0-indexedです。
+    ///
+    /// 時間計算量: O(log n)
+    ///
+    /// # Examples
+    /// ```
+    /// use avl_tree::AvlTree;
+    /// let mut tree = AvlTree::new();
+    /// tree.insert(1);
+    /// tree.insert(3);
+    /// tree.insert(5);
+    /// 
+    /// assert_eq!(tree.position(&1), Ok(0));  // 1は0番目
+    /// assert_eq!(tree.position(&3), Ok(1));  // 3は1番目
+    /// assert_eq!(tree.position(&2), Err(1)); // 2は存在しないが1番目に挿入される
+    /// assert_eq!(tree.position(&6), Err(3)); // 6は存在しないが3番目に挿入される
+    /// ```
     pub fn position(&self, x: &T) -> Result<usize, usize> {
         let mut current = &self.root;
         let mut count = 0;
@@ -393,6 +608,7 @@ where
     }
 }
 
+/// AVL木の要素を昇順で走査するイテレータです。
 pub struct Iter<'a, T> {
     stack: Vec<&'a Node<T>>,
 }
@@ -424,6 +640,21 @@ impl<'a, T> Iterator for Iter<'a, T> {
 }
 
 impl<T> AvlTree<T> {
+    /// AVL木の要素を昇順で走査するイテレータを返します。
+    ///
+    /// 時間計算量: O(1)で開始、全体でO(n)
+    ///
+    /// # Examples
+    /// ```
+    /// use avl_tree::AvlTree;
+    /// let mut tree = AvlTree::new();
+    /// tree.insert(3);
+    /// tree.insert(1);
+    /// tree.insert(4);
+    /// 
+    /// let values: Vec<_> = tree.iter().collect();
+    /// assert_eq!(values, vec![&1, &3, &4]);
+    /// ```
     pub fn iter(&self) -> Iter<T> {
         Iter::new(&self.root)
     }
