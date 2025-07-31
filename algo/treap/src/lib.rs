@@ -190,15 +190,13 @@ where
             (Some(_), None) => node.left.take(),
             (Some(left), Some(right)) => {
                 if left.priority > right.priority {
-                    let new_root = Self::rotate_right(node);
-                    let mut new_root = new_root;
+                    let mut new_root = Self::rotate_right(node);
                     new_root.right = Self::remove_node(new_root.right.take().unwrap());
                     new_root.size =
                         1 + Self::node_size(&new_root.left) + Self::node_size(&new_root.right);
                     Some(new_root)
                 } else {
-                    let new_root = Self::rotate_left(node);
-                    let mut new_root = new_root;
+                    let mut new_root = Self::rotate_left(node);
                     new_root.left = Self::remove_node(new_root.left.take().unwrap());
                     new_root.size =
                         1 + Self::node_size(&new_root.left) + Self::node_size(&new_root.right);
