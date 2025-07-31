@@ -3,13 +3,18 @@
 /// `fold(p, ch, e)` は親頂点 `p` に子の頂点 `ch` を辺 `e` 含めてマージした結果を返すよう実装する
 ///
 /// ```no_run
-/// // 木の直径を求める例
+/// // 各頂点から最も遠い頂点までの距離を求める例
+/// 
+/// use re_rooting_dp::re_rooting_dp;
 ///
 /// struct E(u64);
 /// #[derive(Clone)]
 /// struct V(u64);
+/// 
+/// let n: usize = todo!();
+/// let edges: Vec<(usize, usize, E)> = todo!();
 ///
-/// re_rooting_dp(
+/// let farthest = re_rooting_dp(
 ///     n,
 ///     &edges,
 ///     // new
@@ -18,9 +23,9 @@
 ///     },
 ///     // fold
 ///     |p, ch, e| {
-///         p.0.max(ch.0 + e.0)
+///         V(p.0.max(ch.0 + e.0))
 ///     }
-/// )
+/// );
 /// ```
 pub fn re_rooting_dp<E, V, F, G>(n: usize, edges: &[(usize, usize, E)], new: F, fold: G) -> Vec<V>
 where
