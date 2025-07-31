@@ -4,13 +4,13 @@
 ///
 /// ```no_run
 /// // 各頂点から最も遠い頂点までの距離を求める例
-/// 
+///
 /// use re_rooting_dp::re_rooting_dp;
 ///
 /// struct E(u64);
 /// #[derive(Clone)]
 /// struct V(u64);
-/// 
+///
 /// let n: usize = todo!();
 /// let edges: Vec<(usize, usize, E)> = todo!();
 ///
