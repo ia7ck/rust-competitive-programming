@@ -116,10 +116,10 @@ struct CrateInfo {
 }
 
 fn bundle_crate(crate_name: &str, workspace_path: &Path) -> Result<String> {
-    let algo_path = workspace_path.join("algo");
+    let libs_path = workspace_path.join("libs");
 
     let mut crates = HashMap::new();
-    collect_crates(&algo_path, &mut crates)?;
+    collect_crates(&libs_path, &mut crates)?;
 
     let target_crate_info = crates
         .get(crate_name)
@@ -170,8 +170,8 @@ fn bundle_crate(crate_name: &str, workspace_path: &Path) -> Result<String> {
     Ok(bundled_code)
 }
 
-fn collect_crates(algo_path: &Path, crates: &mut HashMap<String, CrateInfo>) -> Result<()> {
-    for entry in fs::read_dir(algo_path)? {
+fn collect_crates(libs_path: &Path, crates: &mut HashMap<String, CrateInfo>) -> Result<()> {
+    for entry in fs::read_dir(libs_path)? {
         let entry = entry?;
         if entry.file_type()?.is_dir() {
             let crate_path = entry.path();

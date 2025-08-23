@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "algo/*",
+    "libs/*",
     "tool/oj_test",
     "tool/oj_test_examples/*",
     "tool/bundle",
