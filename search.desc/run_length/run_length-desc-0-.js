@@ -1,1 +1,0 @@
-searchState.loadedDescShard("run_length", 0, "run length encoding です。\nReturns the argument unchanged.\nCalls <code>U::from(self)</code>.")

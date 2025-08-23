@@ -1,1 +1,0 @@
-searchState.loadedDescShard("next_permutation", 0, "next permutation です。")

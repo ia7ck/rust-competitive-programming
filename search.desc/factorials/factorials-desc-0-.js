@@ -1,1 +1,0 @@
-searchState.loadedDescShard("factorials", 0, "…\n二項係数を返します。\n<code>binomial</code> とほとんど同じですが <code>n</code> が <code>k</code> …\nReturns the argument unchanged.\nCalls <code>U::from(self)</code>.\n<code>1</code> 以上 <code>size</code> 未満の <code>n</code> について、<code>n</code> の階乗 (mod …\n<code>modulo</code> …")

@@ -1,1 +1,0 @@
-searchState.loadedDescShard("graph", 0, "")

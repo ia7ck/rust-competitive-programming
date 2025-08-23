@@ -1,1 +1,0 @@
-searchState.loadedDescShard("arithmetic_series", 0, "初項 <code>a</code>, 項数 <code>n</code>, 公差 <code>d</code> …")

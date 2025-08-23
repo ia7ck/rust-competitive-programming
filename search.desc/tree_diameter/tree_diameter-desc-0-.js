@@ -1,1 +1,0 @@
-searchState.loadedDescShard("tree_diameter", 0, "…")

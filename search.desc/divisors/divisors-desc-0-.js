@@ -1,1 +1,0 @@
-searchState.loadedDescShard("divisors", 0, "非負整数の約数全体です。\n非負整数の約数を昇順で返します。<code>0</code> …")

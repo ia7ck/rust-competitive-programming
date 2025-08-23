@@ -1,1 +1,0 @@
-searchState.loadedDescShard("fenwick_tree", 0, "Fenwick Tree (Binary Indexed Tree) …\nReturns the argument unchanged.\nCalls <code>U::from(self)</code>.")

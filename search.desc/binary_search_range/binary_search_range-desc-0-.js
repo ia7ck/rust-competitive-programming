@@ -1,1 +1,0 @@
-searchState.loadedDescShard("binary_search_range", 0, "ソート済みの列を検索します。")

@@ -1,1 +1,0 @@
-searchState.loadedDescShard("detect_cycle", 0, "有向グラフの閉路を求めます。\n無向グラフの閉路を求めます。")

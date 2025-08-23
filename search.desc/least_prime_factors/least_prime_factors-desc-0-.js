@@ -1,1 +1,0 @@
-searchState.loadedDescShard("least_prime_factors", 0, "「<code>k</code> …")

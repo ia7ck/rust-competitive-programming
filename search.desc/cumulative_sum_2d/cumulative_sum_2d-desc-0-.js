@@ -1,1 +1,0 @@
-searchState.loadedDescShard("cumulative_sum_2d", 0, "二次元累積和です。\nReturns the argument unchanged.\nCalls <code>U::from(self)</code>.")

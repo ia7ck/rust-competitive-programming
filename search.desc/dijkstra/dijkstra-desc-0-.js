@@ -1,1 +1,0 @@
-searchState.loadedDescShard("dijkstra", 0, "長さが定数の辺です。\nグラフの辺を表すトレイトです。\n<code>dijkstra</code> …\n始点から <code>from</code> までの距離 <code>d</code> …\nReturns the argument unchanged.\nCalls <code>U::from(self)</code>.")
