@@ -1,0 +1,46 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Macro for convenient input scanning with variable declarations."><title>scan in scanner - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-528d32ef.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="scanner" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (69b76df90 2025-08-23)" data-channel="nightly" data-search-js="search-5fc2c5c0.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-17c00ba7.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">scan</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../scanner/index.html">scanner</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">scan</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#special-types" title="Special Types">Special Types</a></li><li><a href="#examples" title="Examples">Examples</a><ul><li><a href="#basic-usage" title="Basic usage">Basic usage</a></li><li><a href="#special-types-1" title="Special types">Special types</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate scanner</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">scanner</a></div><h1>Macro <span class="macro">scan</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/scanner/lib.rs.html#146-168">Source</a> </span></div><pre class="rust item-decl"><code>macro_rules! scan {
+    (via $scanner:expr, $($rest:tt)*) =&gt; { ... };
+    (@via [$via:expr] @rest) =&gt; { ... };
+    (@via [$via:expr] @rest ,) =&gt; { ... };
+    (@via [$via:expr] @rest mut $($rest:tt)*) =&gt; { ... };
+    (@via [$via:expr] @rest $($rest:tt)*) =&gt; { ... };
+    (@via [$via:expr] @mut [$($mut:tt)?] @rest $var:tt : $t:tt) =&gt; { ... };
+    (@via [$via:expr] @mut [$($mut:tt)?] @rest $var:tt : $t:tt , $($rest:tt)*) =&gt; { ... };
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Macro for convenient input scanning with variable declarations.</p>
+<p>For direct token scanning, see <a href="struct.Scanner.html#method.scan" title="method scanner::Scanner::scan"><code>Scanner::scan()</code></a>.</p>
+<h2 id="special-types"><a class="doc-anchor" href="#special-types">§</a>Special Types</h2>
+<ul>
+<li><code>Usize1</code>: Converts 1-indexed input to 0-indexed (subtracts 1)</li>
+<li><code>Chars</code>: Reads a string and converts it to <code>Vec&lt;char&gt;</code></li>
+<li><code>Bytes</code>: Reads a string and converts it to <code>Vec&lt;u8&gt;</code></li>
+</ul>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2><h3 id="basic-usage"><a class="doc-anchor" href="#basic-usage">§</a>Basic usage</h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>scanner::{Scanner, scan};
+
+<span class="kw">let </span><span class="kw-2">mut </span>scanner = Scanner::cursor(<span class="string">"3 10\n1 2 3"</span>);
+
+<span class="macro">scan!</span> {
+    via scanner,
+    (n, k): (usize, usize),
+    a: [i32; n],
+};
+
+<span class="macro">assert_eq!</span>((n, k), (<span class="number">3</span>, <span class="number">10</span>));
+<span class="macro">assert_eq!</span>(a, <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]);</code></pre></div>
+<h3 id="special-types-1"><a class="doc-anchor" href="#special-types-1">§</a>Special types</h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>scanner::{Scanner, scan};
+
+<span class="kw">let </span><span class="kw-2">mut </span>scanner = Scanner::cursor(<span class="string">"5\n1 3\nabcde\nABCDE"</span>);
+
+<span class="macro">scan!</span> {
+    via scanner,
+    n: usize,
+    (l, r): (Usize1, Usize1),
+    s: Chars,
+    t: Bytes,
+};
+
+<span class="macro">assert_eq!</span>((l, r), (<span class="number">0</span>, <span class="number">2</span>));
+<span class="macro">assert_eq!</span>(s, <span class="macro">vec!</span>[<span class="string">'a'</span>, <span class="string">'b'</span>, <span class="string">'c'</span>, <span class="string">'d'</span>, <span class="string">'e'</span>]);
+<span class="macro">assert_eq!</span>(t, <span class="macro">vec!</span>[<span class="string">b'A'</span>, <span class="string">b'B'</span>, <span class="string">b'C'</span>, <span class="string">b'D'</span>, <span class="string">b'E'</span>]);</code></pre></div>
+</div></details></section></div></main></body></html>
