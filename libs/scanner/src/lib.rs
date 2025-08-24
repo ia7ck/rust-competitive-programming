@@ -50,12 +50,12 @@ where
     ///
     /// ```
     /// use scanner::Scanner;
-    /// 
+    ///
     /// let mut scanner = Scanner::cursor("-10 20");
-    /// 
+    ///
     /// let x = scanner.scan::<i32>();
     /// let y = scanner.scan::<i32>();
-    /// 
+    ///
     /// assert_eq!(x, -10);
     /// assert_eq!(y, 20);
     /// ```
@@ -102,15 +102,15 @@ where
 ///
 /// ```
 /// use scanner::{Scanner, scan};
-/// 
+///
 /// let mut scanner = Scanner::cursor("3 10\n1 2 3");
-/// 
+///
 /// scan! {
 ///     via scanner,
 ///     (n, k): (usize, usize),
 ///     a: [i32; n],
 /// };
-/// 
+///
 /// assert_eq!((n, k), (3, 10));
 /// assert_eq!(a, vec![1, 2, 3]);
 /// ```
