@@ -98,7 +98,15 @@ where
 ///
 /// For direct token scanning, see [`Scanner::scan()`].
 ///
+/// # Special Types
+///
+/// - `Usize1`: Converts 1-indexed input to 0-indexed (subtracts 1)
+/// - `Chars`: Reads a string and converts it to `Vec<char>`
+/// - `Bytes`: Reads a string and converts it to `Vec<u8>`
+///
 /// # Examples
+///
+/// ## Basic usage
 ///
 /// ```
 /// use scanner::{Scanner, scan};
@@ -113,6 +121,26 @@ where
 ///
 /// assert_eq!((n, k), (3, 10));
 /// assert_eq!(a, vec![1, 2, 3]);
+/// ```
+///
+/// ## Special types
+///
+/// ```
+/// use scanner::{Scanner, scan};
+///
+/// let mut scanner = Scanner::cursor("5\n1 3\nabcde\nABCDE");
+///
+/// scan! {
+///     via scanner,
+///     n: usize,
+///     (l, r): (Usize1, Usize1),
+///     s: Chars,
+///     t: Bytes,
+/// };
+///
+/// assert_eq!((l, r), (0, 2));
+/// assert_eq!(s, vec!['a', 'b', 'c', 'd', 'e']);
+/// assert_eq!(t, vec![b'A', b'B', b'C', b'D', b'E']);
 /// ```
 #[macro_export]
 macro_rules! scan {
@@ -150,6 +178,18 @@ macro_rules! scan_inner {
     // [i32; n]
     (via $scanner:expr, [ $t:tt ; $len:expr ]) => {
         ::std::iter::repeat_with(|| $crate::scan_inner!(via $scanner, $t)).take($len).collect::<Vec<_>>()
+    };
+
+    (via $scanner:expr, Usize1) => {
+        $scanner.scan::<usize>().checked_sub(1).expect("Usize1: input was 0, expected >= 1")
+    };
+
+    (via $scanner:expr, Chars) => {
+        $scanner.scan::<String>().chars().collect::<Vec<_>>()
+    };
+
+    (via $scanner:expr, Bytes) => {
+        $scanner.scan::<String>().bytes().collect::<Vec<_>>()
     };
 
     // i32
@@ -199,5 +239,27 @@ d 4
         assert_eq!(q, 5);
         assert_eq!(a, vec![1, 2, 3]);
         assert_eq!(queries, vec![('a', 1), ('b', 2), ('c', 3), ('d', 4)]);
+    }
+
+    #[test]
+    fn test_special_type() {
+        let mut scanner = Scanner::cursor(
+            r#"
+1 10
+abc
+XYZ
+        "#,
+        );
+
+        scan! {
+            via scanner,
+            (l, r): (Usize1, Usize1),
+            s: Chars,
+            t: Bytes,
+        };
+
+        assert_eq!((l, r), (0, 9));
+        assert_eq!(s, vec!['a', 'b', 'c']);
+        assert_eq!(t, vec![b'X', b'Y', b'Z']);
     }
 }
