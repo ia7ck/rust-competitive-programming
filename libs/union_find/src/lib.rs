@@ -91,9 +91,9 @@ impl UnionFind {
             return None;
         }
 
-        self.groups -= 1;
         match (self.nodes[i], self.nodes[j]) {
             (NodeKind::Root { size: i_size }, NodeKind::Root { size: j_size }) => {
+                self.groups -= 1;
                 let total = i_size + j_size;
                 // マージテク
                 if i_size >= j_size {
