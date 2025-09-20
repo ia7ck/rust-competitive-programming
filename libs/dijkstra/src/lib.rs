@@ -7,21 +7,20 @@ use std::ops::Add;
 pub trait Edge<T> {
     fn from(&self) -> usize;
     fn to(&self) -> usize;
-    /// 始点から [`from`] までの距離 `d` を受け取り、この辺を辿って [`to`] へ行く最短距離を求めます。[`dijkstra`] が正しく動くように、この関数は次の条件を満たように実装してください。[参考情報](https://fetburner.hatenablog.com/entry/2021/02/28/200020)。
+    /// 始点から [`from`] までの距離 `d` を受け取り、この辺を辿って [`to`] へ行く最短距離を求めます。[`dijkstra`] が正しく動くように、この関数は次の[条件](https://fetburner.hatenablog.com/entry/2021/02/28/200020)を満たように実装してください。
     ///
     /// - `dist(d)` は `d` 以上である
     /// - `dist(d)` は `d` について (広義) 単調増加である
     ///
-    /// 使用例は [ABC192E](https://atcoder.jp/contests/abc192/submissions/26105492) をどうぞ。
+    /// 使用例: [ABC192E](https://atcoder.jp/contests/abc192/submissions/26105492)
     ///
     /// [`from`]: trait.Edge.html#tymethod.from
     /// [`to`]: trait.Edge.html#tymethod.to
     /// [`dijkstra`]: fn.dijkstra.html
-    fn dist(&self, d: T) -> T;
+    fn dist(&self, d: &T) -> T;
 }
 
 /// 長さが定数の辺です。
-#[derive(Copy, Clone)]
 pub struct ConstEdge<T> {
     from: usize,
     to: usize,
@@ -44,21 +43,21 @@ where
     fn to(&self) -> usize {
         self.to
     }
-    fn dist(&self, d: T) -> T {
-        d + self.cost
+    fn dist(&self, d: &T) -> T {
+        *d + self.cost
     }
 }
 
 /// `dijkstra` はあるひとつの頂点から全ての頂点への最短距離を計算します。
 ///
-/// 返り値 `(d, prev)` はそれぞれ以下です。
+/// 返り値 `(dist, prev)` はそれぞれ以下です。
 ///
-/// - `d[t]`: `s` から `t` までの最短距離
+/// - `dist[t]`: `s` から `t` までの最短距離
 /// - `prev[t]`: `s` を根とする最短経路木における `t` の親頂点
 ///
 /// `prev` をゴールの頂点からたどることで、最短経路を復元できます。
 ///
-/// `s` から `t` への経路が存在しない場合 `d[t]`、`prev[t]` は `None` です。
+/// `s` から `t` への経路が存在しない場合 `dist[t]`、`prev[t]` は `None` です。
 ///
 /// # Examples
 /// ```
@@ -75,11 +74,11 @@ where
 /// //     |                 |
 /// //     +-----------------+
 /// //
-/// let (d, prev) = dijkstra(4, &edges, 0);
-/// assert_eq!(d[0], Some(0));
-/// assert_eq!(d[1], Some(1));
-/// assert_eq!(d[2], Some(1));
-/// assert_eq!(d[3], Some(2));
+/// let (dist, prev) = dijkstra(4, &edges, 0);
+/// assert_eq!(dist[0], Some(0));
+/// assert_eq!(dist[1], Some(1));
+/// assert_eq!(dist[2], Some(1));
+/// assert_eq!(dist[3], Some(2));
 /// assert_eq!(prev[0], None);
 /// assert_eq!(prev[1], Some(0));
 /// assert_eq!(prev[2], Some(0));
@@ -87,41 +86,41 @@ where
 /// ```
 pub fn dijkstra<E, T>(n: usize, edges: &[E], s: usize) -> (Vec<Option<T>>, Vec<Option<usize>>)
 where
-    E: Edge<T> + Clone,
-    T: Copy + Add<Output = T> + Default + Ord + Debug,
+    E: Edge<T>,
+    T: Clone + Default + Ord + Debug,
 {
     let mut adj = vec![vec![]; n];
     for e in edges {
         adj[e.from()].push(e);
     }
-    let mut dist = vec![None; n];
+    let mut dist = vec![Option::<T>::None; n];
     let mut heap = BinaryHeap::new();
     let mut prev = vec![None; n];
     dist[s] = Some(T::default());
     heap.push((Reverse(T::default()), s));
     while let Some((Reverse(d), v)) = heap.pop() {
         #[allow(clippy::comparison_chain)]
-        match dist[v] {
+        match &dist[v] {
             Some(dv) => {
-                if dv < d {
+                if dv < &d {
                     continue;
-                } else if dv > d {
+                } else if dv > &d {
                     unreachable!();
                 } else {
-                    assert_eq!(dv, d);
+                    assert_eq!(dv, &d);
                 }
             }
             None => unreachable!(),
         }
         for e in &adj[v] {
-            let next_d = e.dist(d);
+            let next_d = e.dist(&d);
             let to = e.to();
-            match dist[to] {
-                Some(dt) if dt <= next_d => {
+            match &dist[to] {
+                Some(dt) if dt <= &next_d => {
                     continue;
                 }
                 _ => {
-                    dist[to] = Some(next_d);
+                    dist[to] = Some(next_d.clone());
                     prev[to] = Some(v);
                     heap.push((Reverse(next_d), to));
                 }
