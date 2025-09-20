@@ -24,7 +24,6 @@ fn main() -> Result<()> {
     } else {
         match check_compilation(&bundled_code) {
             Ok(()) => {
-                eprintln!("✅ Compilation check passed!");
                 println!("{}", bundled_code);
             }
             Err(e) => {
@@ -115,15 +114,32 @@ struct CrateInfo {
     external_dependencies: Vec<String>,
 }
 
+fn list_available_crates(crates: &HashMap<String, CrateInfo>) -> String {
+    let mut crate_names: Vec<_> = crates.keys().collect();
+    crate_names.sort();
+
+    let mut result = String::new();
+    result.push_str("Available crates:\n");
+    for name in crate_names {
+        result.push_str(&format!("  - {}\n", name));
+    }
+    result
+}
+
 fn bundle_crate(crate_name: &str, workspace_path: &Path) -> Result<String> {
     let libs_path = workspace_path.join("libs");
 
     let mut crates = HashMap::new();
     collect_crates(&libs_path, &mut crates)?;
 
-    let target_crate_info = crates
-        .get(crate_name)
-        .ok_or_else(|| anyhow::anyhow!("Crate '{}' not found in workspace", crate_name))?;
+    let target_crate_info = crates.get(crate_name).ok_or_else(|| {
+        let available_crates = list_available_crates(&crates);
+        anyhow::anyhow!(
+            "Crate '{}' not found in workspace.\n\n{}",
+            crate_name,
+            available_crates
+        )
+    })?;
 
     check_external_dependencies(crate_name, &crates);
 
@@ -133,6 +149,7 @@ fn bundle_crate(crate_name: &str, workspace_path: &Path) -> Result<String> {
     let mut bundled_code = String::new();
     bundled_code.push_str("// Bundled\n");
 
+    bundled_code.push_str("#[rustfmt::skip]\n");
     bundled_code.push_str("#[allow(unused)]\n");
     bundled_code.push_str(&format!("mod {} {{\n", crate_name));
     let final_content = process_crate_content(&target_crate_info.content);
@@ -171,7 +188,23 @@ fn bundle_crate(crate_name: &str, workspace_path: &Path) -> Result<String> {
 }
 
 fn collect_crates(libs_path: &Path, crates: &mut HashMap<String, CrateInfo>) -> Result<()> {
-    for entry in fs::read_dir(libs_path)? {
+    if !libs_path.exists() {
+        anyhow::bail!(
+            "Libraries directory '{}' does not exist. Please check your workspace path.",
+            libs_path.display()
+        );
+    }
+
+    if !libs_path.is_dir() {
+        anyhow::bail!(
+            "'{}' is not a directory. Expected a directory containing crate libraries.",
+            libs_path.display()
+        );
+    }
+
+    for entry in fs::read_dir(libs_path)
+        .with_context(|| format!("Failed to read directory '{}'", libs_path.display()))?
+    {
         let entry = entry?;
         if entry.file_type()?.is_dir() {
             let crate_path = entry.path();
@@ -454,5 +487,31 @@ pub fn world() {}"#;
 
 pub fn world() {}"#;
         assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_list_available_crates() {
+        let mut crates = HashMap::new();
+        crates.insert(
+            "crate_a".to_string(),
+            CrateInfo {
+                content: "pub fn a() {}".to_string(),
+                dependencies: vec![],
+                external_dependencies: vec![],
+            },
+        );
+        crates.insert(
+            "crate_b".to_string(),
+            CrateInfo {
+                content: "pub fn b() {}".to_string(),
+                dependencies: vec![],
+                external_dependencies: vec![],
+            },
+        );
+
+        let result = list_available_crates(&crates);
+        assert!(result.contains("Available crates:"));
+        assert!(result.contains("  - crate_a"));
+        assert!(result.contains("  - crate_b"));
     }
 }
