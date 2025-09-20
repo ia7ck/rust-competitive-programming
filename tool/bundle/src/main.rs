@@ -171,7 +171,23 @@ fn bundle_crate(crate_name: &str, workspace_path: &Path) -> Result<String> {
 }
 
 fn collect_crates(libs_path: &Path, crates: &mut HashMap<String, CrateInfo>) -> Result<()> {
-    for entry in fs::read_dir(libs_path)? {
+    if !libs_path.exists() {
+        anyhow::bail!(
+            "Libraries directory '{}' does not exist. Please check your workspace path.",
+            libs_path.display()
+        );
+    }
+
+    if !libs_path.is_dir() {
+        anyhow::bail!(
+            "'{}' is not a directory. Expected a directory containing crate libraries.",
+            libs_path.display()
+        );
+    }
+
+    for entry in fs::read_dir(libs_path)
+        .with_context(|| format!("Failed to read directory '{}'", libs_path.display()))?
+    {
         let entry = entry?;
         if entry.file_type()?.is_dir() {
             let crate_path = entry.path();
