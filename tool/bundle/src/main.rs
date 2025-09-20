@@ -24,7 +24,6 @@ fn main() -> Result<()> {
     } else {
         match check_compilation(&bundled_code) {
             Ok(()) => {
-                eprintln!("✅ Compilation check passed!");
                 println!("{}", bundled_code);
             }
             Err(e) => {
