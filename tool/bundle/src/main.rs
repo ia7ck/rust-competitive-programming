@@ -132,6 +132,7 @@ fn bundle_crate(crate_name: &str, workspace_path: &Path) -> Result<String> {
     let mut bundled_code = String::new();
     bundled_code.push_str("// Bundled\n");
 
+    bundled_code.push_str("#[rustfmt::skip]\n");
     bundled_code.push_str("#[allow(unused)]\n");
     bundled_code.push_str(&format!("mod {} {{\n", crate_name));
     let final_content = process_crate_content(&target_crate_info.content);
