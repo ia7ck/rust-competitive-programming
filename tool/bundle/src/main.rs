@@ -365,7 +365,7 @@ fn check_compilation(code: &str) -> Result<()> {
         .arg("--crate-type")
         .arg("lib")
         .arg("--edition")
-        .arg("2021")
+        .arg("2024")
         .arg("-o")
         .arg(temp_dir.join("check"))
         .arg(&temp_file)
