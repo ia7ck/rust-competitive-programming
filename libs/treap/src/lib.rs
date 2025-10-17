@@ -140,7 +140,7 @@ where
 
     /// 集合にxが含まれるかを返す。
     pub fn contains(&self, x: &T) -> bool {
-        self.find_last(x).map_or(false, |node| x.eq(&node.x))
+        self.find_last(x).is_some_and(|node| x.eq(&node.x))
     }
 
     /// xを削除する。集合にxが含まれていた場合trueを返す。
@@ -333,11 +333,10 @@ where
                 if *inserted {
                     root.size = 1 + Self::node_size(&root.left) + Self::node_size(&root.right);
 
-                    if let Some(left) = &root.left {
-                        if left.priority > root.priority {
+                    if let Some(left) = &root.left
+                        && left.priority > root.priority {
                             return Some(Self::rotate_right(root));
                         }
-                    }
                 }
                 Some(root)
             }
@@ -346,11 +345,10 @@ where
                 if *inserted {
                     root.size = 1 + Self::node_size(&root.left) + Self::node_size(&root.right);
 
-                    if let Some(right) = &root.right {
-                        if right.priority > root.priority {
+                    if let Some(right) = &root.right
+                        && right.priority > root.priority {
                             return Some(Self::rotate_left(root));
                         }
-                    }
                 }
                 Some(root)
             }

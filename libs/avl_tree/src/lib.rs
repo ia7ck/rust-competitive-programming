@@ -178,7 +178,7 @@ where
 
     /// 集合にxが含まれるかを返す。
     pub fn contains(&self, x: &T) -> bool {
-        self.find_last(x).map_or(false, |node| x.eq(&node.x))
+        self.find_last(x).is_some_and(|node| x.eq(&node.x))
     }
 
     /// xを追加する。集合にxが含まれていなかった場合trueを返す。

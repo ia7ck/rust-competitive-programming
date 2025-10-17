@@ -163,8 +163,8 @@ fn bundle_crate(crate_name: &str, workspace_path: &Path) -> Result<String> {
     }
 
     for dep_crate_name in &all_dependencies {
-        if dep_crate_name != crate_name {
-            if let Some(dep_crate_info) = crates.get(dep_crate_name) {
+        if dep_crate_name != crate_name
+            && let Some(dep_crate_info) = crates.get(dep_crate_name) {
                 bundled_code.push_str(&format!("\n    mod {} {{\n", dep_crate_name));
 
                 let processed_content = process_crate_content(&dep_crate_info.content);
@@ -179,7 +179,6 @@ fn bundle_crate(crate_name: &str, workspace_path: &Path) -> Result<String> {
 
                 bundled_code.push_str("    }\n");
             }
-        }
     }
 
     bundled_code.push_str("}\n");

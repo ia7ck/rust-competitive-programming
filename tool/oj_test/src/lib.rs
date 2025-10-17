@@ -259,8 +259,8 @@ fn example_binary_path(source_path: &Path) -> PathBuf {
 }
 
 fn log_existing_binary(binary_path: &Path, binary_type: &str) {
-    if let Ok(metadata) = fs::metadata(binary_path) {
-        if let Ok(modified) = metadata.modified() {
+    if let Ok(metadata) = fs::metadata(binary_path)
+        && let Ok(modified) = metadata.modified() {
             let duration = modified.duration_since(std::time::UNIX_EPOCH).unwrap();
             let datetime = Tokyo.timestamp(duration.as_secs() as i64, 0);
             info!(
@@ -270,7 +270,6 @@ fn log_existing_binary(binary_path: &Path, binary_type: &str) {
                 datetime.format("%Y-%m-%d %H:%M:%S %z")
             );
         }
-    }
 }
 
 #[cfg(test)]
