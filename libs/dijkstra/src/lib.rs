@@ -132,7 +132,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::{dijkstra, ConstEdge};
+    use crate::{ConstEdge, dijkstra};
     use rand::distributions::Uniform;
     use rand::prelude::*;
 

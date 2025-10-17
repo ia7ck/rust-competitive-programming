@@ -15,11 +15,7 @@
 pub fn ext_gcd(a: i64, b: i64) -> (i64, i64, i64) {
     if b == 0 {
         // ax + 0y = a
-        if a == 0 {
-            (0, 0, 0)
-        } else {
-            (1, 0, a)
-        }
+        if a == 0 { (0, 0, 0) } else { (1, 0, a) }
     } else {
         let (q, r) = (a / b, a % b);
         // a = bq + r, ax + by = g

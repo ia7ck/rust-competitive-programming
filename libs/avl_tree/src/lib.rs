@@ -370,11 +370,7 @@ where
             }
         }
 
-        if hit {
-            Ok(count)
-        } else {
-            Err(count)
-        }
+        if hit { Ok(count) } else { Err(count) }
     }
 }
 

@@ -72,9 +72,11 @@ impl Factorial {
     /// Factorial::new_checking_modulo_prime(10, 42);
     /// ```
     pub fn new_checking_modulo_prime(size: usize, modulo: u64) -> Self {
-        assert!((2..modulo)
-            .take_while(|&x| x * x <= modulo)
-            .all(|x| modulo % x != 0));
+        assert!(
+            (2..modulo)
+                .take_while(|&x| x * x <= modulo)
+                .all(|x| modulo % x != 0)
+        );
         Self::new(size, modulo)
     }
 

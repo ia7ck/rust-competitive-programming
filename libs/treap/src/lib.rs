@@ -4,7 +4,7 @@ use std::{
     marker::PhantomData,
 };
 
-use rand::{rngs::StdRng, RngCore, SeedableRng};
+use rand::{RngCore, SeedableRng, rngs::StdRng};
 
 struct Node<T> {
     x: T,
@@ -289,11 +289,7 @@ where
             }
         }
 
-        if hit {
-            Ok(count)
-        } else {
-            Err(count)
-        }
+        if hit { Ok(count) } else { Err(count) }
     }
 }
 
@@ -334,9 +330,10 @@ where
                     root.size = 1 + Self::node_size(&root.left) + Self::node_size(&root.right);
 
                     if let Some(left) = &root.left
-                        && left.priority > root.priority {
-                            return Some(Self::rotate_right(root));
-                        }
+                        && left.priority > root.priority
+                    {
+                        return Some(Self::rotate_right(root));
+                    }
                 }
                 Some(root)
             }
@@ -346,9 +343,10 @@ where
                     root.size = 1 + Self::node_size(&root.left) + Self::node_size(&root.right);
 
                     if let Some(right) = &root.right
-                        && right.priority > root.priority {
-                            return Some(Self::rotate_left(root));
-                        }
+                        && right.priority > root.priority
+                    {
+                        return Some(Self::rotate_left(root));
+                    }
                 }
                 Some(root)
             }
