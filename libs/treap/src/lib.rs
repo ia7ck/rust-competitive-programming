@@ -407,7 +407,7 @@ impl<'a, T> Iterator for Iter<'a, T> {
 }
 
 impl<T, R> Treap<T, R> {
-    pub fn iter(&self) -> Iter<T> {
+    pub fn iter(&self) -> Iter<'_, T> {
         Iter::new(&self.root)
     }
 }
