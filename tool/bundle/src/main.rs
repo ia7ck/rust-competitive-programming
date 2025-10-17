@@ -52,8 +52,11 @@ struct Package {
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
 enum Dependency {
-    Simple,
-    Detailed { path: Option<String> },
+    #[allow(unused)]
+    Simple(String),
+    Detailed {
+        path: Option<String>,
+    },
 }
 
 #[derive(Parser)]
@@ -227,7 +230,7 @@ fn collect_crates(libs_path: &Path, crates: &mut HashMap<String, CrateInfo>) -> 
                                     Dependency::Detailed { path: Some(_) } => {
                                         dependencies.push(name);
                                     }
-                                    Dependency::Simple | Dependency::Detailed { path: None } => {
+                                    Dependency::Simple(_) | Dependency::Detailed { path: None } => {
                                         external_dependencies.push(name);
                                     }
                                 }
