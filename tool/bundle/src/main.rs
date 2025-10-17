@@ -52,8 +52,11 @@ struct Package {
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
 enum Dependency {
+    #[allow(unused)]
     Simple(String),
-    Detailed { path: Option<String> },
+    Detailed {
+        path: Option<String>,
+    },
 }
 
 #[derive(Parser)]
@@ -163,22 +166,22 @@ fn bundle_crate(crate_name: &str, workspace_path: &Path) -> Result<String> {
     }
 
     for dep_crate_name in &all_dependencies {
-        if dep_crate_name != crate_name {
-            if let Some(dep_crate_info) = crates.get(dep_crate_name) {
-                bundled_code.push_str(&format!("\n    mod {} {{\n", dep_crate_name));
+        if dep_crate_name != crate_name
+            && let Some(dep_crate_info) = crates.get(dep_crate_name)
+        {
+            bundled_code.push_str(&format!("\n    mod {} {{\n", dep_crate_name));
 
-                let processed_content = process_crate_content(&dep_crate_info.content);
+            let processed_content = process_crate_content(&dep_crate_info.content);
 
-                for line in processed_content.lines() {
-                    if line.trim().is_empty() {
-                        bundled_code.push('\n');
-                    } else {
-                        bundled_code.push_str(&format!("        {}\n", line));
-                    }
+            for line in processed_content.lines() {
+                if line.trim().is_empty() {
+                    bundled_code.push('\n');
+                } else {
+                    bundled_code.push_str(&format!("        {}\n", line));
                 }
-
-                bundled_code.push_str("    }\n");
             }
+
+            bundled_code.push_str("    }\n");
         }
     }
 
@@ -366,7 +369,7 @@ fn check_compilation(code: &str) -> Result<()> {
         .arg("--crate-type")
         .arg("lib")
         .arg("--edition")
-        .arg("2021")
+        .arg("2024")
         .arg("-o")
         .arg(temp_dir.join("check"))
         .arg(&temp_file)

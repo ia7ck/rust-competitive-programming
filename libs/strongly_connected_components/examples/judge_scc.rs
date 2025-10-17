@@ -1,6 +1,6 @@
 use proconio::{
     input,
-    source::{once::OnceSource, Source},
+    source::{Source, once::OnceSource},
 };
 
 use std::env;

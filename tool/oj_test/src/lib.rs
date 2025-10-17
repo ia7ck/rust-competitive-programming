@@ -5,7 +5,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use anyhow::{ensure, Result};
+use anyhow::{Result, ensure};
 use chrono::TimeZone;
 use chrono_tz::Asia::Tokyo;
 use glob::glob;
@@ -259,17 +259,17 @@ fn example_binary_path(source_path: &Path) -> PathBuf {
 }
 
 fn log_existing_binary(binary_path: &Path, binary_type: &str) {
-    if let Ok(metadata) = fs::metadata(binary_path) {
-        if let Ok(modified) = metadata.modified() {
-            let duration = modified.duration_since(std::time::UNIX_EPOCH).unwrap();
-            let datetime = Tokyo.timestamp(duration.as_secs() as i64, 0);
-            info!(
-                "Using existing {} binary: {} (modified: {})",
-                binary_type,
-                binary_path.display(),
-                datetime.format("%Y-%m-%d %H:%M:%S %z")
-            );
-        }
+    if let Ok(metadata) = fs::metadata(binary_path)
+        && let Ok(modified) = metadata.modified()
+    {
+        let duration = modified.duration_since(std::time::UNIX_EPOCH).unwrap();
+        let datetime = Tokyo.timestamp(duration.as_secs() as i64, 0);
+        info!(
+            "Using existing {} binary: {} (modified: {})",
+            binary_type,
+            binary_path.display(),
+            datetime.format("%Y-%m-%d %H:%M:%S %z")
+        );
     }
 }
 

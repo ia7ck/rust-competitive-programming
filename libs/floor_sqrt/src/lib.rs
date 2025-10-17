@@ -13,7 +13,7 @@
 /// ```
 pub fn floor_sqrt(n: u64) -> u64 {
     let mut ok = 0;
-    let mut ng = std::u32::MAX as u64;
+    let mut ng = u64::from(u32::MAX);
     while ng - ok > 1 {
         let m = (ng + ok) / 2;
         if m * m <= n {

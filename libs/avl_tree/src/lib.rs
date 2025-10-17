@@ -178,7 +178,7 @@ where
 
     /// 集合にxが含まれるかを返す。
     pub fn contains(&self, x: &T) -> bool {
-        self.find_last(x).map_or(false, |node| x.eq(&node.x))
+        self.find_last(x).is_some_and(|node| x.eq(&node.x))
     }
 
     /// xを追加する。集合にxが含まれていなかった場合trueを返す。
@@ -370,11 +370,7 @@ where
             }
         }
 
-        if hit {
-            Ok(count)
-        } else {
-            Err(count)
-        }
+        if hit { Ok(count) } else { Err(count) }
     }
 }
 
@@ -424,7 +420,7 @@ impl<'a, T> Iterator for Iter<'a, T> {
 }
 
 impl<T> AvlTree<T> {
-    pub fn iter(&self) -> Iter<T> {
+    pub fn iter(&self) -> Iter<'_, T> {
         Iter::new(&self.root)
     }
 }

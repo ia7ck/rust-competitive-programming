@@ -36,11 +36,7 @@ pub fn topological_sort(n: usize, edges: &[(usize, usize)]) -> Option<Vec<usize>
         }
     }
     assert!(order.len() <= n);
-    if order.len() == n {
-        Some(order)
-    } else {
-        None
-    }
+    if order.len() == n { Some(order) } else { None }
 }
 
 #[cfg(test)]

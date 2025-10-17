@@ -4,7 +4,7 @@ use std::{
     marker::PhantomData,
 };
 
-use rand::{rngs::StdRng, RngCore, SeedableRng};
+use rand::{RngCore, SeedableRng, rngs::StdRng};
 
 struct Node<T> {
     x: T,
@@ -140,7 +140,7 @@ where
 
     /// 集合にxが含まれるかを返す。
     pub fn contains(&self, x: &T) -> bool {
-        self.find_last(x).map_or(false, |node| x.eq(&node.x))
+        self.find_last(x).is_some_and(|node| x.eq(&node.x))
     }
 
     /// xを削除する。集合にxが含まれていた場合trueを返す。
@@ -289,11 +289,7 @@ where
             }
         }
 
-        if hit {
-            Ok(count)
-        } else {
-            Err(count)
-        }
+        if hit { Ok(count) } else { Err(count) }
     }
 }
 
@@ -333,10 +329,10 @@ where
                 if *inserted {
                     root.size = 1 + Self::node_size(&root.left) + Self::node_size(&root.right);
 
-                    if let Some(left) = &root.left {
-                        if left.priority > root.priority {
-                            return Some(Self::rotate_right(root));
-                        }
+                    if let Some(left) = &root.left
+                        && left.priority > root.priority
+                    {
+                        return Some(Self::rotate_right(root));
                     }
                 }
                 Some(root)
@@ -346,10 +342,10 @@ where
                 if *inserted {
                     root.size = 1 + Self::node_size(&root.left) + Self::node_size(&root.right);
 
-                    if let Some(right) = &root.right {
-                        if right.priority > root.priority {
-                            return Some(Self::rotate_left(root));
-                        }
+                    if let Some(right) = &root.right
+                        && right.priority > root.priority
+                    {
+                        return Some(Self::rotate_left(root));
                     }
                 }
                 Some(root)
@@ -409,7 +405,7 @@ impl<'a, T> Iterator for Iter<'a, T> {
 }
 
 impl<T, R> Treap<T, R> {
-    pub fn iter(&self) -> Iter<T> {
+    pub fn iter(&self) -> Iter<'_, T> {
         Iter::new(&self.root)
     }
 }

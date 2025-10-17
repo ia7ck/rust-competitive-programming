@@ -24,7 +24,7 @@ pub struct LowestCommonAncestor {
     depth: Vec<usize>,
 }
 
-const ILLEGAL: usize = std::usize::MAX;
+const ILLEGAL: usize = usize::MAX;
 
 impl LowestCommonAncestor {
     /// 頂点数 `n`, 根 `root`, 木をなす無向辺の集合 `edges` を渡します。
