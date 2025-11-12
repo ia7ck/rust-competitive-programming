@@ -77,8 +77,12 @@ where
     }
 
     /// 集合のサイズを返します
-    pub fn size(&self) -> usize {
+    pub fn len(&self) -> usize {
         self.0.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
     }
 }
 
