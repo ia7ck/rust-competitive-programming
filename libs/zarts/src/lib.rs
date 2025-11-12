@@ -45,15 +45,6 @@ use std::{
 ///
 pub struct SortedSeq<T>(Vec<T>);
 
-impl<T> FromIterator<T> for SortedSeq<T>
-where
-    T: Ord,
-{
-    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
-        Self::new(iter.into_iter().collect())
-    }
-}
-
 impl<T> SortedSeq<T>
 where
     T: Ord,
@@ -83,6 +74,15 @@ where
 
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
+    }
+}
+
+impl<T> FromIterator<T> for SortedSeq<T>
+where
+    T: Ord,
+{
+    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
+        Self::new(iter.into_iter().collect())
     }
 }
 
