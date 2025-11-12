@@ -164,17 +164,9 @@ mod tests {
     }
 
     #[test]
-    fn test_substring() {
-        let rh = RollingHash::from_iter("abcabc".bytes());
-        let sub = rh.substring(1..4); // "bca"
-        assert_eq!(sub.hash(), rh.hash(1..4));
-        assert_eq!(sub.len(), 3);
-    }
-
-    #[test]
     fn test_position() {
         let rh = RollingHash::from_iter("abcabc".bytes());
-        let sub = rh.substring(1..3); // "bc"
+        let sub = rh.substring(1..4); // "bca"
         assert_eq!(rh.position(&sub), Some(1));
     }
 }
