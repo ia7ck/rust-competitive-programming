@@ -45,21 +45,11 @@ use std::{
 ///
 pub struct SortedSeq<T>(Vec<T>);
 
-impl<T> FromIterator<T> for SortedSeq<T>
-where
-    T: Ord,
-{
-    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
-        Self::new(iter)
-    }
-}
-
 impl<T> SortedSeq<T>
 where
     T: Ord,
 {
-    pub fn new(values: impl IntoIterator<Item = T>) -> Self {
-        let mut values = values.into_iter().collect::<Vec<_>>();
+    pub fn new(mut values: Vec<T>) -> Self {
         values.sort_unstable();
         values.dedup();
         Self(values)
@@ -78,8 +68,21 @@ where
     }
 
     /// 集合のサイズを返します
-    pub fn size(&self) -> usize {
+    pub fn len(&self) -> usize {
         self.0.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+}
+
+impl<T> FromIterator<T> for SortedSeq<T>
+where
+    T: Ord,
+{
+    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
+        Self::new(iter.into_iter().collect())
     }
 }
 
@@ -116,7 +119,7 @@ mod tests {
 
     #[test]
     fn index_test() {
-        let seq = SortedSeq::new([4, 4, 2, 5, 2, 9]);
+        let seq = SortedSeq::new(vec![4, 4, 2, 5, 2, 9]);
         // 2, 4, 5, 9
         assert_eq!(seq.at(0), &2);
         assert_eq!(seq.at(1), &4);
