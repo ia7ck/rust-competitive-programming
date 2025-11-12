@@ -15,6 +15,7 @@ pub struct RollingHash {
     xs: Vec<u64>,
     hashes: Vec<u64>,
     pows: Vec<u64>,
+    base: u64,
 }
 
 impl<T> FromIterator<T> for RollingHash
@@ -29,17 +30,26 @@ where
 
 impl RollingHash {
     pub fn new(xs: &[u64]) -> Self {
+        Self::with_base(xs, BASE)
+    }
+
+    pub fn with_base(xs: &[u64], base: u64) -> Self {
         let n = xs.len();
         let xs = xs.to_vec();
         let mut hashes = vec![0; n + 1];
         let mut pows = vec![1; n + 1];
         for (i, &x) in xs.iter().enumerate() {
-            // hashes[i + 1] = hashes[i] * BASE + x
-            hashes[i + 1] = calc_mod(mul(hashes[i], BASE) + x);
-            // pows[i + 1] = pows[i] * BASE
-            pows[i + 1] = calc_mod(mul(pows[i], BASE));
+            // hashes[i + 1] = hashes[i] * base + x
+            hashes[i + 1] = calc_mod(mul(hashes[i], base) + x);
+            // pows[i + 1] = pows[i] * base
+            pows[i + 1] = calc_mod(mul(pows[i], base));
         }
-        Self { xs, hashes, pows }
+        Self {
+            xs,
+            hashes,
+            pows,
+            base,
+        }
     }
 
     pub fn len(&self) -> usize {
@@ -48,6 +58,10 @@ impl RollingHash {
 
     pub fn is_empty(&self) -> bool {
         self.xs.is_empty()
+    }
+
+    pub fn base(&self) -> u64 {
+        self.base
     }
 
     pub fn at(&self, i: usize) -> u64 {
@@ -133,5 +147,13 @@ mod tests {
         let rh1 = RollingHash::from_iter("xyz".bytes());
         let rh2 = RollingHash::from_iter("abcxyz".bytes());
         assert!(rh1.is_substring(&rh2));
+    }
+
+    #[test]
+    fn test_with_base() {
+        let rh1 = RollingHash::with_base(&[1, 2, 3], 1_000_000_000 + 7);
+        let rh2 = RollingHash::with_base(&[1, 2, 3], 998_244_353);
+
+        assert_ne!(rh1.hash(0..3), rh2.hash(0..3));
     }
 }
