@@ -82,28 +82,41 @@ impl RollingHash {
         calc_mod(self.hashes[r] + POSITIVIZER - mul(self.hashes[l], self.pows[r - l]))
     }
 
-    /// self が other の部分文字列かどうかを返します。
-    ///
-    /// O(other.len())
-    ///
-    /// # Examples
-    /// ```
-    /// use rolling_hash::RollingHash;
-    /// let rh1 = RollingHash::from_iter("abcd".bytes());
-    /// let rh2 = RollingHash::from_iter("xxabcdyy".bytes());
-    /// assert!(rh1.is_substring(&rh2));
-    /// ```
-    // 出現位置をすべて返すようにしたほうがいいかも
-    pub fn is_substring(&self, other: &Self) -> bool {
-        for j in 0..other.len() {
-            if j + self.len() > other.len() {
-                break;
-            }
-            if self.hash(0..self.len()) == other.hash(j..(j + self.len())) {
-                return true;
-            }
+    pub fn substring(&self, range: ops::Range<usize>) -> Substring {
+        let len = range.end - range.start;
+        let hash = self.hash(range);
+        Substring::new(hash, len)
+    }
+
+    pub fn position(&self, sub: &Substring) -> Option<usize> {
+        if sub.len > self.len() {
+            return None;
         }
-        false
+        (0..=self.len() - sub.len).find(|&i| self.hash(i..(i + sub.len)) == sub.hash)
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Substring {
+    hash: u64,
+    len: usize,
+}
+
+impl Substring {
+    pub fn new(hash: u64, len: usize) -> Self {
+        Self { hash, len }
+    }
+
+    pub fn hash(&self) -> u64 {
+        self.hash
+    }
+
+    pub fn len(&self) -> usize {
+        self.len
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len == 0
     }
 }
 
@@ -143,17 +156,25 @@ mod tests {
     }
 
     #[test]
-    fn test_is_substring() {
-        let rh1 = RollingHash::from_iter("xyz".bytes());
-        let rh2 = RollingHash::from_iter("abcxyz".bytes());
-        assert!(rh1.is_substring(&rh2));
-    }
-
-    #[test]
     fn test_with_base() {
         let rh1 = RollingHash::with_base(&[1, 2, 3], 1_000_000_000 + 7);
         let rh2 = RollingHash::with_base(&[1, 2, 3], 998_244_353);
 
         assert_ne!(rh1.hash(0..3), rh2.hash(0..3));
+    }
+
+    #[test]
+    fn test_substring() {
+        let rh = RollingHash::from_iter("abcabc".bytes());
+        let sub = rh.substring(1..4); // "bca"
+        assert_eq!(sub.hash(), rh.hash(1..4));
+        assert_eq!(sub.len(), 3);
+    }
+
+    #[test]
+    fn test_position() {
+        let rh = RollingHash::from_iter("abcabc".bytes());
+        let sub = rh.substring(1..3); // "bc"
+        assert_eq!(rh.position(&sub), Some(1));
     }
 }
