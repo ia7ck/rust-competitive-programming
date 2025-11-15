@@ -24,9 +24,9 @@ impl<const BASE: u64> RollingHash<BASE> {
         let mut hashes = vec![0; n + 1];
         let mut pows = vec![1; n + 1];
         for (i, &x) in xs.iter().enumerate() {
-            // hashes[i + 1] = hashes[i] * base + x
+            // hashes[i + 1] = hashes[i] * BASE + x
             hashes[i + 1] = calc_mod(mul(hashes[i], BASE) + x);
-            // pows[i + 1] = pows[i] * base
+            // pows[i + 1] = pows[i] * BASE
             pows[i + 1] = calc_mod(mul(pows[i], BASE));
         }
         Self { xs, hashes, pows }
