@@ -18,16 +18,6 @@ pub struct RollingHash {
     base: u64,
 }
 
-impl<T> FromIterator<T> for RollingHash
-where
-    T: Into<u64>,
-{
-    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
-        let xs = iter.into_iter().map(|x| x.into()).collect::<Vec<_>>();
-        Self::new(&xs)
-    }
-}
-
 impl RollingHash {
     pub fn new(xs: &[u64]) -> Self {
         Self::with_base(xs, BASE)
@@ -117,6 +107,16 @@ impl Substring {
 
     pub fn is_empty(&self) -> bool {
         self.len == 0
+    }
+}
+
+impl<T> FromIterator<T> for RollingHash
+where
+    T: Into<u64>,
+{
+    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
+        let xs = iter.into_iter().map(|x| x.into()).collect::<Vec<_>>();
+        Self::new(&xs)
     }
 }
 
