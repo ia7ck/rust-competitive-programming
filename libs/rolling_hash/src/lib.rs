@@ -5,41 +5,31 @@ const MASK31: u64 = (1 << 31) - 1;
 const MOD: u64 = (1 << 61) - 1;
 const MASK61: u64 = (1 << 61) - 1;
 const POSITIVIZER: u64 = MOD * 4;
-const BASE: u64 = 1_000_000_000 + 9;
+const DEFAULT_BASE: u64 = 1_000_000_000 + 9;
 
 /// Rolling Hash です。O(文字列長) の前計算をしたうえで、部分文字列のハッシュ値を O(1) で計算します。
 ///
 /// [実装の参考資料](https://qiita.com/keymoon/items/11fac5627672a6d6a9f6)
 #[derive(Debug, Clone)]
-pub struct RollingHash {
+pub struct RollingHash<const BASE: u64> {
     xs: Vec<u64>,
     hashes: Vec<u64>,
     pows: Vec<u64>,
-    base: u64,
 }
 
-impl RollingHash {
+impl<const BASE: u64> RollingHash<BASE> {
     pub fn new(xs: &[u64]) -> Self {
-        Self::with_base(xs, BASE)
-    }
-
-    pub fn with_base(xs: &[u64], base: u64) -> Self {
         let n = xs.len();
         let xs = xs.to_vec();
         let mut hashes = vec![0; n + 1];
         let mut pows = vec![1; n + 1];
         for (i, &x) in xs.iter().enumerate() {
             // hashes[i + 1] = hashes[i] * base + x
-            hashes[i + 1] = calc_mod(mul(hashes[i], base) + x);
+            hashes[i + 1] = calc_mod(mul(hashes[i], BASE) + x);
             // pows[i + 1] = pows[i] * base
-            pows[i + 1] = calc_mod(mul(pows[i], base));
+            pows[i + 1] = calc_mod(mul(pows[i], BASE));
         }
-        Self {
-            xs,
-            hashes,
-            pows,
-            base,
-        }
+        Self { xs, hashes, pows }
     }
 
     pub fn len(&self) -> usize {
@@ -51,7 +41,7 @@ impl RollingHash {
     }
 
     pub fn base(&self) -> u64 {
-        self.base
+        BASE
     }
 
     pub fn at(&self, i: usize) -> u64 {
@@ -110,7 +100,7 @@ impl Substring {
     }
 }
 
-impl<T> FromIterator<T> for RollingHash
+impl<T> FromIterator<T> for RollingHash<DEFAULT_BASE>
 where
     T: Into<u64>,
 {
@@ -157,8 +147,8 @@ mod tests {
 
     #[test]
     fn test_with_base() {
-        let rh1 = RollingHash::with_base(&[1, 2, 3], 1_000_000_000 + 7);
-        let rh2 = RollingHash::with_base(&[1, 2, 3], 998_244_353);
+        let rh1 = RollingHash::<1_000_000_007>::new(&[1, 2, 3]);
+        let rh2 = RollingHash::<998_244_353>::new(&[1, 2, 3]);
 
         assert_ne!(rh1.hash(0..3), rh2.hash(0..3));
     }
