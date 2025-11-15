@@ -5,29 +5,19 @@ const MASK31: u64 = (1 << 31) - 1;
 const MOD: u64 = (1 << 61) - 1;
 const MASK61: u64 = (1 << 61) - 1;
 const POSITIVIZER: u64 = MOD * 4;
-const BASE: u64 = 1_000_000_000 + 9;
+const DEFAULT_BASE: u64 = 1_000_000_000 + 9;
 
 /// Rolling Hash です。O(文字列長) の前計算をしたうえで、部分文字列のハッシュ値を O(1) で計算します。
 ///
 /// [実装の参考資料](https://qiita.com/keymoon/items/11fac5627672a6d6a9f6)
 #[derive(Debug, Clone)]
-pub struct RollingHash {
+pub struct RollingHash<const BASE: u64> {
     xs: Vec<u64>,
     hashes: Vec<u64>,
     pows: Vec<u64>,
 }
 
-impl<T> FromIterator<T> for RollingHash
-where
-    T: Into<u64>,
-{
-    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
-        let xs = iter.into_iter().map(|x| x.into()).collect::<Vec<_>>();
-        Self::new(&xs)
-    }
-}
-
-impl RollingHash {
+impl<const BASE: u64> RollingHash<BASE> {
     pub fn new(xs: &[u64]) -> Self {
         let n = xs.len();
         let xs = xs.to_vec();
@@ -50,6 +40,10 @@ impl RollingHash {
         self.xs.is_empty()
     }
 
+    pub fn base(&self) -> u64 {
+        BASE
+    }
+
     pub fn at(&self, i: usize) -> u64 {
         assert!(i < self.len());
         self.xs[i]
@@ -68,28 +62,51 @@ impl RollingHash {
         calc_mod(self.hashes[r] + POSITIVIZER - mul(self.hashes[l], self.pows[r - l]))
     }
 
-    /// self が other の部分文字列かどうかを返します。
-    ///
-    /// O(other.len())
-    ///
-    /// # Examples
-    /// ```
-    /// use rolling_hash::RollingHash;
-    /// let rh1 = RollingHash::from_iter("abcd".bytes());
-    /// let rh2 = RollingHash::from_iter("xxabcdyy".bytes());
-    /// assert!(rh1.is_substring(&rh2));
-    /// ```
-    // 出現位置をすべて返すようにしたほうがいいかも
-    pub fn is_substring(&self, other: &Self) -> bool {
-        for j in 0..other.len() {
-            if j + self.len() > other.len() {
-                break;
-            }
-            if self.hash(0..self.len()) == other.hash(j..(j + self.len())) {
-                return true;
-            }
+    pub fn substring(&self, range: ops::Range<usize>) -> Substring<BASE> {
+        let len = range.end - range.start;
+        let hash = self.hash(range);
+        Substring::new(hash, len)
+    }
+
+    pub fn position(&self, sub: &Substring<BASE>) -> Option<usize> {
+        if sub.len > self.len() {
+            return None;
         }
-        false
+        (0..=self.len() - sub.len).find(|&i| self.hash(i..(i + sub.len)) == sub.hash)
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Substring<const BASE: u64> {
+    hash: u64,
+    len: usize,
+}
+
+impl<const BASE: u64> Substring<BASE> {
+    pub fn new(hash: u64, len: usize) -> Self {
+        Self { hash, len }
+    }
+
+    pub fn hash(&self) -> u64 {
+        self.hash
+    }
+
+    pub fn len(&self) -> usize {
+        self.len
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len == 0
+    }
+}
+
+impl<T> FromIterator<T> for RollingHash<DEFAULT_BASE>
+where
+    T: Into<u64>,
+{
+    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
+        let xs = iter.into_iter().map(|x| x.into()).collect::<Vec<_>>();
+        Self::new(&xs)
     }
 }
 
@@ -129,9 +146,17 @@ mod tests {
     }
 
     #[test]
-    fn test_is_substring() {
-        let rh1 = RollingHash::from_iter("xyz".bytes());
-        let rh2 = RollingHash::from_iter("abcxyz".bytes());
-        assert!(rh1.is_substring(&rh2));
+    fn test_with_base() {
+        let rh1 = RollingHash::<1_000_000_007>::new(&[1, 2, 3]);
+        let rh2 = RollingHash::<998_244_353>::new(&[1, 2, 3]);
+
+        assert_ne!(rh1.hash(0..3), rh2.hash(0..3));
+    }
+
+    #[test]
+    fn test_position() {
+        let rh = RollingHash::from_iter("abcabc".bytes());
+        let sub = rh.substring(1..4); // "bca"
+        assert_eq!(rh.position(&sub), Some(1));
     }
 }
