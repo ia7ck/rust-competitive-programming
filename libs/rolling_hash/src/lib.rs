@@ -62,13 +62,13 @@ impl<const BASE: u64> RollingHash<BASE> {
         calc_mod(self.hashes[r] + POSITIVIZER - mul(self.hashes[l], self.pows[r - l]))
     }
 
-    pub fn substring(&self, range: ops::Range<usize>) -> Substring {
+    pub fn substring(&self, range: ops::Range<usize>) -> Substring<BASE> {
         let len = range.end - range.start;
         let hash = self.hash(range);
         Substring::new(hash, len)
     }
 
-    pub fn position(&self, sub: &Substring) -> Option<usize> {
+    pub fn position(&self, sub: &Substring<BASE>) -> Option<usize> {
         if sub.len > self.len() {
             return None;
         }
@@ -77,12 +77,12 @@ impl<const BASE: u64> RollingHash<BASE> {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Substring {
+pub struct Substring<const BASE: u64> {
     hash: u64,
     len: usize,
 }
 
-impl Substring {
+impl<const BASE: u64> Substring<BASE> {
     pub fn new(hash: u64, len: usize) -> Self {
         Self { hash, len }
     }
