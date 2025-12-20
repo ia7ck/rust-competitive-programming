@@ -82,6 +82,10 @@ where
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
+
+    pub fn iter(&self) -> impl Iterator<Item = &T> {
+        self.0.iter()
+    }
 }
 
 impl<T> FromIterator<T> for SortedSeq<T>
