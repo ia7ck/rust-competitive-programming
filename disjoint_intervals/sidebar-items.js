@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["InsertItem","RemoveItem"],"struct":["DisjointIntervals"]};
