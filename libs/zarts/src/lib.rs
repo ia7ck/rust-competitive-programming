@@ -17,10 +17,11 @@ use std::{
 /// assert_eq!(seq.ord(&2), 2);
 /// assert_eq!(seq.ord(&5), 3);
 ///
-/// assert_eq!(seq.at(0), &(-3));
-/// assert_eq!(seq.at(1), &(-1));
-/// assert_eq!(seq.at(2), &2);
-/// assert_eq!(seq.at(3), &5);
+/// assert_eq!(seq.at(0), Some(&(-3)));
+/// assert_eq!(seq.at(1), Some(&(-1)));
+/// assert_eq!(seq.at(2), Some(&2));
+/// assert_eq!(seq.at(3), Some(&5));
+/// assert_eq!(seq.at(4), None);
 /// ```
 ///
 /// # Panics
@@ -32,15 +33,6 @@ use std::{
 /// let primes = vec![2, 3, 5, 7, 11];
 /// let seq = SortedSeq::new(primes);
 /// seq.ord(&4);
-/// ```
-///
-/// index が集合のサイズ以上だとパニックです。
-///
-/// ```should_panic
-/// use zarts::SortedSeq;
-/// let values = vec![1, 1, 2, 2, 3, 4, 9, 9];
-/// let seq = SortedSeq::new(values);
-/// seq.at(5);
 /// ```
 ///
 pub struct SortedSeq<T>(Vec<T>);
@@ -63,8 +55,8 @@ where
     }
 
     /// index 番目の値を返します
-    pub fn at(&self, index: usize) -> &T {
-        &self[index]
+    pub fn at(&self, index: usize) -> Option<&T> {
+        self.0.get(index)
     }
 
     /// 集合のサイズを返します
@@ -121,10 +113,11 @@ mod tests {
     fn index_test() {
         let seq = SortedSeq::new(vec![4, 4, 2, 5, 2, 9]);
         // 2, 4, 5, 9
-        assert_eq!(seq.at(0), &2);
-        assert_eq!(seq.at(1), &4);
-        assert_eq!(seq.at(2), &5);
-        assert_eq!(seq.at(3), &9);
+        assert_eq!(seq.at(0), Some(&2));
+        assert_eq!(seq.at(1), Some(&4));
+        assert_eq!(seq.at(2), Some(&5));
+        assert_eq!(seq.at(3), Some(&9));
+        assert_eq!(seq.at(4), None);
     }
 
     #[test]
