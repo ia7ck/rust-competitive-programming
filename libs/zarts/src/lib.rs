@@ -35,6 +35,7 @@ use std::{
 /// seq.ord(&4);
 /// ```
 ///
+#[derive(Clone, PartialEq, Eq)]
 pub struct SortedSeq<T>(Vec<T>);
 
 impl<T> SortedSeq<T>
