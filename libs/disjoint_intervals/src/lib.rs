@@ -85,7 +85,8 @@ where
             match self.intervals.range(..=interval.start).last() {
                 Some((&prev_start, &prev_end)) if interval.start <= prev_end => {
                     if interval.start < prev_end {
-                        acc = f(acc, InsertItem::Overlap(interval.start..prev_end));
+                        let overlap_end = prev_end.min(interval.end);
+                        acc = f(acc, InsertItem::Overlap(interval.start..overlap_end));
                     }
                     self.intervals.remove(&prev_start);
                     (
