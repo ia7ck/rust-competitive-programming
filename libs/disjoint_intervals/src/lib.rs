@@ -4,21 +4,28 @@ use std::{
     ops::Range,
 };
 
+/// 互いに素な区間を管理するデータ構造
 #[derive(Clone, PartialEq, Eq)]
 pub struct DisjointIntervals<T> {
     // [start, end)
     intervals: BTreeMap<T, T>,
 }
 
+/// 区間を挿入したときに触った各部分区間の状態を表す
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum InsertItem<T> {
+    /// 新しく挿入された区間
     New(Range<T>),
+    /// 既存の区間と重なった区間
     Overlap(Range<T>),
 }
 
+/// 区間を削除したときに触った各部分区間の状態を表す
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RemoveItem<T> {
+    /// 削除された区間
     Remove(Range<T>),
+    /// 元々存在しなかった区間
     Absent(Range<T>),
 }
 
@@ -44,6 +51,28 @@ where
         self.intervals.iter().map(|(&start, &end)| start..end)
     }
 
+    /// 区間を追加する
+    ///
+    /// 初期値 `init,` 関数 `f` による畳み込み結果を返す
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use disjoint_intervals::{DisjointIntervals, InsertItem};
+    ///
+    /// let mut intervals = DisjointIntervals::<i32>::new();
+    /// intervals.insert(-10..5, (), |_, _| ());
+    /// let overlapped = intervals.insert(0..10, 0, |acc, item| {
+    ///     if let InsertItem::Overlap(item) = item {
+    ///        acc + (item.end - item.start)
+    ///     } else {
+    ///        acc
+    ///     }
+    /// });
+    /// assert_eq!(overlapped, 5);
+    ///
+    /// assert_eq!(intervals.iter().collect::<Vec<_>>(), vec![-10..10]);
+    /// ```
     pub fn insert<U, F>(&mut self, interval: Range<T>, init: U, f: F) -> U
     where
         F: FnMut(U, InsertItem<T>) -> U,
@@ -97,6 +126,28 @@ where
         acc
     }
 
+    /// 区間を削除する
+    ///
+    /// 初期値 `init,` 関数 `f` による畳み込み結果を返す
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use disjoint_intervals::{DisjointIntervals, RemoveItem};
+    ///
+    /// let mut intervals = DisjointIntervals::<i32>::new();
+    /// intervals.insert(-10..5, (), |_, _| ());
+    /// let removed = intervals.remove(-5..10, 0, |acc, item| {
+    ///     if let RemoveItem::Remove(item) = item {
+    ///        acc + (item.end - item.start)
+    ///     } else {
+    ///        acc
+    ///     }
+    /// });
+    /// assert_eq!(removed, 10);
+    ///
+    /// assert_eq!(intervals.iter().collect::<Vec<_>>(), vec![-10..-5]);
+    /// ```
     pub fn remove<U, F>(&mut self, interval: Range<T>, init: U, f: F) -> U
     where
         F: FnMut(U, RemoveItem<T>) -> U,
@@ -156,6 +207,21 @@ where
         acc
     }
 
+    /// `x` 以上の開始点を持つ最初の区間を返す
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use disjoint_intervals::DisjointIntervals;
+    ///
+    /// let mut intervals = DisjointIntervals::<i32>::new();
+    /// intervals.insert(0..5, (), |_, _| ());
+    /// intervals.insert(10..15, (), |_, _| ());
+    ///
+    /// assert_eq!(intervals.ge(0), Some(0..5));
+    /// assert_eq!(intervals.ge(3), Some(10..15));
+    /// assert_eq!(intervals.ge(15), None);
+    /// ```
     pub fn ge(&self, x: T) -> Option<Range<T>> {
         self.intervals
             .range(x..)
@@ -163,6 +229,22 @@ where
             .map(|(&start, &end)| start..end)
     }
 
+    /// `x` 以下の開始点を持つ最後の区間を返す
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use disjoint_intervals::DisjointIntervals;
+    ///
+    /// let mut intervals = DisjointIntervals::<i32>::new();
+    /// intervals.insert(0..5, (), |_, _| ());
+    /// intervals.insert(10..15, (), |_, _| ());
+    ///
+    /// assert_eq!(intervals.le(12), Some(10..15));
+    /// assert_eq!(intervals.le(10), Some(10..15));
+    /// assert_eq!(intervals.le(5), Some(0..5));
+    /// assert_eq!(intervals.le(-1), None);
+    /// ```
     pub fn le(&self, x: T) -> Option<Range<T>> {
         self.intervals
             .range(..=x)
