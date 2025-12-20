@@ -55,6 +55,20 @@ where
     }
 
     /// index 番目の値を返します
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use zarts::SortedSeq;
+    ///
+    /// let seq = SortedSeq::new(vec![4, 16, 9, 1]);
+    /// // 1, 4, 9, 16
+    /// assert_eq!(seq.at(0), Some(&1));
+    /// assert_eq!(seq.at(1), Some(&4));
+    /// assert_eq!(seq[2], 9);
+    /// assert_eq!(seq[3], 16);
+    /// assert_eq!(seq.at(4), None);
+    /// ```
     pub fn at(&self, index: usize) -> Option<&T> {
         self.0.get(index)
     }
