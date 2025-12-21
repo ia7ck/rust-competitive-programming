@@ -49,6 +49,18 @@ jobs:
       - name: Test
         run: cargo test -- --nocapture
 
+  download:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Install oj
+        run: pip3 install --upgrade setuptools wheel && pip3 install online-judge-tools && oj --version
+      - name: Download
+        run: oj download --system https://judge.yosupo.jp/problem/jump_on_tree
+
   oj-test:
     runs-on: ubuntu-latest
     env:
