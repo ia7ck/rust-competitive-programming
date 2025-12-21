@@ -57,11 +57,10 @@ jobs:
         with:
           python-version: '3.x'
       - run: git clone https://github.com/yosupo06/library-checker-problems
-      - run: cd library-checker-problems
       - run: pip3 install colorlog
       - run: ulimit -s unlimited
-      - run: ./generate.py -p unionfind
-      - run: ./generate.py -p jump_on_tree
+      - run: cd library-checker-problems && ./generate.py -p unionfind
+      - run: cd library-checker-problems && ./generate.py -p jump_on_tree
 
   oj-test:
     runs-on: ubuntu-latest
