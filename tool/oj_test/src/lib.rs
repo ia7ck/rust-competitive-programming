@@ -37,7 +37,10 @@ impl OjTestRunner {
         for entry in glob(&args.pattern)? {
             let path = entry?;
             // oj download に失敗するのでスキップ
-            if path.ends_with("cycle_detection.rs") || path.ends_with("scc.rs") {
+            if path.ends_with("cycle_detection.rs")
+                || path.ends_with("scc.rs")
+                || path.ends_with("jump_on_tree.rs")
+            {
                 warn!("skip {} (excluded file)", path.display());
                 continue;
             }
