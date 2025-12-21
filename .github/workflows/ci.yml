@@ -62,7 +62,7 @@ jobs:
       - run: pip3 install colorlog
       - run: ulimit -s unlimited
       - run: cd library-checker-problems && ./generate.py -p unionfind
-      - run: cd library-checker-problems && ./generate.py -p jump_on_tree
+      - run: cd library-checker-problems && ./generate.py -p jump_on_tree --test
 
   oj-test:
     runs-on: ubuntu-latest
