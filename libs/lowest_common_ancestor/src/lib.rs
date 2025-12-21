@@ -18,6 +18,7 @@ use std::collections::VecDeque;
 /// assert_eq!(lca.get(2, 3), 2);
 /// assert_eq!(lca.get(3, 4), 2);
 /// ```
+#[derive(Debug, Clone)]
 pub struct LowestCommonAncestor {
     n: usize,
     ancestor: Vec<Vec<usize>>,
