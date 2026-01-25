@@ -82,18 +82,11 @@ impl ArgCmp {
     /// assert_eq!(south_east.quadrant(), Quadrant::Fourth);
     /// ```
     pub fn quadrant(&self) -> Quadrant {
-        if self.is_lower_half() {
-            if self.x() < 0 {
-                Quadrant::Third
-            } else {
-                Quadrant::Fourth
-            }
-        } else {
-            if self.x() > 0 {
-                Quadrant::First
-            } else {
-                Quadrant::Second
-            }
+        match (self.is_lower_half(), self.x().cmp(&0)) {
+            (false, Ordering::Greater) => Quadrant::First,
+            (false, _) => Quadrant::Second,
+            (true, Ordering::Less) => Quadrant::Third,
+            (true, _) => Quadrant::Fourth,
         }
     }
 }
