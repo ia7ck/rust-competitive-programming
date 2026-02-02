@@ -117,5 +117,16 @@ mod tests {
 
             prop_assert_eq!(items, concat);
         }
+
+        #[test]
+        fn adjacent_runs_differ(items in collection::vec(proptest::num::i32::ANY, 0..=20)) {
+            let rle = RunLength::new(&items).collect::<Vec<_>>();
+
+            for w in rle.windows(2) {
+                let (c0, _) = w[0];
+                let (c1, _) = w[1];
+                prop_assert_ne!(c0, c1);
+            }
+        }
     }
 }
