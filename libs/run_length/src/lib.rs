@@ -71,6 +71,8 @@ where
 
 #[cfg(test)]
 mod tests {
+    use ::proptest::{collection, prelude::*};
+
     use super::RunLength;
 
     #[test]
@@ -101,5 +103,19 @@ mod tests {
         let a = Vec::<i32>::new();
         let mut iter = RunLength::new(&a);
         assert_eq!(iter.next(), None);
+    }
+
+    proptest! {
+        #[test]
+        fn round_trip(items in collection::vec(proptest::char::range('a', 'z'), 0..=20)) {
+            let rle = RunLength::new(&items);
+
+            let concat = rle.fold(Vec::new(), |mut acc, (&c, l)| {
+                acc.append(&mut vec![c; l]);
+                acc
+            });
+
+            prop_assert_eq!(items, concat);
+        }
     }
 }
