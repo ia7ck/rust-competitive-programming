@@ -77,11 +77,9 @@ where
     where
         F: Fn(usize) -> Transition<V>,
     {
-        let log2_max_steps = if max_steps == 0 {
-            0
-        } else {
-            max_steps.ilog2() as usize
-        };
+        assert!(max_steps > 0);
+
+        let log2_max_steps = max_steps.ilog2() as usize;
 
         let mut transitions = Vec::with_capacity(n_state * (log2_max_steps + 1));
         for i in 0..n_state {
@@ -110,6 +108,15 @@ where
             max_steps,
             log2_max_steps,
         }
+    }
+
+    /// 状態`start`から長さ`pow(2, k)`の遷移を返します。
+    pub fn get(&self, start: usize, k: usize) -> &Transition<V> {
+        assert!(start < self.n_state);
+        assert!(k <= self.log2_max_steps);
+
+        let offset = self.n_state * k;
+        &self.transitions[offset + start]
     }
 
     /// 状態`start`から`step`回の遷移、初期値`init`から始めて`f`で畳みこんだ結果を返します。
@@ -190,6 +197,25 @@ mod tests {
         );
     }
 
+    #[test]
+    fn test_get() {
+        let n = 3;
+        let to = vec![1, 2, 0];
+        let doubling = Doubling::new(n, 100, |i| Transition::new(to[i], Sum(1)));
+
+        let t = doubling.get(0, 0);
+        assert_eq!(t.value, Sum(1));
+
+        let t = doubling.get(0, 1);
+        assert_eq!(t.value, Sum(2));
+
+        let t = doubling.get(0, 2);
+        assert_eq!(t.value, Sum(4));
+
+        let t = doubling.get(0, 3);
+        assert_eq!(t.value, Sum(8));
+    }
+
     impl Value for String {
         fn op(&self, other: &Self) -> Self {
             format!("{}{}", self, other)
@@ -199,7 +225,7 @@ mod tests {
     proptest! {
         #[test]
         fn test_fold_associativity(
-            (n_state, max_steps, nexts, values, start, step1, step2) in (1_usize..=10, 0_usize..=100)
+            (n_state, max_steps, nexts, values, start, step1, step2) in (1_usize..=10, 1_usize..=100)
                 .prop_flat_map(|(n_state, max_steps)| {
                     (
                         Just(n_state),
