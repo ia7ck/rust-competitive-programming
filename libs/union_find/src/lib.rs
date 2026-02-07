@@ -186,3 +186,85 @@ impl UnionFind {
         self.groups
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use ::proptest::{collection, prelude::*};
+
+    use super::*;
+
+    #[test]
+    fn test_basic() {
+        // 0 -- 1 -- 2
+        // 3 -- 4
+        let mut uf = UnionFind::new(6);
+        assert!(uf.unite(0, 1).is_some());
+        assert!(uf.unite(1, 2).is_some());
+        assert!(uf.unite(3, 4).is_some());
+
+        assert!(uf.same(0, 1));
+        assert!(uf.same(1, 2));
+        assert!(uf.same(0, 2));
+        assert!(uf.same(3, 4));
+        assert!(!uf.same(0, 3));
+
+        assert_eq!(uf.size(0), 3);
+        assert_eq!(uf.size(3), 2);
+        assert_eq!(uf.size(5), 1);
+        assert_eq!(uf.count_groups(), 3);
+    }
+
+    prop_compose! {
+        fn uf_operations()(n in 1_usize..=20)
+                         (n in Just(n),
+                          operations in collection::vec((0..n, 0..n), 0..=50))
+                         -> (usize, Vec<(usize, usize)>) {
+            (n, operations)
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn unite_makes_same((n, operations) in uf_operations()) {
+            let mut uf = UnionFind::new(n);
+            for (i, j) in operations {
+                uf.unite(i, j);
+                prop_assert!(uf.same(i, j));
+            }
+        }
+
+        #[test]
+        fn same_is_transitive((n, operations) in uf_operations()) {
+            let mut uf = UnionFind::new(n);
+            for (i, j) in operations {
+                uf.unite(i, j);
+            }
+
+            for i in 0..n {
+                for j in 0..n {
+                    for k in 0..n {
+                        if uf.same(i, j) && uf.same(j, k) {
+                            prop_assert!(uf.same(i, k));
+                        }
+                    }
+                }
+            }
+        }
+
+        #[test]
+        fn size_sum_equals_n((n, operations) in uf_operations()) {
+            let mut uf = UnionFind::new(n);
+            for (i, j) in operations {
+                uf.unite(i, j);
+            }
+
+            let mut roots = std::collections::HashSet::new();
+            for i in 0..n {
+                roots.insert(uf.find(i));
+            }
+
+            let total_size: usize = roots.iter().map(|&r| uf.size(r)).sum();
+            prop_assert_eq!(total_size, n);
+        }
+    }
+}
