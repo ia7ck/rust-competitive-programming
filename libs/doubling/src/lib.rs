@@ -113,9 +113,9 @@ where
     }
 
     /// 状態`start`から`step`回の遷移、初期値`init`から始めて`f`で畳みこんだ結果を返します。
-    pub fn fold<A, F>(&self, start: usize, step: usize, init: A, f: F) -> A
+    pub fn fold<A, F>(&self, start: usize, step: usize, init: A, mut f: F) -> A
     where
-        F: Fn(A, &Transition<V>) -> A,
+        F: FnMut(A, &Transition<V>) -> A,
     {
         assert!(start < self.n_state);
         assert!(step <= self.max_steps);
