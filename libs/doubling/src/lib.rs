@@ -77,11 +77,9 @@ where
     where
         F: Fn(usize) -> Transition<V>,
     {
-        let log2_max_steps = if max_steps == 0 {
-            0
-        } else {
-            max_steps.ilog2() as usize
-        };
+        assert!(max_steps > 0);
+
+        let log2_max_steps = max_steps.ilog2() as usize;
 
         let mut transitions = Vec::with_capacity(n_state * (log2_max_steps + 1));
         for i in 0..n_state {
@@ -199,7 +197,7 @@ mod tests {
     proptest! {
         #[test]
         fn test_fold_associativity(
-            (n_state, max_steps, nexts, values, start, step1, step2) in (1_usize..=10, 0_usize..=100)
+            (n_state, max_steps, nexts, values, start, step1, step2) in (1_usize..=10, 1_usize..=100)
                 .prop_flat_map(|(n_state, max_steps)| {
                     (
                         Just(n_state),
