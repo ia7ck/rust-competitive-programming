@@ -110,6 +110,15 @@ where
         }
     }
 
+    /// 状態`start`から長さ`pow(2, k)`の遷移を返します。
+    pub fn get(&self, start: usize, k: usize) -> &Transition<V> {
+        assert!(start < self.n_state);
+        assert!(k <= self.log2_max_steps);
+
+        let offset = self.n_state * k;
+        &self.transitions[offset + start]
+    }
+
     /// 状態`start`から`step`回の遷移、初期値`init`から始めて`f`で畳みこんだ結果を返します。
     pub fn fold<A, F>(&self, start: usize, step: usize, init: A, mut f: F) -> A
     where
@@ -186,6 +195,25 @@ mod tests {
             doubling.fold(0, 4, Sum(0), |acc, t| Sum(acc.0 + t.value.0)),
             Sum(1 + 10 + 100 + 1)
         );
+    }
+
+    #[test]
+    fn test_get() {
+        let n = 3;
+        let to = vec![1, 2, 0];
+        let doubling = Doubling::new(n, 100, |i| Transition::new(to[i], Sum(1)));
+
+        let t = doubling.get(0, 0);
+        assert_eq!(t.value, Sum(1));
+
+        let t = doubling.get(0, 1);
+        assert_eq!(t.value, Sum(2));
+
+        let t = doubling.get(0, 2);
+        assert_eq!(t.value, Sum(4));
+
+        let t = doubling.get(0, 3);
+        assert_eq!(t.value, Sum(8));
     }
 
     impl Value for String {
