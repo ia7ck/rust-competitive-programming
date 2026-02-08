@@ -57,7 +57,7 @@ impl LowestCommonAncestor {
         }
 
         let sentinel = n;
-        let doubling = Doubling::new(n + 1, n - 1, |i| {
+        let doubling = Doubling::new(n + 1, (n - 1).max(1), |i| {
             if i < n {
                 let next = parent[i].unwrap_or(sentinel);
                 Transition::new(next, ())
