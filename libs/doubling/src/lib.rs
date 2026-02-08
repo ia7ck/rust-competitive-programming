@@ -61,6 +61,10 @@ pub trait Value {
     fn op(&self, other: &Self) -> Self;
 }
 
+impl Value for () {
+    fn op(&self, _other: &Self) -> Self {}
+}
+
 impl<V> Doubling<V>
 where
     V: Value,

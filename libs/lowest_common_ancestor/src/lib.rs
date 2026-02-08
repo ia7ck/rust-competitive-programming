@@ -1,5 +1,7 @@
 use std::collections::VecDeque;
 
+use doubling::{Doubling, Transition};
+
 /// 根付き木の LCA です。
 ///
 /// # Examples
@@ -21,8 +23,7 @@ use std::collections::VecDeque;
 #[derive(Debug, Clone)]
 pub struct LowestCommonAncestor {
     n: usize,
-    // ancestor[i][v] := v から根の方向に 2^i 進んだ頂点
-    ancestor: Vec<Vec<Option<usize>>>,
+    doubling: Doubling<()>,
     depth: Vec<usize>,
 }
 
@@ -55,60 +56,62 @@ impl LowestCommonAncestor {
             }
         }
 
-        let table_size = if n == 1 {
-            1
-        } else {
-            // log2(n) の切り上げ
-            n.ilog2() as usize + usize::from(!n.is_power_of_two())
-        };
+        let sentinel = n;
+        let doubling = Doubling::new(n + 1, (n - 1).max(1), |i| {
+            if i < n {
+                let next = parent[i].unwrap_or(sentinel);
+                Transition::new(next, ())
+            } else {
+                Transition::new(sentinel, ())
+            }
+        });
 
-        let mut ancestor = vec![vec![None; n]; table_size];
-        ancestor[0] = parent;
-        for i in 1..table_size {
-            ancestor[i] = (0..n)
-                .map(|v| ancestor[i - 1][v].and_then(|a| ancestor[i - 1][a]))
-                .collect();
-        }
-
-        Self { n, ancestor, depth }
+        Self { n, doubling, depth }
     }
 
     /// `u` と `v` の LCA を返します。
     pub fn get(&self, u: usize, v: usize) -> usize {
         assert!(u < self.n);
         assert!(v < self.n);
-        let (mut u, mut v) = if self.depth[u] >= self.depth[v] {
+
+        if self.n == 1 {
+            assert_eq!(u, 0);
+            assert_eq!(v, 0);
+            return 0;
+        }
+
+        let (u, v) = if self.depth[u] >= self.depth[v] {
             (u, v)
         } else {
             (v, u)
         };
         assert!(self.depth[u] >= self.depth[v]);
 
-        for i in 0..self.ancestor.len() {
-            let depth_diff = self.depth[u] - self.depth[v];
-            if depth_diff == 0 {
-                break;
-            }
-            if depth_diff >> i & 1 == 1 {
-                u = self.ancestor[i][u].unwrap();
-            }
-        }
+        let u = self
+            .doubling
+            .fold(u, self.depth[u] - self.depth[v], u, |_, t| t.next);
+
         assert_eq!(self.depth[u], self.depth[v]);
 
         if u == v {
             return u;
         }
 
-        for i in (0..self.ancestor.len()).rev() {
-            match (self.ancestor[i][u], self.ancestor[i][v]) {
-                (Some(au), Some(av)) if au != av => {
-                    u = au;
-                    v = av;
-                }
-                _ => {}
+        let (mut u, mut v) = (u, v);
+        let log = self.n.ilog2() as usize + usize::from(!self.n.is_power_of_two());
+        for k in (0..log).rev() {
+            let au = self.doubling.get(u, k).next;
+            let av = self.doubling.get(v, k).next;
+            if au != av {
+                u = au;
+                v = av;
             }
         }
-        self.ancestor[0][u].unwrap()
+
+        let lca = self.doubling.get(u, 0).next;
+        assert_ne!(lca, self.n);
+
+        lca
     }
 
     /// `u` と `v` の距離 (頂点間にある辺の数) を返します。
@@ -128,13 +131,10 @@ impl LowestCommonAncestor {
         if k > self.depth[u] {
             return None;
         }
-        let mut u = u;
-        for i in 0..self.ancestor.len() {
-            if k >> i & 1 == 1 {
-                u = self.ancestor[i][u].unwrap();
-            }
-        }
-        Some(u)
+
+        let result = self.doubling.fold(u, k, u, |_, t| t.next);
+        // n is sentinel
+        if result == self.n { None } else { Some(result) }
     }
 }
 
