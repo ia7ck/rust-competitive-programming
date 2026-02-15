@@ -1,39 +1,47 @@
-/// 非負整数を素因数分解です。
-pub trait PrimeFactorization: Sized {
-    /// (素因数, べき) のベクタを返します。
-    ///
-    /// # Examples
-    /// ```
-    /// use prime_factorization::PrimeFactorization;
-    ///
-    /// assert_eq!(2_u32.prime_factorization(), vec![(2, 1)]);
-    /// // 90 = 2 * 3 * 3 * 5
-    /// assert_eq!(90_u32.prime_factorization(), vec![(2, 1), (3, 2), (5, 1)]);
-    /// ```
-    fn prime_factorization(self) -> Vec<(Self, Self)>;
+use least_prime_factors::least_prime_factors;
+
+/// 素因数分解
+pub trait PrimeFactorization<T> {
+    /// x の (素因数, べき) のベクタを返します
+    fn factors(&self, x: T) -> Vec<(T, u32)>;
+}
+
+/// 試し割りによる素因数分解
+#[derive(Debug, Clone)]
+pub struct TrialDivision;
+
+impl TrialDivision {
+    pub fn new() -> Self {
+        Self {}
+    }
 }
 
 macro_rules! impl_prime_factorization {
     ($($t:ty),+) => {
         $(
-            impl PrimeFactorization for $t {
-                fn prime_factorization(self) -> Vec<(Self, Self)> {
-                    let mut res = Vec::new();
-                    let mut n = self;
-                    for k in ((2 as Self)..).take_while(|&k| k.saturating_mul(k) <= self) {
-                        if n % k == 0 {
-                            let mut e = 0;
-                            while n % k == 0 {
-                                e += 1;
-                                n /= k;
-                            }
-                            res.push((k, e));
+            impl PrimeFactorization<$t> for TrialDivision {
+                /// O(sqrt(x)) time
+                fn factors(&self, x: $t) -> Vec<($t, u32)> {
+                    let mut p_exp = Vec::new();
+                    let mut y = x;
+                    for p in 2.. {
+                        // p * p > x
+                        if p > x / p {
+                            break;
+                        }
+                        let mut exp = 0;
+                        while y % p == 0 {
+                            exp += 1;
+                            y /= p;
+                        }
+                        if exp > 0 {
+                            p_exp.push((p, exp));
                         }
                     }
-                    if n > 1 {
-                        res.push((n, 1));
+                    if y > 1 {
+                        p_exp.push((y, 1));
                     }
-                    res
+                    p_exp
                 }
             }
         )+
@@ -42,25 +50,81 @@ macro_rules! impl_prime_factorization {
 
 impl_prime_factorization!(usize, u32, u64);
 
+/// least prime factors による素因数分解
+#[derive(Debug, Clone)]
+pub struct ByLeastPrimeFactors {
+    lpf: Vec<usize>,
+}
+
+impl ByLeastPrimeFactors {
+    /// 素因数分解の前計算として [least prime factors](least_prime_factors::least_prime_factors) を求めます。
+    pub fn new(n: usize) -> Self {
+        let lpf = least_prime_factors(n);
+        Self { lpf }
+    }
+}
+
+impl PrimeFactorization<usize> for ByLeastPrimeFactors {
+    /// O(log(x)) time
+    fn factors(&self, x: usize) -> Vec<(usize, u32)> {
+        assert!(x < self.lpf.len());
+        let mut p_exp = Vec::new();
+        let mut x = x;
+        while x > 1 {
+            let p = self.lpf[x];
+            let mut exp = 0;
+            while x % p == 0 {
+                exp += 1;
+                x /= p;
+            }
+            p_exp.push((p, exp));
+        }
+        p_exp
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::PrimeFactorization;
+    use crate::{ByLeastPrimeFactors, PrimeFactorization, TrialDivision};
 
     #[test]
-    fn small_test() {
-        assert_eq!(0_u32.prime_factorization(), vec![]);
-        assert_eq!(1_u32.prime_factorization(), vec![]);
-        assert_eq!(2_u32.prime_factorization(), vec![(2, 1)]);
-        assert_eq!(3_u32.prime_factorization(), vec![(3, 1)]);
-        assert_eq!(4_u32.prime_factorization(), vec![(2, 2)]);
+    fn small_trial_division() {
+        let trial_div = TrialDivision::new();
+        assert_eq!(trial_div.factors(0_u32), vec![]);
+        assert_eq!(trial_div.factors(1_u32), vec![]);
+        assert_eq!(trial_div.factors(2_u32), vec![(2, 1)]);
+        assert_eq!(trial_div.factors(3_u32), vec![(3, 1)]);
+        assert_eq!(trial_div.factors(4_u32), vec![(2, 2)]);
     }
 
     #[test]
-    fn test() {
-        for n in 1..1000 {
-            let f = (n as u32).prime_factorization();
+    fn small_least_prime_factors() {
+        let lpf = ByLeastPrimeFactors::new(10);
+        assert_eq!(lpf.factors(0_usize), vec![]);
+        assert_eq!(lpf.factors(1_usize), vec![]);
+        assert_eq!(lpf.factors(2_usize), vec![(2, 1)]);
+        assert_eq!(lpf.factors(3_usize), vec![(3, 1)]);
+        assert_eq!(lpf.factors(4_usize), vec![(2, 2)]);
+    }
+
+    #[test]
+    fn test_trial_division() {
+        let trial_div = TrialDivision::new();
+        for n in 1_u32..=1000 {
             let mut res = 1;
-            for (p, e) in f {
+            for (p, e) in trial_div.factors(n) {
+                res *= p.pow(e);
+            }
+            assert_eq!(res, n);
+        }
+    }
+
+    #[test]
+    fn test_least_prime_factors() {
+        let lpf = ByLeastPrimeFactors::new(1000);
+        for n in 1_usize..=1000 {
+            let mut res = 1;
+            for (p, e) in lpf.factors(n) {
                 res *= p.pow(e);
             }
             assert_eq!(res, n);
