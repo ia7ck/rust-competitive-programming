@@ -16,6 +16,12 @@ impl TrialDivision {
     }
 }
 
+impl Default for TrialDivision {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 macro_rules! impl_prime_factorization {
     ($($t:ty),+) => {
         $(
