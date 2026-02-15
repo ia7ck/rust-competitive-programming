@@ -84,6 +84,10 @@ impl ByLeastPrimeFactors {
 }
 
 impl PrimeFactorization<usize> for ByLeastPrimeFactors {
+    /// # Panics
+    ///
+    /// if `x` > `n`
+    ///
     /// O(log(x)) time
     fn factors(&self, x: usize) -> Vec<(usize, u32)> {
         assert!(x < self.lpf.len());
