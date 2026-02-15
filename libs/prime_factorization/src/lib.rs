@@ -1,6 +1,19 @@
 use least_prime_factors::least_prime_factors;
 
 /// 素因数分解
+///
+/// # Examples
+///
+/// ```
+/// use prime_factorization::{ByLeastPrimeFactors, PrimeFactorization, TrialDivision};
+///
+/// let trial_div = TrialDivision::new();
+/// let lpf = ByLeastPrimeFactors::new(90);
+///
+/// // 90 = 2 * 3 * 3 * 5
+/// assert_eq!(trial_div.factors(90_u32), vec![(2, 1), (3, 2), (5, 1)]);
+/// assert_eq!(lpf.factors(90), vec![(2, 1), (3, 2), (5, 1)]);
+/// ```
 pub trait PrimeFactorization<T> {
     /// x の (素因数, べき) のベクタを返します
     fn factors(&self, x: T) -> Vec<(T, u32)>;
