@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":["PrimeFactorization"]};
+window.SIDEBAR_ITEMS = {"struct":["ByLeastPrimeFactors","TrialDivision"],"trait":["PrimeFactorization"]};
