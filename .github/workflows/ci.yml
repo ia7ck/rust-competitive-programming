@@ -49,6 +49,21 @@ jobs:
       - name: Test
         run: cargo test -- --nocapture
 
+  download:
+    runs-on: ubuntu-latest
+    env:
+      CXX: g++-12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - run: git clone https://github.com/yosupo06/library-checker-problems
+      - run: pip3 install colorlog
+      - run: ulimit -s unlimited
+      - run: cd library-checker-problems && ./generate.py -p unionfind
+      - run: cd library-checker-problems && ./generate.py -p jump_on_tree --test
+
   oj-test:
     runs-on: ubuntu-latest
     env:
