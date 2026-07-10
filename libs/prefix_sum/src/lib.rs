@@ -72,6 +72,8 @@ where
     }
 
     /// 入力を prefix sum に変換します。
+    ///
+    /// 計算量は O(N * ∏ D_i) です。N は次元数、D_i は各軸の長さです。
     pub fn build(mut self) -> PrefixSum<T> {
         for axis in 0..self.shape.len() {
             let stride = self.strides[axis];
@@ -111,6 +113,8 @@ where
     /// 各軸の半開区間 `ranges` の和を返します。
     ///
     /// 空区間を含む場合は零元を返します。
+    ///
+    /// 計算量は O(N * 2^N) です。N は次元数です。
     ///
     /// # Panics
     ///
@@ -198,6 +202,8 @@ where
     }
 
     /// 入力を prefix sum に変換します。
+    ///
+    /// 計算量は O(length) です。
     pub fn build(self) -> PrefixSum1D<T> {
         PrefixSum1D {
             inner: self.inner.build(),
@@ -215,6 +221,8 @@ where
     T: PrefixSumValue,
 {
     /// 指定した半開区間の和を返します。
+    ///
+    /// 計算量は O(1) です。
     pub fn sum(&self, range: Range<usize>) -> T {
         self.inner.sum(&[range])
     }
@@ -242,6 +250,8 @@ where
     }
 
     /// 入力を prefix sum に変換します。
+    ///
+    /// 計算量は O(height * width) です。
     pub fn build(self) -> PrefixSum2D<T> {
         PrefixSum2D {
             inner: self.inner.build(),
@@ -259,6 +269,8 @@ where
     T: PrefixSumValue,
 {
     /// 指定した行・列の半開区間の和を返します。
+    ///
+    /// 計算量は O(1) です。
     pub fn sum(&self, rows: Range<usize>, columns: Range<usize>) -> T {
         self.inner.sum(&[rows, columns])
     }
