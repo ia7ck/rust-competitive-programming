@@ -43,8 +43,7 @@ where
     ///
     /// # Panics
     ///
-    /// `shape` が空、いずれかの軸長が 0、または要素数が `usize` に収まらない場合に
-    /// panic します。
+    /// `shape` が空、いずれかの軸長が 0、または要素数が `usize` に収まらない場合に panic
     pub fn new(shape: &[usize]) -> Self {
         assert!(!shape.is_empty(), "shape must have at least one dimension");
         assert!(
@@ -65,7 +64,6 @@ where
     /// # Panics
     ///
     /// `index` の次元数が shape と異なる、またはいずれかの座標が範囲外の場合に panic
-    /// します。
     pub fn set(&mut self, index: &[usize], value: T) {
         let flat_index = flat_index(&self.shape, &self.strides, index);
         self.values[flat_index] = value;
@@ -73,7 +71,11 @@ where
 
     /// 入力を prefix sum に変換します。
     ///
-    /// 計算量は O(N * ∏ D_i) です。N は次元数、D_i は各軸の長さです。
+    /// # 計算量
+    ///
+    /// O(N * ∏ D_i)
+    ///
+    /// N は次元数、D_i は各軸の長さ
     pub fn build(mut self) -> PrefixSum<T> {
         for axis in 0..self.shape.len() {
             let stride = self.strides[axis];
@@ -114,12 +116,15 @@ where
     ///
     /// 空区間を含む場合は零元を返します。
     ///
-    /// 計算量は O(N * 2^N) です。N は次元数です。
+    /// # 計算量
+    ///
+    /// O(N * 2^N)
+    ///
+    /// N は次元数
     ///
     /// # Panics
     ///
-    /// `ranges` の次元数が shape と異なる、いずれかの range が逆順、または範囲外の
-    /// 場合に panic します。
+    /// `ranges` の次元数が shape と異なる、いずれかの range が逆順、または範囲外の場合に panic
     pub fn sum(&self, ranges: &[Range<usize>]) -> T {
         assert_eq!(
             ranges.len(),
@@ -203,7 +208,9 @@ where
 
     /// 入力を prefix sum に変換します。
     ///
-    /// 計算量は O(length) です。
+    /// # 計算量
+    ///
+    /// O(length)
     pub fn build(self) -> PrefixSum1D<T> {
         PrefixSum1D {
             inner: self.inner.build(),
@@ -222,7 +229,9 @@ where
 {
     /// 指定した半開区間の和を返します。
     ///
-    /// 計算量は O(1) です。
+    /// # 計算量
+    ///
+    /// O(1)
     pub fn sum(&self, range: Range<usize>) -> T {
         self.inner.sum(&[range])
     }
@@ -251,7 +260,9 @@ where
 
     /// 入力を prefix sum に変換します。
     ///
-    /// 計算量は O(height * width) です。
+    /// # 計算量
+    ///
+    /// O(height * width)
     pub fn build(self) -> PrefixSum2D<T> {
         PrefixSum2D {
             inner: self.inner.build(),
@@ -270,7 +281,9 @@ where
 {
     /// 指定した行・列の半開区間の和を返します。
     ///
-    /// 計算量は O(1) です。
+    /// # 計算量
+    ///
+    /// O(1)
     pub fn sum(&self, rows: Range<usize>, columns: Range<usize>) -> T {
         self.inner.sum(&[rows, columns])
     }
@@ -302,9 +315,6 @@ fn flat_index(shape: &[usize], strides: &[usize], index: &[usize]) -> usize {
 }
 
 /// Prefix sum の要素型です。
-///
-/// `zero` は加法単位元であり、`add_assign` と `sub_assign` はそれぞれ加算と減算を
-/// 行う必要があります。
 pub trait PrefixSumValue: Clone {
     fn zero() -> Self;
     fn add_assign(&mut self, rhs: &Self);
