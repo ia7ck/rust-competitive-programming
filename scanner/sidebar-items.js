@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":["scan"],"struct":["Scanner"]};
+window.SIDEBAR_ITEMS = {"macro":[["scan",1]],"struct":["Scanner"]};

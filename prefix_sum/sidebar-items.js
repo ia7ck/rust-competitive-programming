@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["PrefixSum","PrefixSum1D","PrefixSum1DBuilder","PrefixSum2D","PrefixSum2DBuilder","PrefixSumBuilder"],"trait":["PrefixSumValue"]};
