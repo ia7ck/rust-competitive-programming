@@ -72,7 +72,9 @@ jobs:
     - name: Release build
       run: cargo build --release --examples
     - name: oj test
-      run: cargo run --release --bin oj_test
+      run: |
+        ulimit -s unlimited
+        cargo run --release --bin oj_test
 
   publish-doc:
     runs-on: ubuntu-latest
