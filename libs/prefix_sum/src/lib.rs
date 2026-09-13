@@ -26,7 +26,7 @@
 //! assert_eq!(prefix_sum.sum(&[0..2, 1..3, 0..4]), 10);
 //! ```
 
-use std::ops::Range;
+use std::ops::{Bound, Range, RangeBounds};
 
 /// 任意次元 prefix sum の入力を構築します。
 pub struct PrefixSumBuilder<T> {
@@ -59,6 +59,12 @@ where
         }
     }
 
+    /// `index` の要素を返します。
+    pub fn get(&self, index: &[usize]) -> &T {
+        let flat_index = flat_index(&self.shape, &self.strides, index);
+        &self.values[flat_index]
+    }
+
     /// `index` の要素を `value` で上書きします。
     ///
     /// # Panics
@@ -67,6 +73,12 @@ where
     pub fn set(&mut self, index: &[usize], value: T) {
         let flat_index = flat_index(&self.shape, &self.strides, index);
         self.values[flat_index] = value;
+    }
+
+    /// `index` の要素を `f` で更新します。
+    pub fn update(&mut self, index: &[usize], f: impl FnOnce(&T) -> T) {
+        let flat_index = flat_index(&self.shape, &self.strides, index);
+        self.values[flat_index] = f(&self.values[flat_index]);
     }
 
     /// 入力を prefix sum に変換します。
@@ -201,9 +213,20 @@ where
         }
     }
 
+    /// 指定した位置の要素を返します。
+    /// `index` が範囲外の場合に panic
+    pub fn get(&self, index: usize) -> &T {
+        self.inner.get(&[index])
+    }
+
     /// 指定した位置の要素を値で上書きします。
     pub fn set(&mut self, index: usize, value: T) {
         self.inner.set(&[index], value);
+    }
+
+    /// 指定した位置の要素を `f` で更新します。
+    pub fn update(&mut self, index: usize, f: impl FnOnce(&T) -> T) {
+        self.inner.update(&[index], f);
     }
 
     /// 入力を prefix sum に変換します。
@@ -227,13 +250,13 @@ impl<T> PrefixSum1D<T>
 where
     T: PrefixSumValue,
 {
-    /// 指定した半開区間の和を返します。
+    /// 指定した区間の和を返します。
     ///
     /// # 計算量
     ///
     /// O(1)
-    pub fn sum(&self, range: Range<usize>) -> T {
-        self.inner.sum(&[range])
+    pub fn sum(&self, range: impl RangeBounds<usize>) -> T {
+        self.inner.sum(&[to_range(range, self.inner.shape[0])])
     }
 }
 
@@ -253,9 +276,19 @@ where
         }
     }
 
+    /// 指定した行・列の要素を返します。
+    pub fn get(&self, row: usize, column: usize) -> &T {
+        self.inner.get(&[row, column])
+    }
+
     /// 指定した行・列の要素を値で上書きします。
     pub fn set(&mut self, row: usize, column: usize, value: T) {
         self.inner.set(&[row, column], value);
+    }
+
+    /// 指定した行・列の要素を `f` で更新します。
+    pub fn update(&mut self, row: usize, column: usize, f: impl FnOnce(&T) -> T) {
+        self.inner.update(&[row, column], f);
     }
 
     /// 入力を prefix sum に変換します。
@@ -279,14 +312,30 @@ impl<T> PrefixSum2D<T>
 where
     T: PrefixSumValue,
 {
-    /// 指定した行・列の半開区間の和を返します。
+    /// 指定した行・列の区間の和を返します。
     ///
     /// # 計算量
     ///
     /// O(1)
-    pub fn sum(&self, rows: Range<usize>, columns: Range<usize>) -> T {
+    pub fn sum(&self, rows: impl RangeBounds<usize>, columns: impl RangeBounds<usize>) -> T {
+        let rows = to_range(rows, self.inner.shape[0]);
+        let columns = to_range(columns, self.inner.shape[1]);
         self.inner.sum(&[rows, columns])
     }
+}
+
+fn to_range(range: impl RangeBounds<usize>, length: usize) -> Range<usize> {
+    let start = match range.start_bound() {
+        Bound::Included(&start) => start,
+        Bound::Excluded(&start) => start.checked_add(1).expect("range start overflows usize"),
+        Bound::Unbounded => 0,
+    };
+    let end = match range.end_bound() {
+        Bound::Included(&end) => end.checked_add(1).expect("range end overflows usize"),
+        Bound::Excluded(&end) => end,
+        Bound::Unbounded => length,
+    };
+    start..end
 }
 
 fn strides_and_len(shape: &[usize]) -> (Vec<usize>, usize) {
