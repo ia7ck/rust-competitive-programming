@@ -26,7 +26,7 @@
 //! assert_eq!(prefix_sum.sum(&[0..2, 1..3, 0..4]), 10);
 //! ```
 
-use std::ops::Range;
+use std::ops::{Bound, Range, RangeBounds};
 
 /// 任意次元 prefix sum の入力を構築します。
 pub struct PrefixSumBuilder<T> {
@@ -227,13 +227,13 @@ impl<T> PrefixSum1D<T>
 where
     T: PrefixSumValue,
 {
-    /// 指定した半開区間の和を返します。
+    /// 指定した区間の和を返します。
     ///
     /// # 計算量
     ///
     /// O(1)
-    pub fn sum(&self, range: Range<usize>) -> T {
-        self.inner.sum(&[range])
+    pub fn sum(&self, range: impl RangeBounds<usize>) -> T {
+        self.inner.sum(&[to_range(range, self.inner.shape[0])])
     }
 }
 
@@ -279,14 +279,30 @@ impl<T> PrefixSum2D<T>
 where
     T: PrefixSumValue,
 {
-    /// 指定した行・列の半開区間の和を返します。
+    /// 指定した行・列の区間の和を返します。
     ///
     /// # 計算量
     ///
     /// O(1)
-    pub fn sum(&self, rows: Range<usize>, columns: Range<usize>) -> T {
+    pub fn sum(&self, rows: impl RangeBounds<usize>, columns: impl RangeBounds<usize>) -> T {
+        let rows = to_range(rows, self.inner.shape[0]);
+        let columns = to_range(columns, self.inner.shape[1]);
         self.inner.sum(&[rows, columns])
     }
+}
+
+fn to_range(range: impl RangeBounds<usize>, length: usize) -> Range<usize> {
+    let start = match range.start_bound() {
+        Bound::Included(&start) => start,
+        Bound::Excluded(&start) => start.checked_add(1).expect("range start overflows usize"),
+        Bound::Unbounded => 0,
+    };
+    let end = match range.end_bound() {
+        Bound::Included(&end) => end.checked_add(1).expect("range end overflows usize"),
+        Bound::Excluded(&end) => end,
+        Bound::Unbounded => length,
+    };
+    start..end
 }
 
 fn strides_and_len(shape: &[usize]) -> (Vec<usize>, usize) {
