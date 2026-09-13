@@ -59,6 +59,12 @@ where
         }
     }
 
+    /// `index` の要素を返します。
+    pub fn get(&self, index: &[usize]) -> &T {
+        let flat_index = flat_index(&self.shape, &self.strides, index);
+        &self.values[flat_index]
+    }
+
     /// `index` の要素を `value` で上書きします。
     ///
     /// # Panics
@@ -67,6 +73,12 @@ where
     pub fn set(&mut self, index: &[usize], value: T) {
         let flat_index = flat_index(&self.shape, &self.strides, index);
         self.values[flat_index] = value;
+    }
+
+    /// `index` の要素を `f` で更新します。
+    pub fn update(&mut self, index: &[usize], f: impl FnOnce(&T) -> T) {
+        let flat_index = flat_index(&self.shape, &self.strides, index);
+        self.values[flat_index] = f(&self.values[flat_index]);
     }
 
     /// 入力を prefix sum に変換します。
@@ -201,9 +213,20 @@ where
         }
     }
 
+    /// 指定した位置の要素を返します。
+    /// `index` が範囲外の場合に panic
+    pub fn get(&self, index: usize) -> &T {
+        self.inner.get(&[index])
+    }
+
     /// 指定した位置の要素を値で上書きします。
     pub fn set(&mut self, index: usize, value: T) {
         self.inner.set(&[index], value);
+    }
+
+    /// 指定した位置の要素を `f` で更新します。
+    pub fn update(&mut self, index: usize, f: impl FnOnce(&T) -> T) {
+        self.inner.update(&[index], f);
     }
 
     /// 入力を prefix sum に変換します。
@@ -253,9 +276,19 @@ where
         }
     }
 
+    /// 指定した行・列の要素を返します。
+    pub fn get(&self, row: usize, column: usize) -> &T {
+        self.inner.get(&[row, column])
+    }
+
     /// 指定した行・列の要素を値で上書きします。
     pub fn set(&mut self, row: usize, column: usize, value: T) {
         self.inner.set(&[row, column], value);
+    }
+
+    /// 指定した行・列の要素を `f` で更新します。
+    pub fn update(&mut self, row: usize, column: usize, f: impl FnOnce(&T) -> T) {
+        self.inner.update(&[row, column], f);
     }
 
     /// 入力を prefix sum に変換します。
