@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use anyhow::{Context, Result};
@@ -112,6 +112,7 @@ fn download_remote_repository() -> Result<std::path::PathBuf> {
 }
 
 struct CrateInfo {
+    source_path: PathBuf,
     content: String,
     dependencies: Vec<String>,
     external_dependencies: Vec<String>,
@@ -130,6 +131,10 @@ fn list_available_crates(crates: &HashMap<String, CrateInfo>) -> String {
 }
 
 fn bundle_crate(crate_name: &str, workspace_path: &Path) -> Result<String> {
+    let repository_root = PathBuf::from(git_rev_parse(workspace_path, "--show-toplevel")?)
+        .canonicalize()
+        .context("Failed to resolve repository root")?;
+    let sha = git_rev_parse(workspace_path, "HEAD^{commit}")?;
     let libs_path = workspace_path.join("libs");
 
     let mut crates = HashMap::new();
@@ -152,6 +157,10 @@ fn bundle_crate(crate_name: &str, workspace_path: &Path) -> Result<String> {
     let mut bundled_code = String::new();
     bundled_code.push_str("// Bundled\n");
 
+    bundled_code.push_str(&format!(
+        "// {}\n",
+        source_url(&target_crate_info.source_path, &repository_root, &sha)?
+    ));
     bundled_code.push_str("#[rustfmt::skip]\n");
     bundled_code.push_str("#[allow(unused)]\n");
     bundled_code.push_str(&format!("mod {} {{\n", crate_name));
@@ -188,6 +197,37 @@ fn bundle_crate(crate_name: &str, workspace_path: &Path) -> Result<String> {
     bundled_code.push_str("}\n");
 
     Ok(bundled_code)
+}
+
+fn git_rev_parse(workspace_path: &Path, revision: &str) -> Result<String> {
+    let output = Command::new("git")
+        .current_dir(workspace_path)
+        .args(["rev-parse", revision])
+        .output()
+        .context("Failed to run git rev-parse")?;
+    if !output.status.success() {
+        anyhow::bail!(
+            "Git rev-parse {} failed: {}",
+            revision,
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+    Ok(String::from_utf8(output.stdout)?.trim().to_string())
+}
+
+fn source_url(source_path: &Path, repository_root: &Path, sha: &str) -> Result<String> {
+    let source_path = source_path.canonicalize()?;
+    let relative_path = source_path
+        .strip_prefix(repository_root)
+        .context("Source file is outside the repository")?;
+    let relative_path = relative_path
+        .to_str()
+        .context("Source path is not valid UTF-8")?
+        .replace(std::path::MAIN_SEPARATOR, "/");
+    Ok(format!(
+        "https://github.com/ia7ck/rust-competitive-programming/blob/{}/{}",
+        sha, relative_path
+    ))
 }
 
 fn collect_crates(libs_path: &Path, crates: &mut HashMap<String, CrateInfo>) -> Result<()> {
@@ -240,6 +280,7 @@ fn collect_crates(libs_path: &Path, crates: &mut HashMap<String, CrateInfo>) -> 
                         crates.insert(
                             package.name.clone(),
                             CrateInfo {
+                                source_path: lib_path,
                                 content: lib_content,
                                 dependencies,
                                 external_dependencies,
@@ -498,6 +539,7 @@ pub fn world() {}"#;
         crates.insert(
             "crate_a".to_string(),
             CrateInfo {
+                source_path: PathBuf::from("libs/crate_a/src/lib.rs"),
                 content: "pub fn a() {}".to_string(),
                 dependencies: vec![],
                 external_dependencies: vec![],
@@ -506,6 +548,7 @@ pub fn world() {}"#;
         crates.insert(
             "crate_b".to_string(),
             CrateInfo {
+                source_path: PathBuf::from("libs/crate_b/src/lib.rs"),
                 content: "pub fn b() {}".to_string(),
                 dependencies: vec![],
                 external_dependencies: vec![],
