@@ -16,7 +16,7 @@ fn main() -> Result<()> {
         args.workspace.into()
     };
 
-    let bundled_code = bundle_crate(&args.crate_name, &workspace_path)
+    let bundled_code = bundle_crate(&args.crate_name, &workspace_path, args.no_source_url)
         .with_context(|| format!("Failed to bundle crate '{}'", args.crate_name))?;
 
     if args.skip_compile {
@@ -72,6 +72,10 @@ struct Args {
     /// Use remote repository (https://github.com/ia7ck/rust-competitive-programming)
     #[clap(long, conflicts_with = "workspace")]
     remote: bool,
+
+    /// Omit the source URL
+    #[clap(long)]
+    no_source_url: bool,
 
     /// Skip compilation check
     #[clap(long)]
@@ -130,11 +134,7 @@ fn list_available_crates(crates: &HashMap<String, CrateInfo>) -> String {
     result
 }
 
-fn bundle_crate(crate_name: &str, workspace_path: &Path) -> Result<String> {
-    let repository_root = PathBuf::from(git_rev_parse(workspace_path, "--show-toplevel")?)
-        .canonicalize()
-        .context("Failed to resolve repository root")?;
-    let sha = git_rev_parse(workspace_path, "HEAD^{commit}")?;
+fn bundle_crate(crate_name: &str, workspace_path: &Path, no_source_url: bool) -> Result<String> {
     let libs_path = workspace_path.join("libs");
 
     let mut crates = HashMap::new();
@@ -157,10 +157,16 @@ fn bundle_crate(crate_name: &str, workspace_path: &Path) -> Result<String> {
     let mut bundled_code = String::new();
     bundled_code.push_str("// Bundled\n");
 
-    bundled_code.push_str(&format!(
-        "// {}\n",
-        source_url(&target_crate_info.source_path, &repository_root, &sha)?
-    ));
+    if !no_source_url {
+        let repository_root = PathBuf::from(git_rev_parse(workspace_path, "--show-toplevel")?)
+            .canonicalize()
+            .context("Failed to resolve repository root")?;
+        let sha = git_rev_parse(workspace_path, "HEAD^{commit}")?;
+        bundled_code.push_str(&format!(
+            "// {}\n",
+            source_url(&target_crate_info.source_path, &repository_root, &sha)?
+        ));
+    }
     bundled_code.push_str("#[rustfmt::skip]\n");
     bundled_code.push_str("#[allow(unused)]\n");
     bundled_code.push_str(&format!("mod {} {{\n", crate_name));
