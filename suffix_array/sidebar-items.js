@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["lcp_array","suffix_array"]};
